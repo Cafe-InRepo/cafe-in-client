@@ -35,6 +35,14 @@ const _nav = [
       text: 'NEW',
     },
   },
+
+  //menu
+  {
+    component: CNavItem,
+    name: 'Menu',
+    to: '/menu',
+    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+  },
   //tables
   {
     component: CNavGroup,

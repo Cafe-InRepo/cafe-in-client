@@ -6,6 +6,11 @@ const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const UsersList = React.lazy(() => import('./views/users/usersTable'))
 const CreateUser = React.lazy(() => import('./views/users/createUser'))
 
+//menu
+const DisplayMenu = React.lazy(() => import('./views/menu/DisplayMenu'))
+const MenuCategories = React.lazy(() => import('./views/menu/categoryAccordion'))
+const CategoriDetails = React.lazy(() => import('./views/menu/CategoryDetails'))
+
 //tables
 const TablesList = React.lazy(() => import('./views/Tables/TablesList'))
 
@@ -116,6 +121,10 @@ const getRoutesByRole = (role) => {
     ...commonRoutes,
     { path: '/users/usersList', name: 'Users', element: UsersList },
     { path: '/users/createUser', name: 'Users', element: CreateUser },
+    { path: '/menu', name: 'Menu', element: DisplayMenu },
+    { path: '/menu/categories', name: 'Menu', element: MenuCategories },
+    { path: '/menu/categories/:categoryId', name: 'Menu', element: CategoriDetails },
+
     // ...other admin-specific routes
   ]
 
