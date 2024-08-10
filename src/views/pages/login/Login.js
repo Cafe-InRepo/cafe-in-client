@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   CButton,
   CCard,
@@ -17,38 +17,39 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
-} from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilLockLocked, cilUser } from '@coreui/icons';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext';
-import axios from 'axios';
+} from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilLockLocked, cilUser } from '@coreui/icons'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../../context/AuthContext'
+import axios from 'axios'
+import { BaseUrl } from '../../../helpers/BaseUrl'
 
 const Login = () => {
-  const navigate = useNavigate();
-  const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [modalVisible, setModalVisible] = useState(false);
+  const navigate = useNavigate()
+  const { login } = useAuth()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [modalVisible, setModalVisible] = useState(false)
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:3123/auth/login', {
+      const response = await axios.post(`${BaseUrl}/auth/login`, {
         email,
         password,
-      });
+      })
 
-      const { token } = response.data;
-      localStorage.setItem('token', token);
-      login(token); // Update authentication state
-      navigate('/'); // Redirect to admin page
+      const { token } = response.data
+      localStorage.setItem('token', token)
+      login(token) // Update authentication state
+      navigate('/') // Redirect to admin page
     } catch (err) {
-      setError('Invalid email or password');
-      setModalVisible(true);
-      console.error(err);
+      setError('Invalid email or password')
+      setModalVisible(true)
+      console.error(err)
     }
-  };
+  }
 
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
@@ -132,7 +133,7 @@ const Login = () => {
         </CModalFooter>
       </CModal>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login
