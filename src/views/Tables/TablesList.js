@@ -17,6 +17,7 @@ import {
   CBadge,
   CInputGroup,
   CFormInput,
+  CForm,
 } from '@coreui/react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
@@ -32,33 +33,34 @@ const TablesDashboard = () => {
   const [showModal, setShowModal] = useState(false)
   const [modalMessage, setModalMessage] = useState('')
   const [modalError, setModalError] = useState(false)
+  const [showCreateModal, setShowCreateModal] = useState(false) // State for create table modal
+  const [tableNumber, setTableNumber] = useState('') // State for table number input
   const navigate = useNavigate()
+  const fetchTables = async () => {
+    setLoading(true)
+    try {
+      const token = localStorage.getItem('token')
+      const response = await axios.get(`${BaseUrl}/tables`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
 
-  useEffect(() => {
-    const fetchTables = async () => {
-      setLoading(true)
-      try {
-        const token = localStorage.getItem('token')
-        const response = await axios.get(`${BaseUrl}/tables`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+      // Calculate total price for each table based on orders
+      const tablesWithTotalPrice = response.data.map((table) => {
+        const totalPrice = table.orders.reduce((acc, order) => acc + order.totalPrice, 0)
+        return { ...table, totalPrice }
+      })
 
-        // Calculate total price for each table based on orders
-        const tablesWithTotalPrice = response.data.map((table) => {
-          const totalPrice = table.orders.reduce((acc, order) => acc + order.totalPrice, 0)
-          return { ...table, totalPrice }
-        })
-
-        setTables(tablesWithTotalPrice)
-        console.log(tablesWithTotalPrice)
-      } catch (err) {
-        setError('Error fetching tables')
-        console.error(err)
-      }
-      setLoading(false)
+      setTables(tablesWithTotalPrice)
+      console.log(tablesWithTotalPrice)
+    } catch (err) {
+      setError('Error fetching tables')
+      console.error(err)
     }
+    setLoading(false)
+  }
+  useEffect(() => {
     fetchTables()
   }, [])
 
@@ -70,6 +72,38 @@ const TablesDashboard = () => {
     setShowModal(false)
   }
 
+  const handleCreateTable = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      const token = localStorage.getItem('token')
+      const response = await axios.post(
+        `${BaseUrl}/tables`,
+        { number: tableNumber },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      setModalMessage('Table created successfully')
+      setModalError(false)
+      setShowCreateModal(false)
+      setTableNumber('') // Reset the table number input
+      fetchTables() // Refresh the tables list
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.error) {
+        setModalMessage(err.response.data.error) // Display the error message from the server
+      } else {
+        setModalMessage('Error creating table')
+      }
+      setModalError(true)
+      console.error(err)
+    }
+    setLoading(false)
+    setShowModal(true)
+  }
+
   const filteredTables = tables.filter((table) => table.number.toString().includes(searchTerm))
 
   return (
@@ -77,8 +111,13 @@ const TablesDashboard = () => {
       <CRow>
         <CCol xs={12}>
           <CCard className="mb-4">
-            <CCardHeader>
-              <strong>Tables</strong> <small>with Unpaid Orders</small>
+            <CCardHeader className="d-flex justify-content-between align-items-center">
+              <div>
+                <strong>Tables</strong> <small>with Unpaid Orders</small>
+              </div>
+              <CButton color="primary" onClick={() => setShowCreateModal(true)}>
+                Create Table
+              </CButton>
             </CCardHeader>
             <CCardBody>
               <CInputGroup className="mb-3">
@@ -103,7 +142,11 @@ const TablesDashboard = () => {
                       <CCardBody>
                         <CCardTitle>Table {table.number}</CCardTitle>
                         {table.unpaidOrders && (
-                          <CBadge color="warning" className="ms-2">
+                          <CBadge
+                            color="warning"
+                            className="ms-2"
+                            style={{ position: 'absolute', top: 10, right: 10 }}
+                          >
                             Unpaid Orders
                           </CBadge>
                         )}
@@ -123,6 +166,28 @@ const TablesDashboard = () => {
         </CCol>
       </CRow>
 
+      {/* Create Table Modal */}
+      <CModal visible={showCreateModal} onClose={() => setShowCreateModal(false)}>
+        <CModalHeader>
+          <CModalTitle>Create New Table</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CForm onSubmit={handleCreateTable}>
+            <CFormInput
+              type="number"
+              placeholder="Enter table number"
+              value={tableNumber}
+              onChange={(e) => setTableNumber(e.target.value)}
+              required
+            />
+            <CButton type="submit" color="primary" style={{ marginTop: '10px' }}>
+              Create Table
+            </CButton>
+          </CForm>
+        </CModalBody>
+      </CModal>
+
+      {/* Success/Error Modal */}
       <CModal visible={showModal} onClose={handleCloseModal}>
         <CModalHeader>
           <CModalTitle>{modalError ? 'Error' : 'Success'}</CModalTitle>

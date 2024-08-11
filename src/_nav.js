@@ -55,11 +55,6 @@ const _nav = [
         name: 'Tables List',
         to: '/tables/tablesList',
       },
-      {
-        component: CNavItem,
-        name: 'Create Table',
-        to: '/tables/createTable',
-      },
     ],
   },
   //users

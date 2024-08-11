@@ -458,7 +458,7 @@ const Menu = () => {
                             <CCardBody className="d-flex justify-content-between align-items-center">
                               <div>
                                 <CCardTitle>{product.name}</CCardTitle>
-                                <CCardText>${product.price}</CCardText>
+                                <CCardText>{product.price} TND</CCardText>
                               </div>
                               <CDropdown variant="btn-group">
                                 <CDropdownToggle color="secondary" size="sm">
