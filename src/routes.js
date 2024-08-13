@@ -15,6 +15,9 @@ const CategoriDetails = React.lazy(() => import('./views/menu/CategoryDetails'))
 const TablesList = React.lazy(() => import('./views/Tables/TablesList'))
 const TableDetails = React.lazy(() => import('./views/Tables/TableDetails'))
 
+//orders
+const OrdersList = React.lazy(() => import('./views/orders/OrdersList'))
+
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
@@ -73,6 +76,9 @@ const getRoutesByRole = (role) => {
     //tables
     { path: '/tables/tablesList', name: 'Tables', element: TablesList },
     { path: '/tables/:tableId', name: 'Tables', element: TableDetails },
+
+    //orders
+    { path: '/orders/ordersList', name: 'Tables', element: OrdersList },
 
     { path: '/theme', name: 'Theme', element: Colors, exact: true },
     { path: '/theme/colors', name: 'Colors', element: Colors },

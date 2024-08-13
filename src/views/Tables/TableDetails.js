@@ -164,8 +164,10 @@ const TableDetails = () => {
                           <div>
                             {order.products.map((product) => (
                               <div key={product._id}>
-                                <strong>{product.product.name}</strong> -{' '}
-                                {product.product.price.toFixed(2)} TND
+                                <strong>
+                                  {product.quantity} x {product.product.name}
+                                </strong>{' '}
+                                - {product.product.price.toFixed(2)} TND
                               </div>
                             ))}
                             <div className="mt-2">
