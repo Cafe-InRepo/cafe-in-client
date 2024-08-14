@@ -53,7 +53,6 @@ const TablesDashboard = () => {
       })
 
       setTables(tablesWithTotalPrice)
-      console.log(tablesWithTotalPrice)
     } catch (err) {
       setError('Error fetching tables')
       console.error(err)
