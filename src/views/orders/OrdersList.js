@@ -20,10 +20,13 @@ import {
 } from '@coreui/react'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import axios from 'axios'
+import { io } from 'socket.io-client' // Import the Socket.IO client
+import { GetToken } from '../../helpers/GetToken'
 
 const OrdersTable = () => {
   const [orders, setOrders] = useState([])
   const [activeKey, setActiveKey] = useState(1)
+  const token = GetToken()
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('token')
@@ -39,6 +42,17 @@ const OrdersTable = () => {
   }
   useEffect(() => {
     fetchOrders()
+    const socket = io(BaseUrl, {
+      auth: { token },
+    })
+
+    socket.on('newOrder', () => {
+      fetchOrders()
+    })
+
+    return () => {
+      socket.disconnect()
+    }
   }, [])
 
   const updateOrderStatus = async (orderId, newStatus) => {
