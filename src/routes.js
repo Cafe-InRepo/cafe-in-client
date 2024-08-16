@@ -18,6 +18,9 @@ const TableDetails = React.lazy(() => import('./views/Tables/TableDetails'))
 //orders
 const OrdersList = React.lazy(() => import('./views/orders/OrdersList'))
 
+//manual orders
+const ManualOrders = React.lazy(() => import('./views/manualOrders/manualOrders'))
+
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
@@ -78,7 +81,10 @@ const getRoutesByRole = (role) => {
     { path: '/tables/:tableId', name: 'Tables', element: TableDetails },
 
     //orders
-    { path: '/orders/ordersList', name: 'Tables', element: OrdersList },
+    { path: '/orders/ordersList', name: 'orders', element: OrdersList },
+
+    //manual Orders
+    { path: '/Manuel-orders', name: 'Tables', element: ManualOrders },
 
     { path: '/theme', name: 'Theme', element: Colors, exact: true },
     { path: '/theme/colors', name: 'Colors', element: Colors },

@@ -1,20 +1,12 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
 import {
-  cilBell,
-  cilCalculator,
-  cilChartPie,
-  cilCursor,
-  cilDescription,
-  cilDrop,
   cilNotes,
-  cilPencil,
-  cilPuzzle,
   cilSpeedometer,
-  cilStar,
   cilWallet,
   cilUser,
   cilListNumbered,
+  cilBraille,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 import { jwtDecode } from 'jwt-decode' // Use named import for jwtDecode
@@ -48,17 +40,17 @@ const _nav = [
   },
   //tables
   {
-    component: CNavGroup,
+    component: CNavItem,
     name: 'Tables',
-    to: '/tables',
+    to: '/tables/tablesList',
     icon: <CIcon icon={cilWallet} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Tables List',
-        to: '/tables/tablesList',
-      },
-    ],
+    // items: [
+    //   {
+    //     component: CNavItem,
+    //     name: 'Tables List',
+    //     to: '/tables/tablesList',
+    //   },
+    // ],
   },
   //users
   {
@@ -80,17 +72,23 @@ const _nav = [
     ],
   },
   {
-    component: CNavGroup,
+    component: CNavItem,
     name: 'Orserds',
-    to: '/orders',
+    to: '/orders/ordersList',
     icon: <CIcon icon={cilListNumbered} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Orders List',
-        to: '/orders/ordersList',
-      },
-    ],
+    // items: [
+    //   {
+    //     component: CNavItem,
+    //     name: 'Orders List',
+    //     to: '/orders/ordersList',
+    //   },
+    // ],
+  },
+  {
+    component: CNavItem,
+    name: 'Place an Order manually',
+    to: '/Manuel-orders',
+    icon: <CIcon icon={cilBraille} customClassName="nav-icon" />,
   },
 ]
 
