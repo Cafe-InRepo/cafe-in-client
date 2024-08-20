@@ -24,6 +24,8 @@ import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import Loading from '../../helpers/Loading'
 import tableImage from 'src/assets/images/table.png' // Assuming you have an image named table.png in your assets folder
+import { io } from 'socket.io-client'
+import { GetToken } from '../../helpers/GetToken'
 
 const TablesDashboard = () => {
   const [tables, setTables] = useState([])
@@ -35,6 +37,8 @@ const TablesDashboard = () => {
   const [modalError, setModalError] = useState(false)
   const [showCreateModal, setShowCreateModal] = useState(false) // State for create table modal
   const [tableNumber, setTableNumber] = useState('') // State for table number input
+  const token = GetToken()
+
   const navigate = useNavigate()
   const fetchTables = async () => {
     setLoading(true)
@@ -61,6 +65,17 @@ const TablesDashboard = () => {
   }
   useEffect(() => {
     fetchTables()
+    const socket = io(BaseUrl, {
+      auth: { token },
+    })
+
+    socket.on('newOrder', () => {
+      fetchTables()
+    })
+
+    return () => {
+      socket.disconnect()
+    }
   }, [])
 
   const handleCardClick = (tableId) => {
@@ -131,9 +146,9 @@ const TablesDashboard = () => {
               {error && <p className="text-danger">{error}</p>}
               <CRow>
                 {filteredTables.map((table) => (
-                  <CCol xs={12} sm={4} md={3} key={table._id}>
+                  <CCol xs={6} sm={3} md={2} key={table._id}>
                     <CCard
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: 'pointer', marginBottom: 10 }}
                       onClick={() => handleCardClick(table._id)}
                       className={table.unpaidOrders ? 'bg-danger text-white' : ''}
                     >
@@ -149,12 +164,11 @@ const TablesDashboard = () => {
                             Unpaid Orders
                           </CBadge>
                         )}
-                        <CCardText>
+                        {/* <CCardText>
                           Total Price: {table.totalPrice.toFixed(2)} TND
                           <br />
-                          Number of Orders: {table.orders.length}
-                        </CCardText>
-                        <CCardText>Click to view details</CCardText>
+                          Orders: {table.orders.length}
+                        </CCardText> */}
                       </CCardBody>
                     </CCard>
                   </CCol>

@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
       const decodedToken = jwtDecode(token)
       const currentTime = Date.now() / 1000
 
-      if (decodedToken.expiresIn < currentTime) {
+      if (decodedToken.exp < currentTime) {
         logout()
       }
     }

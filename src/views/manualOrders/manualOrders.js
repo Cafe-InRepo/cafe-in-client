@@ -19,7 +19,6 @@ import {
   CFormCheck,
   CAlert, // Import for alert messages
 } from '@coreui/react'
-import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import Loading from '../../helpers/Loading'
@@ -34,7 +33,7 @@ const TablesDashboard = () => {
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('') // State for success messages
   const [searchQuery, setSearchQuery] = useState('') // State for search query
-  const navigate = useNavigate()
+  const [selecedTableId, setSelectedTableId] = useState(null)
 
   const fetchTables = async () => {
     setLoading(true)
@@ -53,7 +52,7 @@ const TablesDashboard = () => {
     setLoading(false)
   }
 
-  const fetchProducts = async (tableId) => {
+  const fetchProducts = async () => {
     try {
       const token = localStorage.getItem('token')
       const response = await axios.get(`${BaseUrl}/products`, {
@@ -70,7 +69,8 @@ const TablesDashboard = () => {
   }
 
   const handleCardClick = (tableId) => {
-    fetchProducts(tableId)
+    fetchProducts()
+    setSelectedTableId(tableId)
   }
 
   const handleProductChange = (productId, quantity) => {
@@ -104,7 +104,7 @@ const TablesDashboard = () => {
 
       await axios.post(
         `${BaseUrl}/order/manual`,
-        { products, tableId: tables.find((table) => table._id)._id }, // Assuming the table is selected
+        { products, tableId: selecedTableId },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -114,6 +114,7 @@ const TablesDashboard = () => {
       setShowModal(false)
       setSelectedProducts([])
       setSuccessMessage('Order placed successfully!')
+      fetchTables()
     } catch (err) {
       setError('Error placing order')
       console.error('Error placing order', err)
@@ -135,9 +136,6 @@ const TablesDashboard = () => {
           <CCard className="mb-4">
             <CCardHeader className="d-flex justify-content-between align-items-center">
               <strong>Tables</strong>
-              <CButton color="primary" onClick={() => setShowModal(true)}>
-                Create Table
-              </CButton>
             </CCardHeader>
             <CCardBody>
               {loading && <Loading />}
@@ -145,9 +143,9 @@ const TablesDashboard = () => {
               {successMessage && <CAlert color="success">{successMessage}</CAlert>}
               <CRow>
                 {tables.map((table) => (
-                  <CCol xs={12} sm={4} md={3} key={table._id}>
+                  <CCol xs={6} sm={3} md={2} key={table._id}>
                     <CCard
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: 'pointer', marginBottom: 10 }}
                       onClick={() => handleCardClick(table._id)}
                       className={table.unpaidOrders ? 'bg-danger text-white' : ''}
                     >
@@ -175,7 +173,13 @@ const TablesDashboard = () => {
       </CRow>
 
       {/* Modal for Product Selection */}
-      <CModal visible={showModal} onClose={() => setShowModal(false)}>
+      <CModal
+        visible={showModal}
+        onClose={() => {
+          setShowModal(false)
+          setSelectedTableId(null)
+        }}
+      >
         <CModalHeader>
           <CModalTitle>Select Products</CModalTitle>
         </CModalHeader>
