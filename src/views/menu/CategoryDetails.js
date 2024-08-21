@@ -14,7 +14,6 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
-  CLoadingButton, // Import CLoadingButton
 } from '@coreui/react'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
@@ -35,7 +34,6 @@ const CategoryDetails = () => {
   const [productPrice, setProductPrice] = useState('')
   const [productImg, setProductImg] = useState('')
   const [productAvailable, setProductAvailable] = useState(true)
-  const [isCreatingProduct, setIsCreatingProduct] = useState(false) // State for loading button
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -55,7 +53,6 @@ const CategoryDetails = () => {
   }, [categoryId])
 
   const handleCreateProduct = async () => {
-    setIsCreatingProduct(true) // Start loading
     try {
       const response = await axios.post(`${BaseUrl}/products`, {
         name: productName,
@@ -77,7 +74,6 @@ const CategoryDetails = () => {
       setModalContent('Error creating product')
     }
     setShowModal(true)
-    setIsCreatingProduct(false) // Stop loading
   }
 
   const handleEditProduct = (productId) => {
@@ -126,22 +122,20 @@ const CategoryDetails = () => {
                       <p>Price: ${product.price}</p>
 
                       <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <CLoadingButton
+                        <CButton
                           color="warning"
                           className="me-2 mb-2"
                           onClick={() => handleEditProduct(product._id)}
-                          timeout={2000}
                         >
                           Edit
-                        </CLoadingButton>
-                        <CLoadingButton
+                        </CButton>
+                        <CButton
                           color="danger"
                           className="mb-2"
                           onClick={() => handleDeleteProduct(product._id)}
-                          timeout={2000}
                         >
                           Delete
-                        </CLoadingButton>
+                        </CButton>
                       </div>
                     </CCardBody>
                   </CCard>
@@ -197,14 +191,9 @@ const CategoryDetails = () => {
                 />
               </CCol>
             </CRow>
-            <CLoadingButton
-              type="submit"
-              color="primary"
-              timeout={2000}
-              loading={isCreatingProduct}
-            >
+            <CButton type="submit" color="primary">
               Add Product
-            </CLoadingButton>
+            </CButton>
           </CForm>
         </CModalBody>
         <CModalFooter>
