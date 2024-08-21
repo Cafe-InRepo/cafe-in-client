@@ -17,6 +17,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import Loading from '../../helpers/Loading'
+import './TableDetails.css' // Import the CSS file
 
 const TableDetails = () => {
   const { tableId } = useParams()
@@ -79,7 +80,8 @@ const TableDetails = () => {
     setLoading(false)
   }
 
-  const handleSelectOrder = (orderId, orderPrice) => {
+  const handleSelectOrder = (orderId, orderPrice, isPayed) => {
+    if (isPayed) return // Prevent selection if the order is already paid
     setSelectedOrders((prevSelected) => {
       if (prevSelected.some((order) => order.orderId === orderId)) {
         return prevSelected.filter((order) => order.orderId !== orderId)
@@ -123,23 +125,24 @@ const TableDetails = () => {
             <CButton color="secondary" onClick={() => navigate(-1)}>
               Back
             </CButton>
-            <strong className="ms-3">Table {table?.number} Details</strong>
+            <p className="ms-3">Table {table?.number}</p>
 
-            <div>
+            <div className="d-flex justify-content-between align-items-center">
               <CButton
                 color="success"
-                className="me-2"
+                className="me-2 btn-sm"
                 onClick={handleConfirmAllPayments}
                 disabled={!table?.orders.some((order) => !order.payed)}
               >
-                Confirm All Payments
+                Confirm All
               </CButton>
               <CButton
                 color="primary"
+                className="btn-sm"
                 onClick={handleConfirmSelectedPayments}
                 disabled={selectedOrders.length === 0}
               >
-                Confirm Selected Payments
+                Confirm Selected
               </CButton>
             </div>
           </CCardHeader>
@@ -149,26 +152,27 @@ const TableDetails = () => {
               {table?.orders.map((order, index) => (
                 <CCol xs={12} md={4} sm={6} key={order._id}>
                   <CCard
-                    className={`mb-4 ${
-                      order.payed ? 'bg-success text-white' : 'bg-warning text-dark'
+                    className={`card-container mb-4 ${
+                      order.payed ? 'payed-border' : 'not-payed-border'
+                    } ${
+                      selectedOrders.some((selected) => selected.orderId === order._id)
+                        ? 'selected-card'
+                        : ''
                     }`}
-                    onClick={() => handleSelectOrder(order._id, order.totalPrice)}
+                    onClick={() => handleSelectOrder(order._id, order.totalPrice, order.payed)}
                     style={{
-                      minHeight: 200,
-                      cursor: 'pointer',
-                      border: selectedOrders.some((selected) => selected.orderId === order._id)
-                        ? '5px solid blue'
-                        : 'none',
+                      cursor: order.payed ? 'not-allowed' : 'pointer',
+                      opacity: order.payed ? 0.6 : 1,
                     }}
                   >
                     <CCardBody className="position-relative">
                       {/* Order Number on Top Left */}
-                      <div className="position-absolute top-0 start-0 p-2">
-                        <strong style={{border:"2px solid blue",borderRadius:"50%", padding:"7px"}}>{index + 1}</strong>
+                      <div className="position-absolute top-0 start-0 p-2 card-header">
+                        <strong>{index + 1}</strong>
                       </div>
 
                       {/* Products in the Middle */}
-                      <div className="text-center">
+                      <div className="text-center card-text">
                         {order.products.map((product) => (
                           <div key={product._id} className="my-2">
                             <strong>
@@ -180,7 +184,7 @@ const TableDetails = () => {
                       </div>
 
                       {/* Total Price on Bottom Right */}
-                      <div className="position-absolute bottom-0 end-0 p-2">
+                      <div className="position-absolute bottom-0 end-0 p-2 card-price">
                         <strong>Total: {order.totalPrice.toFixed(2)} TND</strong>
                       </div>
                     </CCardBody>

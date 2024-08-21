@@ -1,0 +1,42 @@
+.card-container {
+    min-height: 200px;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  
+  .card-container:hover {
+    transform: translateY(-5px);
+  }
+  
+  .selected-card {
+    border-color: blue;
+  }
+  
+  /* .card-header {
+    border: 2px solid blue;
+    border-radius: 50%;
+    padding: 7px;
+    background-color: white;
+  } */
+  
+  .card-price {
+    color: green;
+    font-weight: bold;
+  }
+  
+  .card-text {
+    color: #333;
+  }
+  
+  .payed-border {
+    border-left: 8px solid green;
+  }
+  
+  .not-payed-border {
+    border-left: 8px solid red;
+  }
+  

@@ -90,6 +90,14 @@ const _nav = [
     to: '/Manuel-orders',
     icon: <CIcon icon={cilBraille} customClassName="nav-icon" />,
   },
+
+  //availability
+  {
+    component: CNavItem,
+    name: "Product's availability",
+    to: '/product/availability',
+    icon: <CIcon icon={cilBraille} customClassName="nav-icon" />,
+  },
 ]
 
 const filterNavItemsByRole = (navItems, role) => {
