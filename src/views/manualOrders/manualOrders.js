@@ -14,10 +14,11 @@ import {
   CModalTitle,
   CBadge,
   CFormInput,
-  CForm,
-  CCardImage,
   CFormCheck,
-  CAlert, // Import for alert messages
+  CAlert,
+  CPagination,
+  CPaginationItem,
+  CCardImage,
 } from '@coreui/react'
 import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
@@ -28,12 +29,15 @@ const TablesDashboard = () => {
   const [tables, setTables] = useState([])
   const [loading, setLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
-  const [modalProducts, setModalProducts] = useState([]) // State for products list
-  const [selectedProducts, setSelectedProducts] = useState([]) // State for selected products and their quantities
+  const [modalProducts, setModalProducts] = useState([])
+  const [selectedProducts, setSelectedProducts] = useState([])
   const [error, setError] = useState('')
-  const [successMessage, setSuccessMessage] = useState('') // State for success messages
-  const [searchQuery, setSearchQuery] = useState('') // State for search query
-  const [selecedTableId, setSelectedTableId] = useState(null)
+  const [successMessage, setSuccessMessage] = useState('')
+  const [tableSearchQuery, setTableSearchQuery] = useState('')
+  const [productSearchQuery, setProductSearchQuery] = useState('')
+  const [selectedTableId, setSelectedTableId] = useState(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(5) // Number of items per page for pagination
 
   const fetchTables = async () => {
     setLoading(true)
@@ -104,7 +108,7 @@ const TablesDashboard = () => {
 
       await axios.post(
         `${BaseUrl}/order/manual`,
-        { products, tableId: selecedTableId },
+        { products, tableId: selectedTableId },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -121,18 +125,44 @@ const TablesDashboard = () => {
     }
   }
 
-  const filteredProducts = modalProducts.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()),
+  const filteredTables = tables.filter((table) =>
+    table.number.toString().includes(tableSearchQuery),
   )
+
+  const filteredProducts = modalProducts.filter((product) =>
+    product.name.toLowerCase().includes(productSearchQuery.toLowerCase()),
+  )
+
+  const indexOfLastProduct = currentPage * itemsPerPage
+  const indexOfFirstProduct = indexOfLastProduct - itemsPerPage
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct)
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
   useEffect(() => {
     fetchTables()
   }, [])
 
+  useEffect(() => {
+    if (successMessage || error) {
+      const timer = setTimeout(() => {
+        setSuccessMessage('')
+        setError('')
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [successMessage, error])
+
   return (
     <>
       <CRow>
         <CCol xs={12}>
+          <CFormInput
+            placeholder="Search tables..."
+            value={tableSearchQuery}
+            onChange={(e) => setTableSearchQuery(e.target.value)}
+            className="mb-3"
+          />
           <CCard className="mb-4">
             <CCardHeader className="d-flex justify-content-between align-items-center">
               <strong>Tables</strong>
@@ -142,7 +172,7 @@ const TablesDashboard = () => {
               {error && <CAlert color="danger">{error}</CAlert>}
               {successMessage && <CAlert color="success">{successMessage}</CAlert>}
               <CRow>
-                {tables.map((table) => (
+                {filteredTables.map((table) => (
                   <CCol xs={6} sm={3} md={2} key={table._id}>
                     <CCard
                       style={{ cursor: 'pointer', marginBottom: 10 }}
@@ -172,7 +202,6 @@ const TablesDashboard = () => {
         </CCol>
       </CRow>
 
-      {/* Modal for Product Selection */}
       <CModal
         visible={showModal}
         onClose={() => {
@@ -186,10 +215,11 @@ const TablesDashboard = () => {
         <CModalBody>
           <CFormInput
             placeholder="Search products..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={productSearchQuery}
+            onChange={(e) => setProductSearchQuery(e.target.value)}
+            className="mb-3"
           />
-          {filteredProducts.map((product) => (
+          {currentProducts.map((product) => (
             <div key={product._id} className="d-flex justify-content-between align-items-center">
               <CFormCheck
                 checked={!!selectedProducts.find((p) => p.productId === product._id)}
@@ -205,6 +235,19 @@ const TablesDashboard = () => {
               />
             </div>
           ))}
+          <CPagination aria-label="Product Pagination">
+            {Array.from({
+              length: Math.ceil(filteredProducts.length / itemsPerPage),
+            }).map((_, index) => (
+              <CPaginationItem
+                key={index}
+                active={index + 1 === currentPage}
+                onClick={() => paginate(index + 1)}
+              >
+                {index + 1}
+              </CPaginationItem>
+            ))}
+          </CPagination>
         </CModalBody>
         <CModalFooter>
           <CButton color="primary" onClick={handlePlaceOrder}>

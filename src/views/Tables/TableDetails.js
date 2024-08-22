@@ -119,13 +119,14 @@ const TableDetails = () => {
 
   return (
     <CRow>
+      <p className="ms-3 text-center">Table {table?.number}</p>
+
       <CCol xs={12}>
         <CCard className="mb-4">
           <CCardHeader className="d-flex justify-content-between align-items-center">
             <CButton color="secondary" onClick={() => navigate(-1)}>
               Back
             </CButton>
-            <p className="ms-3">Table {table?.number}</p>
 
             <div className="d-flex justify-content-between align-items-center">
               <CButton
