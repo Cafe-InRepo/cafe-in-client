@@ -17,17 +17,22 @@ import {
   CNavLink,
   CTabContent,
   CTabPane,
+  CSpinner, // Import the CSpinner component for loading
 } from '@coreui/react'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import axios from 'axios'
 import { io } from 'socket.io-client' // Import the Socket.IO client
 import { GetToken } from '../../helpers/GetToken'
+import Loading from '../../helpers/Loading'
 
 const OrdersTable = () => {
   const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true) // Add loading state
   const [activeKey, setActiveKey] = useState(1)
   const token = GetToken()
+
   const fetchOrders = async () => {
+    setLoading(true) // Set loading to true when fetching data
     try {
       const token = localStorage.getItem('token')
       const response = await axios.get(`${BaseUrl}/order/orders/ordersfifo`, {
@@ -38,8 +43,11 @@ const OrdersTable = () => {
       setOrders(response.data)
     } catch (error) {
       console.error('Failed to fetch orders:', error)
+    } finally {
+      setLoading(false) // Set loading to false after data is fetched
     }
   }
+
   useEffect(() => {
     fetchOrders()
     const socket = io(BaseUrl, {
@@ -154,9 +162,15 @@ const OrdersTable = () => {
               </CNavItem>
             </CNav>
             <CTabContent>
-              <CTabPane visible={activeKey === 1}>{renderOrderTable('pending')}</CTabPane>
-              <CTabPane visible={activeKey === 2}>{renderOrderTable('preparing')}</CTabPane>
-              <CTabPane visible={activeKey === 3}>{renderOrderTable('completed')}</CTabPane>
+              <CTabPane visible={activeKey === 1}>
+                {loading ? <Loading /> : renderOrderTable('pending')}
+              </CTabPane>
+              <CTabPane visible={activeKey === 2}>
+                {loading ? <Loading /> : renderOrderTable('preparing')}
+              </CTabPane>
+              <CTabPane visible={activeKey === 3}>
+                {loading ? <Loading /> : renderOrderTable('completed')}
+              </CTabPane>
             </CTabContent>
           </CCardBody>
         </CCard>

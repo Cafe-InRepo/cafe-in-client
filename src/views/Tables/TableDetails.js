@@ -18,6 +18,7 @@ import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import Loading from '../../helpers/Loading'
 import './TableDetails.css' // Import the CSS file
+import { GetToken } from '../../helpers/GetToken'
 
 const TableDetails = () => {
   const { tableId } = useParams()
@@ -29,17 +30,17 @@ const TableDetails = () => {
   const [modalError, setModalError] = useState(false)
   const [selectedOrders, setSelectedOrders] = useState([])
   const navigate = useNavigate()
-
+  const token = GetToken()
   const fetchTableDetails = async () => {
     setLoading(true)
     try {
-      const token = localStorage.getItem('token')
       const response = await axios.get(`${BaseUrl}/tables/${tableId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       setTable(response.data)
+      console.log(response.data)
     } catch (err) {
       setError('Error fetching table details')
       console.error(err)
@@ -179,7 +180,7 @@ const TableDetails = () => {
                             <strong>
                               {product.quantity} x {product.product.name}
                             </strong>{' '}
-                            - {product.product.price.toFixed(2)} TND
+                            - {product?.product?.price?.toFixed(2)} TND
                           </div>
                         ))}
                       </div>
