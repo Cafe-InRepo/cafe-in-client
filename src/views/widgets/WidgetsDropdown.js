@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -14,10 +14,54 @@ import { getStyle } from '@coreui/utils'
 import { CChartBar, CChartLine } from '@coreui/react-chartjs'
 import CIcon from '@coreui/icons-react'
 import { cilArrowBottom, cilArrowTop, cilOptions } from '@coreui/icons'
+import axios from 'axios'
+import { BaseUrl } from '../../helpers/BaseUrl'
+import { GetToken } from '../../helpers/GetToken'
 
 const WidgetsDropdown = (props) => {
   const widgetChartRef1 = useRef(null)
   const widgetChartRef2 = useRef(null)
+  const token = GetToken()
+  const [loading, setLoading] = useState(false)
+  const [yearRevenue, setYearRevenue] = useState()
+
+  //revenue for current year
+  const getRevenueForCurrentYear = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.get(`${BaseUrl}/dashboard/revenue-year`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setYearRevenue(response.data)
+      console.log('year revenue', response.data)
+    } catch (err) {
+      console.log('Error fetching daily')
+      console.error(err)
+    }
+    setLoading(false)
+  }
+  //daily revenue
+
+  const [dailyRevenue, setDailyRevenue] = useState()
+
+  const getDailyRevenue = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.get(`${BaseUrl}/dashboard/daily-revenue`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setDailyRevenue(response.data.totalRevenue)
+      console.log(response.data.totalRevenue)
+    } catch (err) {
+      console.log('Error fetching daily')
+      console.error(err)
+    }
+    setLoading(false)
+  }
 
   useEffect(() => {
     document.documentElement.addEventListener('ColorSchemeChange', () => {
@@ -35,49 +79,114 @@ const WidgetsDropdown = (props) => {
         })
       }
     })
+    getRevenueForCurrentYear()
+    getDailyRevenue()
   }, [widgetChartRef1, widgetChartRef2])
+  // Extract revenue data to be used in the chart
+  const monthlyRevenueData = yearRevenue?.map((item) => item.revenue) || []
+  const currentMonth = new Date().getMonth() + 1 // Current month as a number (1-12)
+  const filteredLabels = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ].slice(0, currentMonth)
+  const filteredData = monthlyRevenueData.slice(0, currentMonth)
+  const currentMonthRevenue = monthlyRevenueData[monthlyRevenueData.length - 1]
+  const previousMonthRevenue = monthlyRevenueData[monthlyRevenueData.length - 2]
+
+  const percentageChange = previousMonthRevenue
+    ? ((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100
+    : 0
+
+  //download csv
+  const downloadCSV = async () => {
+    try {
+      const response = await axios.get(`${BaseUrl}/dashboard/revenue-csv`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Replace with actual token
+        },
+        responseType: 'blob', // Ensure the response type is blob for files
+      })
+
+      // Create a URL for the file
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'revenue.csv') // File name
+      document.body.appendChild(link)
+      link.click()
+
+      // Clean up
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error downloading the file:', error)
+    }
+  }
 
   return (
     <CRow className={props.className} xs={{ gutter: 4 }}>
       <CCol sm={6} xl={4} xxl={3}>
+        <CWidgetStatsA color="primary" value={dailyRevenue + ' TND '} title="Today's Revenue" />
+      </CCol>
+      <CCol sm={6} xl={4} xxl={3}>
         <CWidgetStatsA
-          color="primary"
+          color="info"
           value={
             <>
-              26K{' '}
+              {currentMonthRevenue} TND
               <span className="fs-6 fw-normal">
-                (-12.4% <CIcon icon={cilArrowBottom} />)
+                ({' '}
+                {percentageChange > 0 ? (
+                  <>
+                    {percentageChange.toFixed(1)}% <CIcon icon={cilArrowTop} />
+                  </>
+                ) : percentageChange < 0 ? (
+                  <>
+                    {percentageChange.toFixed(1)}% <CIcon icon={cilArrowBottom} />
+                  </>
+                ) : (
+                  '0%'
+                )}
+                )
               </span>
             </>
           }
-          title="Users"
+          title="Monthly Revenue"
           action={
             <CDropdown alignment="end">
               <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
                 <CIcon icon={cilOptions} />
               </CDropdownToggle>
               <CDropdownMenu>
-                <CDropdownItem>Action</CDropdownItem>
-                <CDropdownItem>Another action</CDropdownItem>
-                <CDropdownItem>Something else here...</CDropdownItem>
-                <CDropdownItem disabled>Disabled action</CDropdownItem>
+                <CDropdownItem onClick={downloadCSV} download="revenue.csv">
+                  Download Revenue CSV
+                </CDropdownItem>
               </CDropdownMenu>
             </CDropdown>
           }
           chart={
             <CChartLine
-              ref={widgetChartRef1}
               className="mt-3 mx-3"
               style={{ height: '70px' }}
               data={{
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                labels: filteredLabels,
                 datasets: [
                   {
-                    label: 'My First dataset',
+                    label: 'Monthly Revenue',
                     backgroundColor: 'transparent',
                     borderColor: 'rgba(255,255,255,.55)',
-                    pointBackgroundColor: getStyle('--cui-primary'),
-                    data: [65, 59, 84, 84, 51, 55, 40],
+                    pointBackgroundColor: getStyle('--cui-info'),
+                    data: filteredData,
                   },
                 ],
               }}
@@ -102,8 +211,8 @@ const WidgetsDropdown = (props) => {
                     },
                   },
                   y: {
-                    min: 30,
-                    max: 89,
+                    min: 0,
+                    max: Math.max(...filteredData, 0) * 1.2, // Scale the Y-axis based on the filtered data
                     display: false,
                     grid: {
                       display: false,
@@ -116,7 +225,6 @@ const WidgetsDropdown = (props) => {
                 elements: {
                   line: {
                     borderWidth: 1,
-                    tension: 0.4,
                   },
                   point: {
                     radius: 4,
@@ -129,7 +237,8 @@ const WidgetsDropdown = (props) => {
           }
         />
       </CCol>
-      <CCol sm={6} xl={4} xxl={3}>
+
+      {/* <CCol sm={6} xl={4} xxl={3}>
         <CWidgetStatsA
           color="info"
           value={
@@ -383,7 +492,7 @@ const WidgetsDropdown = (props) => {
             />
           }
         />
-      </CCol>
+      </CCol> */}
     </CRow>
   )
 }

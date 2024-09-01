@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import classNames from 'classnames'
 
 import {
@@ -53,6 +53,9 @@ import avatar6 from 'src/assets/images/avatars/6.jpg'
 import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import MainChart from './MainChart'
+import { BaseUrl } from '../../helpers/BaseUrl'
+import { GetToken } from '../../helpers/GetToken'
+import axios from 'axios'
 
 const Dashboard = () => {
   const progressExample = [
@@ -175,6 +178,141 @@ const Dashboard = () => {
       activity: 'Last week',
     },
   ]
+  const token = GetToken()
+  const [dailyRevenue, setDailyRevenue] = useState()
+  const [monthly, setMonthlyRevenue] = useState()
+  const [monthsorders, setMonthOrders] = useState()
+  const [revenueByClient, setRevenueByClient] = useState()
+  const [revenueByProduct, setRevenueByProduct] = useState()
+  const [mostSold, setMostSold] = useState()
+
+  const [loading, setLoading] = useState(false)
+
+  const getDailyRevenue = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.get(`${BaseUrl}/dashboard/daily-revenue`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setDailyRevenue(response.data)
+      console.log(response.data)
+    } catch (err) {
+      console.log('Error fetching daily')
+      console.error(err)
+    }
+    setLoading(false)
+  }
+  const getMonthlyRevenue = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.get(`${BaseUrl}/dashboard/monthly-revenue`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setMonthlyRevenue(response.data)
+      console.log(response.data)
+    } catch (err) {
+      console.log('Error fetching daily')
+      console.error(err)
+    }
+    setLoading(false)
+  }
+  const getOrdersByMonthForYear = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.get(`${BaseUrl}/dashboard/year-per-month`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setMonthOrders(response.data)
+      console.log('months', response.data)
+    } catch (err) {
+      console.log('Error fetching daily')
+      console.error(err)
+    }
+    setLoading(false)
+  }
+  const getRevenueByClient = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.get(`${BaseUrl}/dashboard/revenue-by-client`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setRevenueByClient(response.data)
+      console.log('Revenue by client', response.data)
+    } catch (err) {
+      console.log('Error fetching daily')
+      console.error(err)
+    }
+    setLoading(false)
+  }
+  const getRevenueByProduct = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.get(`${BaseUrl}/dashboard/revenue-by-product`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setRevenueByProduct(response.data)
+      console.log('R / product', response.data)
+    } catch (err) {
+      console.log('Error fetching daily')
+      console.error(err)
+    }
+    setLoading(false)
+  }
+  const getMostSoldProducts = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.get(`${BaseUrl}/dashboard/most-sold-products`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setMostSold(response.data)
+      console.log('most sold', response.data)
+    } catch (err) {
+      console.log('Error fetching daily')
+      console.error(err)
+    }
+    setLoading(false)
+  }
+
+  //revenue per product per month
+  const [RMonthProduct, setRProductMonth] = useState()
+  const getRevenueByProductByMonth = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.get(`${BaseUrl}/dashboard/revenue-by-product-by-month`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setRProductMonth(response.data)
+      console.log('R / product/ month', response.data)
+    } catch (err) {
+      console.log('Error fetching daily')
+      console.error(err)
+    }
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    getDailyRevenue()
+    getMonthlyRevenue()
+    getMostSoldProducts()
+    getRevenueByProduct()
+    getRevenueByClient()
+    getOrdersByMonthForYear()
+    getRevenueByProductByMonth()
+  }, [])
 
   return (
     <>
@@ -184,15 +322,14 @@ const Dashboard = () => {
           <CRow>
             <CCol sm={5}>
               <h4 id="traffic" className="card-title mb-0">
-                Traffic
+                Revenue per product per month
               </h4>
-              <div className="small text-body-secondary">January - July 2023</div>
             </CCol>
             <CCol sm={7} className="d-none d-md-block">
               <CButton color="primary" className="float-end">
                 <CIcon icon={cilCloudDownload} />
               </CButton>
-              <CButtonGroup className="float-end me-3">
+              {/* <CButtonGroup className="float-end me-3">
                 {['Day', 'Month', 'Year'].map((value) => (
                   <CButton
                     color="outline-secondary"
@@ -203,7 +340,7 @@ const Dashboard = () => {
                     {value}
                   </CButton>
                 ))}
-              </CButtonGroup>
+              </CButtonGroup> */}
             </CCol>
           </CRow>
           <MainChart />
