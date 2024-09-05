@@ -9,14 +9,18 @@ import {
   CDropdownItem,
   CDropdownToggle,
   CWidgetStatsA,
+  CSpinner,
 } from '@coreui/react'
 import { getStyle } from '@coreui/utils'
-import { CChartBar, CChartLine } from '@coreui/react-chartjs'
+import { CChartLine } from '@coreui/react-chartjs'
 import CIcon from '@coreui/icons-react'
 import { cilArrowBottom, cilArrowTop, cilOptions } from '@coreui/icons'
 import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import { GetToken } from '../../helpers/GetToken'
+import { format } from 'date-fns' // for formatting dates
+
+import Loading from '../../helpers/Loading'
 
 const WidgetsDropdown = (props) => {
   const widgetChartRef1 = useRef(null)
@@ -35,7 +39,6 @@ const WidgetsDropdown = (props) => {
         },
       })
       setYearRevenue(response.data)
-      console.log('year revenue', response.data)
     } catch (err) {
       console.log('Error fetching daily')
       console.error(err)
@@ -55,13 +58,43 @@ const WidgetsDropdown = (props) => {
         },
       })
       setDailyRevenue(response.data.totalRevenue)
-      console.log(response.data.totalRevenue)
     } catch (err) {
       console.log('Error fetching daily')
       console.error(err)
     }
     setLoading(false)
   }
+  const [monthly, setMonthlyRevenue] = useState([])
+  const today = new Date().getDate() // Get today's day number
+
+  const getMonthlyRevenue = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.get(`${BaseUrl}/dashboard/monthly-revenue`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setMonthlyRevenue(response.data)
+    } catch (err) {
+      console.log('Error fetching daily')
+      console.error(err)
+    }
+    setLoading(false)
+  }
+
+  // Utility function to get day names
+  const getDayName = (date) => format(date, 'EEEE') // 'EEEE' gives full day name
+
+  // Build complete dataset for all days up to today, filling missing days with 0
+  const completeMonthlyData = Array.from({ length: today }, (_, index) => {
+    const day = index + 1
+    const revenueForDay = monthly.find((item) => item._id.day === day)?.dailyRevenue || 0
+    return {
+      dayName: getDayName(new Date(new Date().getFullYear(), new Date().getMonth(), day)),
+      dailyRevenue: revenueForDay,
+    }
+  })
 
   useEffect(() => {
     document.documentElement.addEventListener('ColorSchemeChange', () => {
@@ -81,6 +114,7 @@ const WidgetsDropdown = (props) => {
     })
     getRevenueForCurrentYear()
     getDailyRevenue()
+    getMonthlyRevenue()
   }, [widgetChartRef1, widgetChartRef2])
   // Extract revenue data to be used in the chart
   const monthlyRevenueData = yearRevenue?.map((item) => item.revenue) || []
@@ -136,57 +170,158 @@ const WidgetsDropdown = (props) => {
   return (
     <CRow className={props.className} xs={{ gutter: 4 }}>
       <CCol sm={6} xl={4} xxl={3}>
-        <CWidgetStatsA color="primary" value={dailyRevenue + ' TND '} title="Today's Revenue" />
+        {!loading ? (
+          <CWidgetStatsA
+            color="primary"
+            value={dailyRevenue?.toFixed(2) + ' TND '}
+            title="Today's Revenue"
+          />
+        ) : (
+          <CSpinner color="primary" style={{ width: '3rem', height: '3rem' }} />
+        )}
       </CCol>
+      <CCol sm={6} xl={4} xxl={3}>
+        {!loading ? (
+          <CWidgetStatsA
+            color="info"
+            value={
+              <>
+                {currentMonthRevenue?.toFixed(2)} TND
+                <span className="fs-6 fw-normal">
+                  ({' '}
+                  {percentageChange > 0 ? (
+                    <>
+                      {percentageChange.toFixed(1)}% <CIcon icon={cilArrowTop} />
+                    </>
+                  ) : percentageChange < 0 ? (
+                    <>
+                      {percentageChange.toFixed(1)}% <CIcon icon={cilArrowBottom} />
+                    </>
+                  ) : (
+                    '0%'
+                  )}
+                  )
+                </span>
+              </>
+            }
+            title="Monthly Revenue"
+            action={
+              <CDropdown alignment="end">
+                <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+                  <CIcon icon={cilOptions} />
+                </CDropdownToggle>
+                <CDropdownMenu>
+                  <CDropdownItem onClick={downloadCSV} download="revenue.csv">
+                    Download Revenue CSV
+                  </CDropdownItem>
+                </CDropdownMenu>
+              </CDropdown>
+            }
+            chart={
+              <CChartLine
+                className="mt-3 mx-3"
+                style={{ height: '70px' }}
+                data={{
+                  labels: filteredLabels,
+                  datasets: [
+                    {
+                      label: 'Monthly Revenue',
+                      backgroundColor: 'transparent',
+                      borderColor: 'rgba(255,255,255,.55)',
+                      pointBackgroundColor: getStyle('--cui-info'),
+                      data: filteredData,
+                    },
+                  ],
+                }}
+                options={{
+                  plugins: {
+                    legend: {
+                      display: false,
+                    },
+                  },
+                  maintainAspectRatio: false,
+                  scales: {
+                    x: {
+                      border: {
+                        display: false,
+                      },
+                      grid: {
+                        display: false,
+                        drawBorder: false,
+                      },
+                      ticks: {
+                        display: false,
+                      },
+                    },
+                    y: {
+                      min: 0,
+                      max: Math.max(...filteredData, 0) * 1.2, // Scale the Y-axis based on the filtered data
+                      display: false,
+                      grid: {
+                        display: false,
+                      },
+                      ticks: {
+                        display: false,
+                      },
+                    },
+                  },
+                  elements: {
+                    line: {
+                      borderWidth: 1,
+                    },
+                    point: {
+                      radius: 4,
+                      hitRadius: 10,
+                      hoverRadius: 4,
+                    },
+                  },
+                }}
+              />
+            }
+          />
+        ) : (
+          <CSpinner color="primary" style={{ width: '3rem', height: '3rem' }} />
+        )}
+      </CCol>
+
       <CCol sm={6} xl={4} xxl={3}>
         <CWidgetStatsA
           color="info"
           value={
-            <>
-              {currentMonthRevenue} TND
-              <span className="fs-6 fw-normal">
-                ({' '}
-                {percentageChange > 0 ? (
-                  <>
-                    {percentageChange.toFixed(1)}% <CIcon icon={cilArrowTop} />
-                  </>
-                ) : percentageChange < 0 ? (
-                  <>
-                    {percentageChange.toFixed(1)}% <CIcon icon={cilArrowBottom} />
-                  </>
-                ) : (
-                  '0%'
-                )}
-                )
-              </span>
-            </>
+            !loading && monthly ? (
+              <>
+                {completeMonthlyData.reduce((sum, item) => sum + item.dailyRevenue, 0).toFixed(2)}{' '}
+                TND{' '}
+              </>
+            ) : (
+              'Loading...'
+            )
           }
-          title="Monthly Revenue"
-          action={
-            <CDropdown alignment="end">
-              <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
-                <CIcon icon={cilOptions} />
-              </CDropdownToggle>
-              <CDropdownMenu>
-                <CDropdownItem onClick={downloadCSV} download="revenue.csv">
-                  Download Revenue CSV
-                </CDropdownItem>
-              </CDropdownMenu>
-            </CDropdown>
-          }
+          title="Weekly Revenue"
+          // action={
+          //   <CDropdown alignment="end">
+          //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
+          //       <CIcon icon={cilOptions} />
+          //     </CDropdownToggle>
+          //     <CDropdownMenu>
+          //       <CDropdownItem>Download CSV</CDropdownItem>
+          //       <CDropdownItem>Another action</CDropdownItem>
+          //     </CDropdownMenu>
+          //   </CDropdown>
+          // }
           chart={
             <CChartLine
               className="mt-3 mx-3"
               style={{ height: '70px' }}
               data={{
-                labels: filteredLabels,
+                labels: completeMonthlyData.map((item) => item.dayName), // Use day names as labels
                 datasets: [
                   {
                     label: 'Monthly Revenue',
                     backgroundColor: 'transparent',
                     borderColor: 'rgba(255,255,255,.55)',
                     pointBackgroundColor: getStyle('--cui-info'),
-                    data: filteredData,
+                    data: completeMonthlyData.map((item) => item.dailyRevenue), // Use the complete data with 0s for missing days
                   },
                 ],
               }}
@@ -199,38 +334,21 @@ const WidgetsDropdown = (props) => {
                 maintainAspectRatio: false,
                 scales: {
                   x: {
-                    border: {
-                      display: false,
-                    },
-                    grid: {
-                      display: false,
-                      drawBorder: false,
-                    },
-                    ticks: {
-                      display: false,
-                    },
+                    border: { display: false },
+                    grid: { display: false, drawBorder: false },
+                    ticks: { display: true }, // Show day names on the X-axis
                   },
                   y: {
                     min: 0,
-                    max: Math.max(...filteredData, 0) * 1.2, // Scale the Y-axis based on the filtered data
+                    max: Math.max(...completeMonthlyData.map((item) => item.dailyRevenue), 0) * 1.2,
                     display: false,
-                    grid: {
-                      display: false,
-                    },
-                    ticks: {
-                      display: false,
-                    },
+                    grid: { display: false },
+                    ticks: { display: false },
                   },
                 },
                 elements: {
-                  line: {
-                    borderWidth: 1,
-                  },
-                  point: {
-                    radius: 4,
-                    hitRadius: 10,
-                    hoverRadius: 4,
-                  },
+                  line: { borderWidth: 1 },
+                  point: { radius: 4, hitRadius: 10, hoverRadius: 4 },
                 },
               }}
             />
@@ -238,96 +356,7 @@ const WidgetsDropdown = (props) => {
         />
       </CCol>
 
-      {/* <CCol sm={6} xl={4} xxl={3}>
-        <CWidgetStatsA
-          color="info"
-          value={
-            <>
-              $6.200{' '}
-              <span className="fs-6 fw-normal">
-                (40.9% <CIcon icon={cilArrowTop} />)
-              </span>
-            </>
-          }
-          title="Income"
-          action={
-            <CDropdown alignment="end">
-              <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
-                <CIcon icon={cilOptions} />
-              </CDropdownToggle>
-              <CDropdownMenu>
-                <CDropdownItem>Action</CDropdownItem>
-                <CDropdownItem>Another action</CDropdownItem>
-                <CDropdownItem>Something else here...</CDropdownItem>
-                <CDropdownItem disabled>Disabled action</CDropdownItem>
-              </CDropdownMenu>
-            </CDropdown>
-          }
-          chart={
-            <CChartLine
-              ref={widgetChartRef2}
-              className="mt-3 mx-3"
-              style={{ height: '70px' }}
-              data={{
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                datasets: [
-                  {
-                    label: 'My First dataset',
-                    backgroundColor: 'transparent',
-                    borderColor: 'rgba(255,255,255,.55)',
-                    pointBackgroundColor: getStyle('--cui-info'),
-                    data: [1, 18, 9, 17, 34, 22, 11],
-                  },
-                ],
-              }}
-              options={{
-                plugins: {
-                  legend: {
-                    display: false,
-                  },
-                },
-                maintainAspectRatio: false,
-                scales: {
-                  x: {
-                    border: {
-                      display: false,
-                    },
-                    grid: {
-                      display: false,
-                      drawBorder: false,
-                    },
-                    ticks: {
-                      display: false,
-                    },
-                  },
-                  y: {
-                    min: -9,
-                    max: 39,
-                    display: false,
-                    grid: {
-                      display: false,
-                    },
-                    ticks: {
-                      display: false,
-                    },
-                  },
-                },
-                elements: {
-                  line: {
-                    borderWidth: 1,
-                  },
-                  point: {
-                    radius: 4,
-                    hitRadius: 10,
-                    hoverRadius: 4,
-                  },
-                },
-              }}
-            />
-          }
-        />
-      </CCol>
-      <CCol sm={6} xl={4} xxl={3}>
+      {/*<CCol sm={6} xl={4} xxl={3}>
         <CWidgetStatsA
           color="warning"
           value={

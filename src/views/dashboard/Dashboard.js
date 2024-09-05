@@ -56,6 +56,7 @@ import MainChart from './MainChart'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import { GetToken } from '../../helpers/GetToken'
 import axios from 'axios'
+import RevenuePerProductPerDay from './RevenuePerProductPerDay'
 
 const Dashboard = () => {
   const progressExample = [
@@ -179,47 +180,12 @@ const Dashboard = () => {
     },
   ]
   const token = GetToken()
-  const [dailyRevenue, setDailyRevenue] = useState()
-  const [monthly, setMonthlyRevenue] = useState()
   const [monthsorders, setMonthOrders] = useState()
   const [revenueByClient, setRevenueByClient] = useState()
-  const [revenueByProduct, setRevenueByProduct] = useState()
   const [mostSold, setMostSold] = useState()
 
   const [loading, setLoading] = useState(false)
 
-  const getDailyRevenue = async () => {
-    setLoading(true)
-    try {
-      const response = await axios.get(`${BaseUrl}/dashboard/daily-revenue`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      setDailyRevenue(response.data)
-      console.log(response.data)
-    } catch (err) {
-      console.log('Error fetching daily')
-      console.error(err)
-    }
-    setLoading(false)
-  }
-  const getMonthlyRevenue = async () => {
-    setLoading(true)
-    try {
-      const response = await axios.get(`${BaseUrl}/dashboard/monthly-revenue`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      setMonthlyRevenue(response.data)
-      console.log(response.data)
-    } catch (err) {
-      console.log('Error fetching daily')
-      console.error(err)
-    }
-    setLoading(false)
-  }
   const getOrdersByMonthForYear = async () => {
     setLoading(true)
     try {
@@ -245,29 +211,13 @@ const Dashboard = () => {
         },
       })
       setRevenueByClient(response.data)
-      console.log('Revenue by client', response.data)
     } catch (err) {
       console.log('Error fetching daily')
       console.error(err)
     }
     setLoading(false)
   }
-  const getRevenueByProduct = async () => {
-    setLoading(true)
-    try {
-      const response = await axios.get(`${BaseUrl}/dashboard/revenue-by-product`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      setRevenueByProduct(response.data)
-      console.log('R / product', response.data)
-    } catch (err) {
-      console.log('Error fetching daily')
-      console.error(err)
-    }
-    setLoading(false)
-  }
+
   const getMostSoldProducts = async () => {
     setLoading(true)
     try {
@@ -277,26 +227,6 @@ const Dashboard = () => {
         },
       })
       setMostSold(response.data)
-      console.log('most sold', response.data)
-    } catch (err) {
-      console.log('Error fetching daily')
-      console.error(err)
-    }
-    setLoading(false)
-  }
-
-  //revenue per product per month
-  const [RMonthProduct, setRProductMonth] = useState()
-  const getRevenueByProductByMonth = async () => {
-    setLoading(true)
-    try {
-      const response = await axios.get(`${BaseUrl}/dashboard/revenue-by-product-by-month`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      setRProductMonth(response.data)
-      console.log('R / product/ month', response.data)
     } catch (err) {
       console.log('Error fetching daily')
       console.error(err)
@@ -305,14 +235,11 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    getDailyRevenue()
-    getMonthlyRevenue()
     getMostSoldProducts()
-    getRevenueByProduct()
     getRevenueByClient()
     getOrdersByMonthForYear()
-    getRevenueByProductByMonth()
   }, [])
+  const [chartValue, setChartValue] = useState('Day')
 
   return (
     <>
@@ -322,30 +249,34 @@ const Dashboard = () => {
           <CRow>
             <CCol sm={5}>
               <h4 id="traffic" className="card-title mb-0">
-                Revenue per product per month
+                Revenue per product
               </h4>
             </CCol>
             <CCol sm={7} className="d-none d-md-block">
               <CButton color="primary" className="float-end">
                 <CIcon icon={cilCloudDownload} />
               </CButton>
-              {/* <CButtonGroup className="float-end me-3">
-                {['Day', 'Month', 'Year'].map((value) => (
+              <CButtonGroup className="float-end me-3">
+                {['Day', 'Month'].map((value) => (
                   <CButton
                     color="outline-secondary"
                     key={value}
                     className="mx-0"
-                    active={value === 'Month'}
+                    active={value === chartValue}
+                    onClick={() => setChartValue(value)}
                   >
                     {value}
                   </CButton>
                 ))}
-              </CButtonGroup> */}
+              </CButtonGroup>
             </CCol>
           </CRow>
-          <MainChart />
+          {chartValue === 'Month' ? <MainChart /> : <RevenuePerProductPerDay />}
         </CCardBody>
         <CCardFooter>
+          <h4 id="traffic" className="card-title mb-4">
+            Most Sold Products
+          </h4>
           <CRow
             xs={{ cols: 1, gutter: 4 }}
             sm={{ cols: 2 }}
@@ -353,18 +284,21 @@ const Dashboard = () => {
             xl={{ cols: 5 }}
             className="mb-2 text-center"
           >
-            {progressExample.map((item, index, items) => (
+            {mostSold?.map((product, index, items) => (
               <CCol
                 className={classNames({
                   'd-none d-xl-block': index + 1 === items.length,
                 })}
-                key={index}
+                key={product._id}
               >
-                <div className="text-body-secondary">{item.title}</div>
-                <div className="fw-semibold text-truncate">
-                  {item.value} ({item.percent}%)
-                </div>
-                <CProgress thin className="mt-2" color={item.color} value={item.percent} />
+                <div className="text-body-secondary">{product.productName}</div>
+                <div className="fw-semibold text-truncate">{product.totalSold} Sold</div>
+                <CProgress
+                  thin
+                  className="mt-2"
+                  color="success" // Customize the progress color if necessary
+                  value={(product?.totalSold / mostSold[0]?.totalSold) * 100} // Use percentage based on the highest product sold
+                />
               </CCol>
             ))}
           </CRow>
@@ -466,48 +400,44 @@ const Dashboard = () => {
                     <CTableHeaderCell className="bg-body-tertiary text-center">
                       <CIcon icon={cilPeople} />
                     </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">User</CTableHeaderCell>
+                    <CTableHeaderCell className="bg-body-tertiary">Client</CTableHeaderCell>
                     <CTableHeaderCell className="bg-body-tertiary text-center">
-                      Country
+                      Total Revenue
                     </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">Usage</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary text-center">
-                      Payment Method
+                    <CTableHeaderCell className="bg-body-tertiary">
+                      Monthly Revenue
                     </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">Activity</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                  {tableExample.map((item, index) => (
-                    <CTableRow v-for="item in tableItems" key={index}>
+                  {revenueByClient?.map((client, index) => (
+                    <CTableRow key={index}>
                       <CTableDataCell className="text-center">
-                        <CAvatar size="md" src={item.avatar.src} status={item.avatar.status} />
+                        <CAvatar
+                          size="md"
+                          src={client.avatar || 'path/to/default/avatar'}
+                          status="active"
+                        />
                       </CTableDataCell>
                       <CTableDataCell>
-                        <div>{item.user.name}</div>
-                        <div className="small text-body-secondary text-nowrap">
-                          <span>{item.user.new ? 'New' : 'Recurring'}</span> | Registered:{' '}
-                          {item.user.registered}
-                        </div>
+                        <div>{client.clientName}</div>
                       </CTableDataCell>
                       <CTableDataCell className="text-center">
-                        <CIcon size="xl" icon={item.country.flag} title={item.country.name} />
+                        {/* Calculate total revenue across all months */}
+                        {client.monthlyRevenue.reduce(
+                          (total, monthData) =>
+                            (Number(total) + Number(monthData.totalRevenue)).toFixed(2) + ' TND',
+                          0,
+                        )}
                       </CTableDataCell>
                       <CTableDataCell>
-                        <div className="d-flex justify-content-between text-nowrap">
-                          <div className="fw-semibold">{item.usage.value}%</div>
-                          <div className="ms-3">
-                            <small className="text-body-secondary">{item.usage.period}</small>
+                        {/* Display monthly revenue breakdown */}
+                        {client.monthlyRevenue.map((monthData, monthIndex) => (
+                          <div key={monthIndex} className="small text-body-secondary text-nowrap">
+                            <strong>{monthData.month}:</strong> {monthData.totalRevenue.toFixed(2)}{' '}
+                            TND
                           </div>
-                        </div>
-                        <CProgress thin color={item.usage.color} value={item.usage.value} />
-                      </CTableDataCell>
-                      <CTableDataCell className="text-center">
-                        <CIcon size="xl" icon={item.payment.icon} />
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div className="small text-body-secondary text-nowrap">Last login</div>
-                        <div className="fw-semibold text-nowrap">{item.activity}</div>
+                        ))}
                       </CTableDataCell>
                     </CTableRow>
                   ))}
