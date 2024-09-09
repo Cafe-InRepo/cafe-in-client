@@ -17,6 +17,7 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
+  CSpinner,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
@@ -32,9 +33,10 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [modalVisible, setModalVisible] = useState(false)
-
+  const [loading, setLoading] = useState(false)
   const handleLogin = async () => {
     try {
+      setLoading(true)
       const response = await axios.post(`${BaseUrl}/auth/login`, {
         email,
         password,
@@ -43,8 +45,10 @@ const Login = () => {
       const { token } = response.data
       localStorage.setItem('token', token)
       login(token) // Update authentication state
+      setLoading(false)
       navigate('/') // Redirect to admin page
     } catch (err) {
+      setLoading(false)
       setError('Invalid email or password')
       setModalVisible(true)
       console.error(err)
@@ -87,8 +91,19 @@ const Login = () => {
                     </CInputGroup>
                     <CRow>
                       <CCol xs={6}>
-                        <CButton color="primary" className="px-4" onClick={handleLogin}>
-                          Login
+                        <CButton
+                          disabled={loading}
+                          color="primary"
+                          className="px-4"
+                          onClick={handleLogin}
+                        >
+                          {loading ? (
+                            <>
+                              <CSpinner /> {'Loading'}
+                            </>
+                          ) : (
+                            'Login'
+                          )}
                         </CButton>
                       </CCol>
                       <CCol xs={6} className="text-right">
@@ -104,9 +119,7 @@ const Login = () => {
                 <CCardBody className="text-center">
                   <div>
                     <h2>Sign up</h2>
-                    <p>
-                      Cafe'In your best way to .
-                    </p>
+                    <p>Cafe'In your best way to Manage your project !</p>
                     <Link to="/register">
                       <CButton color="primary" className="mt-3" active tabIndex={-1}>
                         Register Now!

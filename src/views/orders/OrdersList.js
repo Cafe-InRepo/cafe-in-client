@@ -64,6 +64,7 @@ const OrdersTable = () => {
   }, [])
 
   const updateOrderStatus = async (orderId, newStatus) => {
+    setLoading(true)
     try {
       const token = localStorage.getItem('token')
       const response = await axios.put(
@@ -81,10 +82,14 @@ const OrdersTable = () => {
         setOrders(
           orders.map((order) => (order._id === orderId ? { ...order, status: newStatus } : order)),
         )
+        setLoading(false)
       } else {
+        setLoading(false)
+
         console.error('Failed to update order status')
       }
     } catch (error) {
+      setLoading(false)
       console.error('Failed to update order status:', error)
     }
   }
@@ -118,6 +123,7 @@ const OrdersTable = () => {
               <CTableDataCell>
                 {order.status !== 'completed' && (
                   <CButton
+                    disabled={loading}
                     color="primary"
                     onClick={() =>
                       updateOrderStatus(
@@ -126,7 +132,16 @@ const OrdersTable = () => {
                       )
                     }
                   >
-                    {order.status === 'pending' ? 'Move to Preparing' : 'Move to Completed'}
+                    {loading ? (
+                      <>
+                        <CSpinner />
+                        "Loading"{' '}
+                      </>
+                    ) : order.status === 'pending' ? (
+                      'Move to Preparing'
+                    ) : (
+                      'Move to Completed'
+                    )}
                   </CButton>
                 )}
               </CTableDataCell>
@@ -163,13 +178,13 @@ const OrdersTable = () => {
             </CNav>
             <CTabContent>
               <CTabPane visible={activeKey === 1}>
-                {loading ? <Loading /> : renderOrderTable('pending')}
+                {loading ? <CSpinner /> : renderOrderTable('pending')}
               </CTabPane>
               <CTabPane visible={activeKey === 2}>
-                {loading ? <Loading /> : renderOrderTable('preparing')}
+                {loading ? <CSpinner /> : renderOrderTable('preparing')}
               </CTabPane>
               <CTabPane visible={activeKey === 3}>
-                {loading ? <Loading /> : renderOrderTable('completed')}
+                {loading ? <CSpinner /> : renderOrderTable('completed')}
               </CTabPane>
             </CTabContent>
           </CCardBody>

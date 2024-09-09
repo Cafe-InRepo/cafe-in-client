@@ -23,6 +23,7 @@ import {
   CDropdownToggle,
   CDropdownMenu,
   CDropdownItem,
+  CSpinner,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilOptions } from '@coreui/icons'
@@ -33,6 +34,8 @@ import Loading from '../../helpers/Loading'
 const Menu = () => {
   const [menu, setMenu] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [loadingMenu, setLoadingMenu] = useState(false)
+
   const [error, setError] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [modalMessage, setModalMessage] = useState('')
@@ -55,7 +58,7 @@ const Menu = () => {
   const [tempSrc, setTempSrc] = useState('')
 
   const fetchMenu = async () => {
-    setLoading(true)
+    setLoadingMenu(true)
     try {
       const token = localStorage.getItem('token')
       const response = await axios.get(`${BaseUrl}/menu/admin`, {
@@ -68,7 +71,7 @@ const Menu = () => {
       setError('Error fetching menu')
       console.error(err)
     }
-    setLoading(false)
+    setLoadingMenu(false)
   }
 
   useEffect(() => {
@@ -109,7 +112,7 @@ const Menu = () => {
       const token = localStorage.getItem('token')
       const { name, description, price, img, categoryId } = newProductData
       const response = await axios.post(
-        `${BaseUrl}/products`,
+        `${BaseUrl}/products/`,
         { name, description, price, img, categoryId },
         {
           headers: {
@@ -129,8 +132,8 @@ const Menu = () => {
       setModalMessage('Product added successfully')
       setModalError(false)
     } catch (err) {
-      setModalMessage('Error adding product')
       setModalError(true)
+      setModalMessage(err.response.data.error)
       console.error(err)
     }
     setLoading(false)
@@ -355,7 +358,7 @@ const Menu = () => {
               <strong>Menu</strong>
             </CCardHeader>
             <CCardBody>
-              {loading && <Loading />}
+              {loadingMenu && <Loading />}
               {error && <p className="text-danger">{error}</p>}
               {!menu && (
                 <CButton color="primary" onClick={handleCreateMenu}>
@@ -376,8 +379,16 @@ const Menu = () => {
                           className="mb-3"
                           required
                         />
-                        <CButton type="submit" color="primary">
-                          Add Category
+                        <CButton disabled={loading} type="submit" color="primary">
+                          {loading ? (
+                            <>
+                              {' '}
+                              <CSpinner />
+                              "Loading"
+                            </>
+                          ) : (
+                            'Add Category'
+                          )}
                         </CButton>
                       </CForm>
                     </CAccordionBody>
@@ -440,6 +451,7 @@ const Menu = () => {
                           )}
                           <input type="hidden" name="categoryId" value={category._id} />
                           <CButton
+                            disabled={loading}
                             type="submit"
                             color="primary"
                             style={{ margin: '4%' }}
@@ -450,7 +462,15 @@ const Menu = () => {
                               }))
                             }
                           >
-                            Add Product
+                            {loading ? (
+                              <>
+                                {' '}
+                                <CSpinner />
+                                "Loading"
+                              </>
+                            ) : (
+                              'Add Product'
+                            )}
                           </CButton>
                         </CForm>
                         {category.products.map((product) => (
@@ -471,7 +491,15 @@ const Menu = () => {
                                   <CDropdownItem
                                     onClick={() => handleDeleteProduct(product._id, category._id)}
                                   >
-                                    Delete
+                                    {loading ? (
+                                      <>
+                                        {' '}
+                                        <CSpinner />
+                                        "Loading"
+                                      </>
+                                    ) : (
+                                      'Delete'
+                                    )}
                                   </CDropdownItem>
                                 </CDropdownMenu>
                               </CDropdown>
@@ -540,6 +568,7 @@ const Menu = () => {
                 </div>
               )}
               <CButton
+                disabled={loading}
                 style={{
                   marginTop: '4%',
                 }}
@@ -547,7 +576,15 @@ const Menu = () => {
                 color="primary"
                 onClick={handleUpdateProduct}
               >
-                Update Product
+                {loading ? (
+                  <>
+                    {' '}
+                    <CSpinner />
+                    "Loading"
+                  </>
+                ) : (
+                  'Update Product'
+                )}
               </CButton>
             </CForm>
           )}
@@ -562,14 +599,14 @@ const Menu = () => {
                 className="mb-3"
                 required
               />
-              <CButton type="submit" color="primary">
+              <CButton disabled={loading} type="submit" color="primary">
                 Update Category
               </CButton>
             </CForm>
           )}
         </CModalBody>
         <CModalFooter>
-          <CButton color="primary" onClick={handleCloseModal}>
+          <CButton disabled={loading} color="primary" onClick={handleCloseModal}>
             Close
           </CButton>
         </CModalFooter>

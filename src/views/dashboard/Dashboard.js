@@ -57,6 +57,7 @@ import { BaseUrl } from '../../helpers/BaseUrl'
 import { GetToken } from '../../helpers/GetToken'
 import axios from 'axios'
 import RevenuePerProductPerDay from './RevenuePerProductPerDay'
+import RevenuePerProduct2dates from './RevenuePerProduct2dates'
 
 const Dashboard = () => {
   const progressExample = [
@@ -273,6 +274,18 @@ const Dashboard = () => {
           </CRow>
           {chartValue === 'Month' ? <MainChart /> : <RevenuePerProductPerDay />}
         </CCardBody>
+      </CCard>
+      <CCard className="mb-4">
+        <CCardBody>
+          <CRow>
+            <CCol sm={5}>
+              <h4 id="traffic" className="card-title mb-0">
+                Revenue per product
+              </h4>
+            </CCol>
+          </CRow>
+          <RevenuePerProduct2dates />
+        </CCardBody>
         <CCardFooter>
           <h4 id="traffic" className="card-title mb-4">
             Most Sold Products
@@ -304,8 +317,57 @@ const Dashboard = () => {
           </CRow>
         </CCardFooter>
       </CCard>
-      <WidgetsBrand className="mb-4" withCharts />
-      <CRow>
+      <CCardHeader>
+        {' '}
+        <strong> Revenue Per Waiter</strong>
+      </CCardHeader>
+      <CTable align="middle" className="mb-0 border" hover responsive>
+        <CTableHead className="text-nowrap">
+          <CTableRow>
+            <CTableHeaderCell className="bg-body-tertiary text-center">
+              <CIcon icon={cilPeople} />
+            </CTableHeaderCell>
+            <CTableHeaderCell className="bg-body-tertiary">Waiter</CTableHeaderCell>
+            <CTableHeaderCell className="bg-body-tertiary text-center">
+              Total Revenue
+            </CTableHeaderCell>
+            <CTableHeaderCell className="bg-body-tertiary">Monthly Revenue</CTableHeaderCell>
+          </CTableRow>
+        </CTableHead>
+        <CTableBody>
+          {revenueByClient?.map((client, index) => (
+            <CTableRow key={index}>
+              <CTableDataCell className="text-center">
+                <CAvatar
+                  size="md"
+                  src={client.avatar || 'path/to/default/avatar'}
+                  status="active"
+                />
+              </CTableDataCell>
+              <CTableDataCell>
+                <div>{client.clientName}</div>
+              </CTableDataCell>
+              <CTableDataCell className="text-center">
+                {/* Calculate total revenue across all months */}
+                {client.monthlyRevenue.reduce(
+                  (total, monthData) =>
+                    (Number(total) + Number(monthData.totalRevenue)).toFixed(2) + ' TND',
+                  0,
+                )}
+              </CTableDataCell>
+              <CTableDataCell>
+                {/* Display monthly revenue breakdown */}
+                {client.monthlyRevenue.map((monthData, monthIndex) => (
+                  <div key={monthIndex} className="small text-body-secondary text-nowrap">
+                    <strong>{monthData.month}:</strong> {monthData.totalRevenue.toFixed(2)} TND
+                  </div>
+                ))}
+              </CTableDataCell>
+            </CTableRow>
+          ))}
+        </CTableBody>
+      </CTable>
+      {/* <CRow>
         <CCol xs>
           <CCard className="mb-4">
             <CCardHeader>Traffic {' & '} Sales</CCardHeader>
@@ -393,60 +455,11 @@ const Dashboard = () => {
               </CRow>
 
               <br />
-
-              <CTable align="middle" className="mb-0 border" hover responsive>
-                <CTableHead className="text-nowrap">
-                  <CTableRow>
-                    <CTableHeaderCell className="bg-body-tertiary text-center">
-                      <CIcon icon={cilPeople} />
-                    </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">Client</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary text-center">
-                      Total Revenue
-                    </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">
-                      Monthly Revenue
-                    </CTableHeaderCell>
-                  </CTableRow>
-                </CTableHead>
-                <CTableBody>
-                  {revenueByClient?.map((client, index) => (
-                    <CTableRow key={index}>
-                      <CTableDataCell className="text-center">
-                        <CAvatar
-                          size="md"
-                          src={client.avatar || 'path/to/default/avatar'}
-                          status="active"
-                        />
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div>{client.clientName}</div>
-                      </CTableDataCell>
-                      <CTableDataCell className="text-center">
-                        {/* Calculate total revenue across all months */}
-                        {client.monthlyRevenue.reduce(
-                          (total, monthData) =>
-                            (Number(total) + Number(monthData.totalRevenue)).toFixed(2) + ' TND',
-                          0,
-                        )}
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        {/* Display monthly revenue breakdown */}
-                        {client.monthlyRevenue.map((monthData, monthIndex) => (
-                          <div key={monthIndex} className="small text-body-secondary text-nowrap">
-                            <strong>{monthData.month}:</strong> {monthData.totalRevenue.toFixed(2)}{' '}
-                            TND
-                          </div>
-                        ))}
-                      </CTableDataCell>
-                    </CTableRow>
-                  ))}
-                </CTableBody>
-              </CTable>
+              <WidgetsBrand className="mb-4" withCharts />
             </CCardBody>
           </CCard>
         </CCol>
-      </CRow>
+      </CRow> */}
     </>
   )
 }

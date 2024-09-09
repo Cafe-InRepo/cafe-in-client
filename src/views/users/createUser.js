@@ -96,7 +96,6 @@ const CreateUser = () => {
             <strong>Create Client</strong>
           </CCardHeader>
           <CCardBody>
-            {loading && <Loading />}
             {!loading && (
               <CForm
                 className="row g-3 needs-validation"
@@ -138,8 +137,16 @@ const CreateUser = () => {
                   <CFormFeedback invalid>Please provide a valid password.</CFormFeedback>
                 </CCol>
                 <CCol xs={12}>
-                  <CButton color="primary" type="submit">
-                    Create Client
+                  <CButton disabled={loading} color="primary" type="submit">
+                    {loading ? (
+                      <>
+                        {' '}
+                        <CSpinner />
+                        "Loading"
+                      </>
+                    ) : (
+                      'Create Client'
+                    )}
                   </CButton>
                 </CCol>
               </CForm>

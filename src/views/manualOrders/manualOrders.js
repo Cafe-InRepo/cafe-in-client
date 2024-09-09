@@ -19,6 +19,7 @@ import {
   CPagination,
   CPaginationItem,
   CCardImage,
+  CSpinner,
 } from '@coreui/react'
 import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
@@ -229,7 +230,7 @@ const TablesDashboard = () => {
               <CFormInput
                 type="number"
                 min="1"
-                value={selectedProducts.find((p) => p.productId === product._id)?.quantity || 1}
+                value={selectedProducts.find((p) => p.productId === product._id)?.quantity || ''}
                 onChange={(e) => handleProductChange(product._id, e.target.value)}
                 style={{ maxWidth: '60px' }}
               />
@@ -250,8 +251,16 @@ const TablesDashboard = () => {
           </CPagination>
         </CModalBody>
         <CModalFooter>
-          <CButton color="primary" onClick={handlePlaceOrder}>
-            Place Order
+          <CButton disabled={loading} color="primary" onClick={handlePlaceOrder}>
+            {loading ? (
+              <>
+                {' '}
+                <CSpinner />
+                "Loading"
+              </>
+            ) : (
+              'Place Order'
+            )}
           </CButton>
           <CButton color="secondary" onClick={() => setShowModal(false)}>
             Close
