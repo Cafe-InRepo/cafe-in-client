@@ -58,6 +58,7 @@ import { GetToken } from '../../helpers/GetToken'
 import axios from 'axios'
 import RevenuePerProductPerDay from './RevenuePerProductPerDay'
 import RevenuePerProduct2dates from './RevenuePerProduct2dates'
+import NotifSupport from '../SupportRequests/NotifSupport'
 
 const Dashboard = () => {
   const progressExample = [
@@ -367,6 +368,7 @@ const Dashboard = () => {
           ))}
         </CTableBody>
       </CTable>
+
       {/* <CRow>
         <CCol xs>
           <CCard className="mb-4">

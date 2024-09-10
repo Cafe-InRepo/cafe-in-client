@@ -7,6 +7,7 @@ import {
   cilUser,
   cilListNumbered,
   cilBraille,
+  cilBell,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 import { jwtDecode } from 'jwt-decode' // Use named import for jwtDecode
@@ -97,6 +98,13 @@ const _nav = [
     name: "Product's availability",
     to: '/product/availability',
     icon: <CIcon icon={cilBraille} customClassName="nav-icon" />,
+  },
+  //availability
+  {
+    component: CNavItem,
+    name: 'Support',
+    to: '/support',
+    icon: <CIcon icon={cilBell} customClassName="nav-icon" />,
   },
 ]
 
