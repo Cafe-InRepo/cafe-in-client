@@ -6,6 +6,9 @@ import { CContainer, CSpinner } from '@coreui/react'
 import routes from '../routes'
 
 const AppContent = () => {
+  // Check if the routes array contains the /dashboard path
+  const hasDashboardRoute = routes.some((route) => route.path === '/dashboard')
+
   return (
     <CContainer className="px-4" lg>
       <Suspense fallback={<CSpinner color="primary" />}>
@@ -23,7 +26,13 @@ const AppContent = () => {
               )
             )
           })}
-          <Route path="/" element={<Navigate to="dashboard" replace />} />
+
+          {/* Conditional check for /dashboard or /tables/tablesList */}
+          {hasDashboardRoute ? (
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          ) : (
+            <Route path="/" element={<Navigate to="/tables/tablesList" replace />} />
+          )}
         </Routes>
       </Suspense>
     </CContainer>

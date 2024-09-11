@@ -79,7 +79,6 @@ const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 const getRoutesByRole = (role) => {
   const commonRoutes = [
     { path: '/', exact: true, name: 'Home' },
-    { path: '/dashboard', name: 'Dashboard', element: Dashboard },
 
     //tables
     { path: '/tables/tablesList', name: 'Tables', element: TablesList },
@@ -144,6 +143,7 @@ const getRoutesByRole = (role) => {
   const adminRoutes = [
     ...commonRoutes,
     { path: '/users/usersList', name: 'Users', element: UsersList },
+    { path: '/dashboard', name: 'Dashboard', element: Dashboard },
     { path: '/users/createUser', name: 'Users', element: CreateUser },
     { path: '/menu', name: 'Menu', element: DisplayMenu },
     { path: '/menu/categories', name: 'Menu', element: MenuCategories },

@@ -114,7 +114,7 @@ const filterNavItemsByRole = (navItems, role) => {
   } else if (role === 'client') {
     // Filter out admin-specific items for clients
     return navItems.filter((item) => {
-      if (item.name === 'Users' || item.name === 'Menu') return false
+      if (item.name === 'Users' || item.name === 'Menu' || item.name === 'Dashboard') return false
       return true
     })
   }
