@@ -24,10 +24,9 @@ const NotifSupport = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [activeTable, setActiveTable] = useState(null)
   const [ringtone, setRingtone] = useState(null)
+  const socket = io(BaseUrl, { auth: { token } })
 
   useEffect(() => {
-    const socket = io(BaseUrl, { auth: { token } })
-
     socket.on('supportNotification', (data) => {
       setSupportRequests((prevRequests) => [...prevRequests, data.tableNumber])
       setActiveTable(data.tableNumber)
@@ -35,10 +34,21 @@ const NotifSupport = () => {
       playRingtone()
     })
 
+    // Listen for call answered event
+    socket.on('callAnswered', (data) => {
+      if (data.tableNumber === activeTable) {
+        stopRingtone()
+        setIsModalOpen(false)
+        setSupportRequests((prevRequests) =>
+          prevRequests.filter((tableNumber) => tableNumber !== data.tableNumber),
+        )
+      }
+    })
+
     return () => {
       socket.disconnect()
     }
-  }, [token])
+  }, [activeTable, token])
 
   const playRingtone = () => {
     const audio = new Audio('/ringtone.mp3')
@@ -58,6 +68,7 @@ const NotifSupport = () => {
     stopRingtone()
     setIsModalOpen(false)
     alert(`Answered call from table ${activeTable}`)
+    socket.emit('supportCallAnswered', { tableNumber: activeTable })
   }
 
   const handleDismissCall = () => {
