@@ -61,6 +61,18 @@ const Login = () => {
         <CRow className="justify-content-center">
           <CCol md={8}>
             <CCardGroup>
+              <CCard className="text-white bg-primary py-5">
+                <CCardBody className="text-center">
+                  <div>
+                    <p>Cafe'In your best way to Manage your Coffee, restaurant or Hotel!</p>
+                    <Link to="/register">
+                      {/* <CButton color="primary" className="mt-3" active tabIndex={-1}>
+                        Register Now!
+                      </CButton> */}
+                    </Link>
+                  </div>
+                </CCardBody>
+              </CCard>
               <CCard className="p-4">
                 <CCardBody>
                   <CForm>
@@ -113,19 +125,6 @@ const Login = () => {
                       </CCol>
                     </CRow>
                   </CForm>
-                </CCardBody>
-              </CCard>
-              <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
-                <CCardBody className="text-center">
-                  <div>
-                    <h2>Sign up</h2>
-                    <p>Cafe'In your best way to Manage your project !</p>
-                    <Link to="/register">
-                      <CButton color="primary" className="mt-3" active tabIndex={-1}>
-                        Register Now!
-                      </CButton>
-                    </Link>
-                  </div>
                 </CCardBody>
               </CCard>
             </CCardGroup>
