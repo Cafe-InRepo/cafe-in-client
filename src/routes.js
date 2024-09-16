@@ -26,6 +26,9 @@ const ProductsList = React.lazy(() => import('./views/products/ProductsList'))
 //support
 const Support = React.lazy(() => import('./views/SupportRequests/NotifSupport'))
 
+//daily receipt
+const Daily = React.lazy(() => import('./views/dashboard/DailyReceipt'))
+
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
@@ -94,6 +97,8 @@ const getRoutesByRole = (role) => {
 
     //spport
     { path: '/support', name: 'Support', element: Support },
+    //daily
+    { path: '/daily-receipt', name: 'Support', element: Daily },
 
     { path: '/theme', name: 'Theme', element: Colors, exact: true },
     { path: '/theme/colors', name: 'Colors', element: Colors },

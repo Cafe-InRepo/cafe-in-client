@@ -106,6 +106,12 @@ const _nav = [
     to: '/support',
     icon: <CIcon icon={cilBell} customClassName="nav-icon" />,
   },
+  {
+    component: CNavItem,
+    name: 'Daily Receipt',
+    to: '/daily-receipt',
+    icon: <CIcon icon={cilBell} customClassName="nav-icon" />,
+  },
 ]
 
 const filterNavItemsByRole = (navItems, role) => {
