@@ -87,6 +87,7 @@ const OrdersComponent = () => {
 
     doc.text(`Total Revenue: ${totalRevenue}`, 10, 140)
     doc.save('receipt.pdf')
+    fetchOrders()
   }
 
   // Fetch orders on component mount
@@ -94,6 +95,13 @@ const OrdersComponent = () => {
     fetchOrders()
   }, [])
 
+  if (orders.length === 0) {
+    return (
+      <>
+        <h2>You didn't get any orders for today</h2>
+      </>
+    )
+  }
   return (
     <CContainer>
       <h2>User Orders</h2>
