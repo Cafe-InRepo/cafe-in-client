@@ -34,7 +34,6 @@ const OrdersComponent = () => {
       })
 
       // Extract the orders and total revenue from the response
-      console.log(response.data.orders)
       setOrders(response.data.orders)
       setTotalRevenue(response.data.totalRevenue)
     } catch (error) {
@@ -56,7 +55,6 @@ const OrdersComponent = () => {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log(response.data.closedOrders)
       // After receiving the confirmation, generate the PDF
       generatePDFReceipt(response.data.closedOrders)
     } catch (error) {

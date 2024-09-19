@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import {
   CButton,
   CCard,
   CCardBody,
   CCardHeader,
   CCardTitle,
-  CCardText,
   CCardImage,
   CRow,
   CCol,
@@ -23,9 +22,11 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import Loading from '../../helpers/Loading'
-import tableImage from 'src/assets/images/table.png' // Assuming you have an image named table.png in your assets folder
+import tableImage from 'src/assets/images/table.png'
 import { io } from 'socket.io-client'
 import { GetToken } from '../../helpers/GetToken'
+import { QRCodeCanvas } from 'qrcode.react'
+import { saveAs } from 'file-saver'
 
 const TablesDashboard = () => {
   const [tables, setTables] = useState([])
@@ -35,11 +36,12 @@ const TablesDashboard = () => {
   const [showModal, setShowModal] = useState(false)
   const [modalMessage, setModalMessage] = useState('')
   const [modalError, setModalError] = useState(false)
-  const [showCreateModal, setShowCreateModal] = useState(false) // State for create table modal
-  const [tableNumber, setTableNumber] = useState('') // State for table number input
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [tableNumber, setTableNumber] = useState('')
   const token = GetToken()
 
   const navigate = useNavigate()
+
   const fetchTables = async () => {
     setLoading(true)
     try {
@@ -50,7 +52,6 @@ const TablesDashboard = () => {
         },
       })
 
-      // Calculate total price for each table based on orders
       const tablesWithTotalPrice = response.data.map((table) => {
         const totalPrice = table.orders.reduce((acc, order) => acc + order.totalPrice, 0)
         return { ...table, totalPrice }
@@ -63,11 +64,10 @@ const TablesDashboard = () => {
     }
     setLoading(false)
   }
+
   useEffect(() => {
     fetchTables()
-    const socket = io(BaseUrl, {
-      auth: { token },
-    })
+    const socket = io(BaseUrl, { auth: { token } })
 
     socket.on('newOrder', () => {
       fetchTables()
@@ -107,7 +107,7 @@ const TablesDashboard = () => {
       fetchTables() // Refresh the tables list
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
-        setModalMessage(err.response.data.error) // Display the error message from the server
+        setModalMessage(err.response.data.error)
       } else {
         setModalMessage('Error creating table')
       }
@@ -116,6 +116,12 @@ const TablesDashboard = () => {
     }
     setLoading(false)
     setShowModal(true)
+  }
+
+  const downloadQRCode = (e, tableNumber) => {
+    e.stopPropagation() // Prevents the event from propagating to parent elements
+    const qrCodeURL = document.getElementById(`qrCode-${tableNumber}`).toDataURL('image/png')
+    saveAs(qrCodeURL, `Table-${tableNumber}-QRCode.png`)
   }
 
   const filteredTables = tables.filter((table) => table.number.toString().includes(searchTerm))
@@ -155,6 +161,21 @@ const TablesDashboard = () => {
                       <CCardImage height="150" orientation="top" src={tableImage} />
                       <CCardBody>
                         <CCardTitle>Table {table.number}</CCardTitle>
+                        {/* <QRCodeCanvas
+                          id={`qrCode-${table.number}`}
+                          value={`Table-${table.number}`}
+                          size={64}
+                        /> */}
+                        <CButton
+                          color="light"
+                          size="sm"
+                          style={{ position: 'absolute', top: 10, right: 10 }}
+                          onClick={(e) => downloadQRCode(e, table.number)}
+                        >
+                          Download QR
+                        </CButton>
+                        <img width={100} height={100} src={table?.qrCode} alt=""></img>
+
                         {table.unpaidOrders && (
                           <CBadge
                             color="warning"
@@ -164,11 +185,6 @@ const TablesDashboard = () => {
                             Unpaid Orders
                           </CBadge>
                         )}
-                        {/* <CCardText>
-                          Total Price: {table.totalPrice.toFixed(2)} TND
-                          <br />
-                          Orders: {table.orders.length}
-                        </CCardText> */}
                       </CCardBody>
                     </CCard>
                   </CCol>
