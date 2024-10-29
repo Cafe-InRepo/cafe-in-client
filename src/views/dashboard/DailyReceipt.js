@@ -119,9 +119,9 @@ const OrdersComponent = () => {
               </CTableRow>
             </CTableHead>
             <CTableBody>
-              {orders?.map((order) => (
+              {orders?.map((order,index) => (
                 <CTableRow key={order.orderId}>
-                  <CTableDataCell>{order.orderId}</CTableDataCell>
+                  <CTableDataCell>{index+1}</CTableDataCell>
                   <CTableDataCell>
                     {order.products.map((product) => (
                       <p key={product.productId}>
@@ -129,7 +129,7 @@ const OrdersComponent = () => {
                       </p>
                     ))}
                   </CTableDataCell>
-                  <CTableDataCell>{order.totalPrice} TND</CTableDataCell>
+                  <CTableDataCell>{order.totalPrice.toFixed(2)} TND</CTableDataCell>
                   <CTableDataCell>{new Date(order.timestamp).toLocaleString()}</CTableDataCell>
                 </CTableRow>
               ))}

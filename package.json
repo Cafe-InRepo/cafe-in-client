@@ -1,7 +1,7 @@
 {
-  "name": "@coreui/coreui-free-react-admin-template",
+  "name": "order-craft",
   "version": "5.1.0",
-  "description": "CoreUI Free React Admin Template",
+  "description": "order craft for best coffee & restaurants managment",
   "homepage": ".",
   "bugs": {
     "url": "https://github.com/coreui/coreui-free-react-admin-template/issues"
@@ -45,7 +45,8 @@
     "react-router-dom": "^6.23.1",
     "redux": "5.0.1",
     "simplebar-react": "^3.2.5",
-    "socket.io-client": "^4.7.5"
+    "socket.io-client": "^4.7.5",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",

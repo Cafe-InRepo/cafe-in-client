@@ -26,7 +26,7 @@ import {
   CSpinner,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilOptions } from '@coreui/icons'
+import { cilOptions, cilPencil, cilTrash } from '@coreui/icons'
 import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import Loading from '../../helpers/Loading'
@@ -293,24 +293,27 @@ const Menu = () => {
     setLoading(true)
     try {
       const token = localStorage.getItem('token')
-      await axios.delete(`${BaseUrl}/categories/${categoryId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      setMenu((prevMenu) => ({
-        ...prevMenu,
-        categories: prevMenu.categories.filter((cat) => cat._id !== categoryId),
-      }))
-      setModalMessage('Category deleted successfully')
-      setModalError(false)
+      const conf = confirm('are you sure you want to delete it?')
+      if (conf) {
+        await axios.delete(`${BaseUrl}/categories/${categoryId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        setMenu((prevMenu) => ({
+          ...prevMenu,
+          categories: prevMenu.categories.filter((cat) => cat._id !== categoryId),
+        }))
+        setModalMessage('Category deleted successfully')
+        setModalError(false)
+        setLoading(false)
+        setShowModal(true)
+      }
     } catch (err) {
       setModalMessage('Error deleting category')
       setModalError(true)
       console.error(err)
     }
-    setLoading(false)
-    setShowModal(true)
   }
 
   const handleCloseModal = () => {
@@ -395,19 +398,29 @@ const Menu = () => {
                   </CAccordionItem>
                   {menu.categories?.map((category, index) => (
                     <CAccordionItem key={category._id} itemKey={index.toString()}>
-                      <CAccordionHeader>
+                      <CAccordionHeader className="position-relative">
                         {category.name}
-                        <CDropdown variant="btn-group" className="ms-2">
-                          <CDropdownMenu>
-                            <CDropdownItem onClick={() => handleEditCategory(category)}>
-                              Edit
-                            </CDropdownItem>
-                            <CDropdownItem onClick={() => handleDeleteCategory(category._id)}>
-                              Delete
-                            </CDropdownItem>
-                          </CDropdownMenu>
-                        </CDropdown>
+                        <div
+                          className="position-absolute end-0 d-flex"
+                          style={{ marginRight: '60px' }}
+                        >
+                          <CIcon
+                            icon={cilPencil}
+                            className="me-3"
+                            size="lg"
+                            role="button"
+                            onClick={() => handleEditCategory(category)}
+                          />
+                          <CIcon
+                            icon={cilTrash}
+                            className="me-0"
+                            size="lg"
+                            role="button"
+                            onClick={() => handleDeleteCategory(category._id)}
+                          />
+                        </div>
                       </CAccordionHeader>
+
                       <CAccordionBody>
                         <CCardTitle className="mt-4">Add Product</CCardTitle>
                         <CForm onSubmit={handleAddProduct}>

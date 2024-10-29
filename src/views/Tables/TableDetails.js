@@ -110,6 +110,18 @@ const TableDetails = () => {
     setShowModal(false)
   }
 
+  const handlePrintReceipt = () => {
+    // Show the receipt
+    const receiptElement = document.getElementById('receipt')
+    receiptElement.style.display = 'block'
+
+    // Trigger the print dialog
+    window.print()
+
+    // Hide the receipt after printing
+    receiptElement.style.display = 'none'
+  }
+
   if (loading) {
     return <Loading />
   }
@@ -146,6 +158,11 @@ const TableDetails = () => {
               >
                 Confirm Selected
               </CButton>
+              {selectedOrders.length > 0 && (
+                <CButton color="info" className="btn-sm ms-2" onClick={handlePrintReceipt}>
+                  Print Receipt
+                </CButton>
+              )}
             </div>
           </CCardHeader>
           <CCardBody>
@@ -222,6 +239,34 @@ const TableDetails = () => {
           </CButton>
         </CModalFooter>
       </CModal>
+      <div id="receipt" style={{ display: 'none' }}>
+        <h2>Payment Receipt</h2>
+        <p>Table: {table?.number}</p>
+        <p>Date: {new Date().toLocaleDateString()}</p>
+        <hr />
+        {selectedOrders.map((order) => {
+          const fullOrder = table?.orders.find((o) => o._id === order.orderId)
+          return (
+            <div key={order.orderId}>
+              <p>Order ID: {order.orderId}</p>
+              {fullOrder?.products.map((product) => (
+                <p key={product._id}>
+                  {product.quantity} x {product.product.name} - {product.product.price.toFixed(2)}{' '}
+                  TND
+                </p>
+              ))}
+              <p>
+                <strong>Total: {order.orderPrice.toFixed(2)} TND</strong>
+              </p>
+              <hr />
+            </div>
+          )
+        })}
+        <p>
+          <strong>Total Selected: {calculateSelectedTotal()} TND</strong>
+        </p>
+        <p>Thank you for your payment!</p>
+      </div>
     </CRow>
   )
 }

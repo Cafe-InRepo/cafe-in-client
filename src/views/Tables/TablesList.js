@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   CButton,
   CCard,
   CCardBody,
   CCardHeader,
   CCardTitle,
-  CCardImage,
   CRow,
   CCol,
   CModal,
@@ -17,6 +16,11 @@ import {
   CInputGroup,
   CFormInput,
   CForm,
+  CDropdown,
+  CDropdownItem,
+  CDropdownMenu,
+  CDropdownToggle,
+  CCardImage,
 } from '@coreui/react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
@@ -25,8 +29,9 @@ import Loading from '../../helpers/Loading'
 import tableImage from 'src/assets/images/table.png'
 import { io } from 'socket.io-client'
 import { GetToken } from '../../helpers/GetToken'
-import { QRCodeCanvas } from 'qrcode.react'
 import { saveAs } from 'file-saver'
+import CIcon from '@coreui/icons-react'
+import { cilCloudDownload, cilQrCode, cilTrash } from '@coreui/icons'
 
 const TablesDashboard = () => {
   const [tables, setTables] = useState([])
@@ -118,10 +123,43 @@ const TablesDashboard = () => {
     setShowModal(true)
   }
 
-  const downloadQRCode = (e, tableNumber) => {
-    e.stopPropagation() // Prevents the event from propagating to parent elements
-    const qrCodeURL = document.getElementById(`qrCode-${tableNumber}`).toDataURL('image/png')
+  const downloadQRCode = (tableNumber, qrCodeURL) => {
+    // Fetch the image from the URL and download it using FileSaver
     saveAs(qrCodeURL, `Table-${tableNumber}-QRCode.png`)
+  }
+
+  const handleDeleteTable = async (tableId, unpaidOrders) => {
+    if (unpaidOrders) {
+      setModalMessage('Cannot delete a table with unpaid orders.')
+      setModalError(true)
+      setShowModal(true)
+      return
+    }
+
+    if (
+      window.confirm(
+        'By deleting the table you are going to delete also any orders assigned to it?',
+      )
+    ) {
+      setLoading(true)
+      try {
+        const token = localStorage.getItem('token')
+        await axios.delete(`${BaseUrl}/tables/${tableId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        setModalMessage('Table deleted successfully')
+        setModalError(false)
+        fetchTables() // Refresh the tables list after deletion
+      } catch (err) {
+        setModalMessage('Error deleting table')
+        setModalError(true)
+        console.error(err)
+      }
+      setLoading(false)
+      setShowModal(true)
+    }
   }
 
   const filteredTables = tables.filter((table) => table.number.toString().includes(searchTerm))
@@ -153,34 +191,46 @@ const TablesDashboard = () => {
               <CRow>
                 {filteredTables.map((table) => (
                   <CCol xs={6} sm={3} md={2} key={table._id}>
-                    <CCard
-                      style={{ cursor: 'pointer', marginBottom: 10 }}
-                      onClick={() => handleCardClick(table._id)}
-                      className={table.unpaidOrders ? 'bg-danger text-white' : ''}
-                    >
-                      <CCardImage height="150" orientation="top" src={tableImage} />
-                      <CCardBody>
-                        <CCardTitle>Table {table.number}</CCardTitle>
-                        {/* <QRCodeCanvas
-                          id={`qrCode-${table.number}`}
-                          value={`Table-${table.number}`}
-                          size={64}
-                        /> */}
-                        <CButton
-                          color="light"
-                          size="sm"
-                          style={{ position: 'absolute', top: 10, right: 10 }}
-                          onClick={(e) => downloadQRCode(e, table.number)}
+                    <CCard style={{ cursor: 'pointer', marginBottom: 10, position: 'relative' }}>
+                      <CCardHeader>
+                        <CDropdown
+                          style={{ display: 'flex', flexDirection: 'row', alignSelf: 'end' }}
                         >
-                          Download QR
-                        </CButton>
-                        <img width={100} height={100} src={table?.qrCode} alt=""></img>
+                          <CDropdownToggle color="secondary" size="sm">
+                            Actions
+                          </CDropdownToggle>
+                          <CDropdownMenu>
+                            <CDropdownItem
+                              onClick={() => downloadQRCode(table.number, table.qrCode)}
+                            >
+                              <CIcon icon={cilCloudDownload} className="me-2" />
+                              Download QR Code
+                            </CDropdownItem>
+                            <CDropdownItem
+                              onClick={() => handleDeleteTable(table._id, table.unpaidOrders)}
+                            >
+                              <CIcon icon={cilTrash} className="me-2" />
+                              Delete Table
+                            </CDropdownItem>
+                            <CDropdownItem>
+                              <CIcon icon={cilQrCode} className="me-2" />
+                              Change QR Code
+                            </CDropdownItem>
+                          </CDropdownMenu>
+                        </CDropdown>
+                      </CCardHeader>
+                      <CCardBody
+                        onClick={() => handleCardClick(table._id)}
+                        className={table.unpaidOrders ? 'bg-danger text-white' : ''}
+                      >
+                        <CCardImage height="150" orientation="top" src={tableImage} />
+                        <CCardTitle>Table {table.number}</CCardTitle>
 
                         {table.unpaidOrders && (
                           <CBadge
                             color="warning"
                             className="ms-2"
-                            style={{ position: 'absolute', top: 10, right: 10 }}
+                            style={{ position: 'absolute', top: 10, left: 10 }}
                           >
                             Unpaid Orders
                           </CBadge>
@@ -223,7 +273,7 @@ const TablesDashboard = () => {
         </CModalHeader>
         <CModalBody>{modalMessage}</CModalBody>
         <CModalFooter>
-          <CButton color="primary" onClick={handleCloseModal}>
+          <CButton color="secondary" onClick={handleCloseModal}>
             Close
           </CButton>
         </CModalFooter>

@@ -1,7 +1,11 @@
 import React from 'react'
 import { jwtDecode } from 'jwt-decode' // Use named import for jwtDecode
 
+//const Dashboard = React.lazy(() => import('./views/dashboard/Categories'))
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
+const Sales = React.lazy(() => import('./views/dashboard/sales/index'))
+const DailyRevenue = React.lazy(() => import('./views/dashboard/sales/DailyReveue'))
+
 // users
 const UsersList = React.lazy(() => import('./views/users/usersTable'))
 const CreateUser = React.lazy(() => import('./views/users/createUser'))
@@ -148,7 +152,10 @@ const getRoutesByRole = (role) => {
   const adminRoutes = [
     ...commonRoutes,
     { path: '/users/usersList', name: 'Users', element: UsersList },
+    //dashboard
     { path: '/dashboard', name: 'Dashboard', element: Dashboard },
+    { path: '/Sales', name: 'sales', element: Sales },
+    { path: '/sales-statistics', name: 'DailyRevenue', element: DailyRevenue },
     { path: '/users/createUser', name: 'Users', element: CreateUser },
     { path: '/menu', name: 'Menu', element: DisplayMenu },
     { path: '/menu/categories', name: 'Menu', element: MenuCategories },

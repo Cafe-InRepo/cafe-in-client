@@ -1,6 +1,6 @@
 {
-  "short_name": "Cafe'in",
-  "name": "Cafe'in Orders managment",
+  "short_name": "Order Craft",
+  "name": "Order Craft Orders managment",
   "icons": [
     {
       "src": "./assets/img/favicon.png",
