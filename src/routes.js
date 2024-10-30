@@ -1,8 +1,8 @@
 import React from 'react'
 import { jwtDecode } from 'jwt-decode' // Use named import for jwtDecode
 
-//const Dashboard = React.lazy(() => import('./views/dashboard/Categories'))
-const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
+const Dashboard = React.lazy(() => import('./views/dashboard/Categories'))
+//const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Sales = React.lazy(() => import('./views/dashboard/sales/index'))
 const DailyRevenue = React.lazy(() => import('./views/dashboard/sales/DailyReveue'))
 

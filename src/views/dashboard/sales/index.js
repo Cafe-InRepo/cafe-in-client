@@ -8,76 +8,43 @@ import CurrentMonthRevenue from './MonthlyRevenue'
 import CurrentWeekRevenue from './WeeklyRevenue'
 import RevenueBetweenDates from './RevenueBetweenDates'
 
+// Reusable Card Component to avoid repetition
+const RevenueCard = ({ icon, title, children }) => (
+  <CRow className="w-100 mb-4 justify-content-center">
+    <CCol xs={12} md={8} lg={8}>
+      <CCard>
+        <CCardHeader className="d-flex align-items-center justify-content-center">
+          <CIcon icon={icon} className="me-2" />
+          <strong>{title}</strong>
+        </CCardHeader>
+        <CCardBody>{children}</CCardBody>
+      </CCard>
+    </CCol>
+  </CRow>
+)
 
-const Sales = (props) => {
+const Sales = () => {
   return (
     <CContainer className="d-flex flex-column align-items-center">
-      <CRow className="w-100 mb-4 justify-content-center">
-        <CCol xs={12} md={8} lg={8}>
-          <CCard>
-            <CCardHeader className="d-flex align-items-center justify-content-center">
-              <CIcon icon={cilCalendar} className="me-2" />
-              <strong>Daily Revenue</strong>
-            </CCardHeader>
-            <CCardBody>
-              <DailyRevenue />
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
-      <CRow className="w-100 mb-4 justify-content-center">
-        <CCol xs={12} md={8} lg={8}>
-          <CCard>
-            <CCardHeader className="d-flex align-items-center justify-content-center">
-              <CIcon icon={cilChart} className="me-2" />
-              <strong>Weekly Revenue</strong>
-            </CCardHeader>
-            <CCardBody>
-              <CurrentWeekRevenue />
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
-      <CRow className="w-100 mb-4 justify-content-center">
-        <CCol xs={12} md={8} lg={8}>
-          <CCard>
-            <CCardHeader className="d-flex align-items-center justify-content-center">
-              <CIcon icon={cilChart} className="me-2" />
-              <strong>Monthly Revenue</strong>
-            </CCardHeader>
-            <CCardBody>
-              <CurrentMonthRevenue />
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
+      <RevenueCard icon={cilCalendar} title="Daily Revenue">
+        <DailyRevenue />
+      </RevenueCard>
 
-      <CRow className="w-100 justify-content-center">
-        <CCol xs={12} md={8} lg={8}>
-          <CCard>
-            <CCardHeader className="d-flex align-items-center justify-content-center">
-              <CIcon icon={cilChart} className="me-2" />
-              <strong>Yearly Revenue</strong>
-            </CCardHeader>
-            <CCardBody>
-              <YearlyRevenue />
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
-      <CRow className="w-100 justify-content-center">
-        <CCol xs={12} md={8} lg={8}>
-          <CCard>
-            <CCardHeader className="d-flex align-items-center justify-content-center">
-              <CIcon icon={cilChart} className="me-2" />
-              <strong>2 dates Revenue</strong>
-            </CCardHeader>
-            <CCardBody>
-              <RevenueBetweenDates />
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
+      <RevenueCard icon={cilChart} title="Weekly Revenue">
+        <CurrentWeekRevenue />
+      </RevenueCard>
+
+      <RevenueCard icon={cilChart} title="Monthly Revenue">
+        <CurrentMonthRevenue />
+      </RevenueCard>
+
+      <RevenueCard icon={cilChart} title="Yearly Revenue">
+        <YearlyRevenue />
+      </RevenueCard>
+
+      <RevenueCard icon={cilChart} title="Revenue Between 2 Dates">
+        <RevenueBetweenDates />
+      </RevenueCard>
     </CContainer>
   )
 }

@@ -6,7 +6,7 @@ const Dashboard = () => {
   const navigate = useNavigate()
 
   const categories = [
-    { name: 'Sales Statistics', color: '#FF5733', path: '/sales-statistics' },
+    { name: 'Sales Statistics', color: '#FF5733', path: '/sales' },
     { name: 'Product Performance', color: '#33B5FF', path: '/product-performance' },
     { name: 'Order Management', color: '#33FF57', path: '/order-management' },
     { name: 'Customer Insights', color: '#FF33A1', path: '/customer-insights' },
