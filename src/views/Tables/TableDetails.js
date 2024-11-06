@@ -203,6 +203,8 @@ const TableDetails = () => {
                       style={{
                         cursor: order.payed ? 'not-allowed' : 'pointer',
                         opacity: order.payed ? 0.6 : 1,
+                        background: '#f8f9fa',
+
                       }}
                     >
                       <CCardBody className="position-relative">
@@ -212,14 +214,46 @@ const TableDetails = () => {
                         </div>
 
                         {/* Products in the Middle */}
-                        <div className="text-center card-text">
+                        <div
+                          className="product-list"
+                          style={{
+                            marginBottom: '40px',
+                            marginTop: '40px',
+                            maxHeight: '300px',
+                            overflowY: 'auto',
+                            padding: '10px',
+                            borderRadius: '5px',
+                            border: '1px solid #ddd',
+                            background: '#f8f9fa',
+                            height: '180px',
+                          }}
+                        >
                           {order.products.map((product) => (
-                            <div key={product._id} className="my-2">
-                              <strong>
-                                {product.quantity} x {product.product.name}
-                              </strong>{' '}
-                              - {product?.product?.price?.toFixed(2)} TND
-                            </div>
+                            <CRow
+                              key={product._id}
+                              className={`align-items-center my-2 p-2 rounded product-item ${product.payedQuantity === product.quantity ? 'paid-product-item' : ''}`}
+                            >
+                              <CCol xs={12}>
+                                <div className="product-details d-flex justify-content-between">
+                                  <div>
+                                    <strong>{product.product.name}</strong>
+                                    <div className="small text-muted">
+                                      {product.product.price.toFixed(2)} TND
+                                    </div>
+                                  </div>
+                                  <div className="text-end">
+                                    <span
+                                      className="quantity"
+                                      style={{ fontWeight: 'bold', fontSize: '1em' }}
+                                    >
+                                      x {product.quantity}
+                                    </span>{' '}
+                                    <br></br>
+                                    <span className="small text-muted">{product.product.price * product.quantity} TND</span>
+                                  </div>
+                                </div>
+                              </CCol>
+                            </CRow>
                           ))}
                         </div>
 
