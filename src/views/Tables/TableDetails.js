@@ -19,6 +19,7 @@ import { BaseUrl } from '../../helpers/BaseUrl'
 import Loading from '../../helpers/Loading'
 import './TableDetails.css' // Import the CSS file
 import { GetToken } from '../../helpers/GetToken'
+import ProductSelectionModal from './ProductSelectionModal'
 
 const TableDetails = () => {
   const { tableId } = useParams()
@@ -26,9 +27,11 @@ const TableDetails = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showModal, setShowModal] = useState(false)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [modalMessage, setModalMessage] = useState('')
   const [modalError, setModalError] = useState(false)
   const [selectedOrders, setSelectedOrders] = useState([])
+  const [selectedOrderIndex, setSelectedOrderIndex] = useState()
   const navigate = useNavigate()
   const token = GetToken()
   const fetchTableDetails = async () => {
@@ -106,10 +109,20 @@ const TableDetails = () => {
     return selectedOrders.reduce((acc, order) => acc + order.orderPrice, 0).toFixed(2)
   }
 
+  const handleCloseDetailsModal = () => {
+    setShowDetailsModal(false)
+  }
   const handleCloseModal = () => {
     setShowModal(false)
   }
-
+  const handleDetailsClick = (index) => {
+    setSelectedOrderIndex(index)
+    console.log(index)
+    setShowDetailsModal(true)
+  }
+  const handleRefetchData = () => {
+    fetchTableDetails() // Refetch products when payment is confirmed or modal is closed
+  }
   const handlePrintReceipt = () => {
     // Show the receipt
     const receiptElement = document.getElementById('receipt')
@@ -203,6 +216,17 @@ const TableDetails = () => {
                       </div>
 
                       {/* Total Price on Bottom Right */}
+                      <CButton
+                        className="position-absolute bottom-0 start-0 p-2 m-2"
+                        color="primary"
+                        onClick={(e) => {
+                          e.stopPropagation() // Stop the event from propagating
+                          handleDetailsClick(index)
+                        }}
+                      >
+                        Details
+                      </CButton>
+
                       <div className="position-absolute bottom-0 end-0 p-2 card-price">
                         <strong>Total: {order.totalPrice.toFixed(2)} TND</strong>
                       </div>
@@ -239,6 +263,14 @@ const TableDetails = () => {
           </CButton>
         </CModalFooter>
       </CModal>
+      <ProductSelectionModal
+        visible={showDetailsModal}
+        onClose={handleCloseDetailsModal}
+        products={table?.orders[selectedOrderIndex]?.products || []} // Pass in the products of the selected order
+        orderId={table?.orders[selectedOrderIndex]?._id}
+        refetchData={handleRefetchData}
+      />
+
       <div id="receipt" style={{ display: 'none' }}>
         <h2>Payment Receipt</h2>
         <p>Table: {table?.number}</p>
