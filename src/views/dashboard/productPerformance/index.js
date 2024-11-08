@@ -4,6 +4,7 @@ import { CIcon } from '@coreui/icons-react'
 import { cilCalendar, cilChart } from '@coreui/icons'
 import MostSoldProducts from './MostSoldProducts'
 import RevenuePerProduct from './RevenuePerProduct'
+import ProductsRate from './ProductsRate'
 
 // Reusable Card Component to avoid repetition
 const RevenueCard = ({ icon, title, children }) => (
@@ -28,6 +29,9 @@ const Sales = () => {
       </RevenueCard>
       <RevenueCard icon={cilCalendar} title="Revenue Per Product">
         <RevenuePerProduct />
+      </RevenueCard>
+      <RevenueCard icon={cilCalendar} title=" Products Rating">
+        <ProductsRate />
       </RevenueCard>
     </CContainer>
   )
