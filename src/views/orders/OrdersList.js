@@ -5,36 +5,33 @@ import {
   CCardHeader,
   CCol,
   CRow,
-  CTable,
-  CTableBody,
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
   CButton,
   CNav,
   CNavItem,
   CNavLink,
   CTabContent,
   CTabPane,
-  CSpinner, // Import the CSpinner component for loading
+  CSpinner,
+  CBadge,
+  CAccordion,
+  CAccordionBody,
+  CAccordionHeader,
+  CAccordionItem,
 } from '@coreui/react'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import axios from 'axios'
-import { io } from 'socket.io-client' // Import the Socket.IO client
+import { io } from 'socket.io-client'
 import { GetToken } from '../../helpers/GetToken'
-import Loading from '../../helpers/Loading'
 
 const OrdersTable = () => {
   const [orders, setOrders] = useState([])
-  const [loading, setLoading] = useState(true) // Add loading state
+  const [loading, setLoading] = useState(true)
   const [activeKey, setActiveKey] = useState(1)
   const token = GetToken()
 
   const fetchOrders = async () => {
-    setLoading(true) // Set loading to true when fetching data
+    setLoading(true)
     try {
-      const token = localStorage.getItem('token')
       const response = await axios.get(`${BaseUrl}/order/orders/ordersfifo`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -44,7 +41,7 @@ const OrdersTable = () => {
     } catch (error) {
       console.error('Failed to fetch orders:', error)
     } finally {
-      setLoading(false) // Set loading to false after data is fetched
+      setLoading(false)
     }
   }
 
@@ -66,7 +63,6 @@ const OrdersTable = () => {
   const updateOrderStatus = async (orderId, newStatus) => {
     setLoading(true)
     try {
-      const token = localStorage.getItem('token')
       const response = await axios.put(
         `${BaseUrl}/order/update-status/${orderId}`,
         { status: newStatus },
@@ -82,73 +78,69 @@ const OrdersTable = () => {
         setOrders(
           orders.map((order) => (order._id === orderId ? { ...order, status: newStatus } : order)),
         )
-        setLoading(false)
       } else {
-        setLoading(false)
-
         console.error('Failed to update order status')
       }
     } catch (error) {
-      setLoading(false)
       console.error('Failed to update order status:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const renderOrderTable = (status) => (
-    <CTable striped responsive>
-      <CTableHead>
-        <CTableRow>
-          <CTableHeaderCell>#</CTableHeaderCell>
-          <CTableHeaderCell>Table</CTableHeaderCell>
-          <CTableHeaderCell>Products</CTableHeaderCell>
-          <CTableHeaderCell>Status</CTableHeaderCell>
-          <CTableHeaderCell>Actions</CTableHeaderCell>
-        </CTableRow>
-      </CTableHead>
-      <CTableBody>
-        {orders
-          .filter((order) => order.status === status)
-          .map((order, index) => (
-            <CTableRow key={order._id}>
-              <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-              <CTableDataCell>{order.table.number}</CTableDataCell>
-              <CTableDataCell>
-                {order.products.map((product) => (
-                  <div key={product.product._id}>
+  const renderOrderCard = (order) => (
+    <CCard key={order._id} className="mb-3 shadow-sm">
+      <CCardBody>
+        <div className="d-flex justify-content-between align-items-center">
+          <h5>Table {order.table.number}</h5>
+          <CBadge
+            color={
+              order.status === 'pending'
+                ? 'warning'
+                : order.status === 'preparing'
+                  ? 'info'
+                  : 'success'
+            }
+          >
+            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+          </CBadge>
+        </div>
+        <CAccordion flush>
+          <CAccordionItem itemKey="1">
+            <CAccordionHeader>Products</CAccordionHeader>
+            <CAccordionBody>
+              {order.products.map((product) => (
+                <div key={product.product._id} className="d-flex justify-content-between my-2">
+                  <span>
                     {product.product.name} x {product.quantity}
-                  </div>
-                ))}
-              </CTableDataCell>
-              <CTableDataCell>{order.status}</CTableDataCell>
-              <CTableDataCell>
-                {order.status !== 'completed' && (
-                  <CButton
-                    disabled={loading}
-                    color="primary"
-                    onClick={() =>
-                      updateOrderStatus(
-                        order._id,
-                        order.status === 'pending' ? 'preparing' : 'completed',
-                      )
-                    }
-                  >
-                    {loading ? (
-                      <>
-                        <CSpinner />
-                        "Loading"{' '}
-                      </>
-                    ) : order.status === 'pending' ? (
-                      'Move to Preparing'
-                    ) : (
-                      'Move to Completed'
-                    )}
-                  </CButton>
-                )}
-              </CTableDataCell>
-            </CTableRow>
-          ))}
-      </CTableBody>
-    </CTable>
+                  </span>
+                  <span>{(product.product.price * product.quantity).toFixed(2)} TND</span>
+                </div>
+              ))}
+            </CAccordionBody>
+          </CAccordionItem>
+        </CAccordion>
+        {order.status !== 'completed' && (
+          <div className="d-flex justify-content-end mt-3">
+            <CButton
+              color={order.status === 'pending' ? 'info' : 'success'}
+              onClick={() =>
+                updateOrderStatus(order._id, order.status === 'pending' ? 'preparing' : 'completed')
+              }
+              disabled={loading}
+            >
+              {loading ? (
+                <CSpinner size="sm" />
+              ) : order.status === 'pending' ? (
+                'Move to Preparing'
+              ) : (
+                'Move to Completed'
+              )}
+            </CButton>
+          </div>
+        )}
+      </CCardBody>
+    </CCard>
   )
 
   return (
@@ -178,13 +170,25 @@ const OrdersTable = () => {
             </CNav>
             <CTabContent>
               <CTabPane visible={activeKey === 1}>
-                {loading ? <CSpinner /> : renderOrderTable('pending')}
+                {loading ? (
+                  <CSpinner />
+                ) : (
+                  orders.filter((order) => order.status === 'pending').map(renderOrderCard)
+                )}
               </CTabPane>
               <CTabPane visible={activeKey === 2}>
-                {loading ? <CSpinner /> : renderOrderTable('preparing')}
+                {loading ? (
+                  <CSpinner />
+                ) : (
+                  orders.filter((order) => order.status === 'preparing').map(renderOrderCard)
+                )}
               </CTabPane>
               <CTabPane visible={activeKey === 3}>
-                {loading ? <CSpinner /> : renderOrderTable('completed')}
+                {loading ? (
+                  <CSpinner />
+                ) : (
+                  orders.filter((order) => order.status === 'completed').map(renderOrderCard)
+                )}
               </CTabPane>
             </CTabContent>
           </CCardBody>

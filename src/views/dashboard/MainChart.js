@@ -4,6 +4,7 @@ import { getStyle } from '@coreui/utils'
 import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import { GetToken } from '../../helpers/GetToken'
+import { CSpinner } from '@coreui/react'
 
 const MainChart = () => {
   const chartRef = useRef(null)
@@ -102,7 +103,9 @@ const MainChart = () => {
       )
     }),
   }))
-
+  if (loading) {
+    return <CSpinner />
+  }
   return (
     <>
       <CChartLine

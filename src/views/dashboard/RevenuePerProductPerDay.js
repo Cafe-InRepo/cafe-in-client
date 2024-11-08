@@ -4,6 +4,7 @@ import { getStyle } from '@coreui/utils'
 import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import { GetToken } from '../../helpers/GetToken'
+import { CSpinner } from '@coreui/react'
 
 const RevenuePerProductPerDay = () => {
   const chartRef = useRef(null)
@@ -68,7 +69,7 @@ const RevenuePerProductPerDay = () => {
   })
 
   const labels = daysOfWeek.map((date) =>
-    date.toLocaleDateString('default', { weekday: 'short', day: 'numeric' })
+    date.toLocaleDateString('default', { weekday: 'short', day: 'numeric' }),
   )
 
   // Extract product names and generate unique colors
@@ -96,7 +97,7 @@ const RevenuePerProductPerDay = () => {
     borderDash: index % 2 === 0 ? [] : [5, 5], // Solid line for even indices, dashed line for odd indices
     data: daysOfWeek.map((day) => {
       const dayData = revenueData.find(
-        (data) => new Date(data.date).toDateString() === day.toDateString()
+        (data) => new Date(data.date).toDateString() === day.toDateString(),
       )
       return (
         dayData?.products[
@@ -107,7 +108,9 @@ const RevenuePerProductPerDay = () => {
       )
     }),
   }))
-
+  if (loading) {
+    return <CSpinner />
+  }
   return (
     <>
       <CChartLine
