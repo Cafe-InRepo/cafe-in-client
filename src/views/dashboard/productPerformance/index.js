@@ -24,11 +24,11 @@ const RevenueCard = ({ icon, title, children }) => (
 const Sales = () => {
   return (
     <CContainer className="d-flex flex-column align-items-center">
-      <RevenueCard icon={cilCalendar} title="Most Sold Products">
-        <MostSoldProducts />
-      </RevenueCard>
       <RevenueCard icon={cilCalendar} title="Revenue Per Product">
         <RevenuePerProduct />
+      </RevenueCard>
+      <RevenueCard icon={cilCalendar} title="Most Sold Products">
+        <MostSoldProducts />
       </RevenueCard>
       <RevenueCard icon={cilCalendar} title=" Products Rating">
         <ProductsRate />
