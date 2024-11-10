@@ -64,7 +64,7 @@ const Login = () => {
               <CCard className="text-white bg-primary py-5">
                 <CCardBody className="text-center">
                   <div>
-                    <p>Cafe'In your best way to Manage your Coffee, restaurant or Hotel!</p>
+                    <p>Order Craft your best way to Manage your Coffee, restaurant or Hotel!</p>
                     <Link to="/register">
                       {/* <CButton color="primary" className="mt-3" active tabIndex={-1}>
                         Register Now!

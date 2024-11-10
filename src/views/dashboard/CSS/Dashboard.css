@@ -27,4 +27,16 @@
     margin: 0;
     font-size: 18px;
   }
+  .dashboard-item-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .dashboard-item-image {
+    width: 100px; /* Adjust size as needed */
+    height: 100px; /* Adjust size as needed */
+    margin-bottom: 10px; /* Space between image and title */
+  }
   

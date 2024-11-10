@@ -12,7 +12,6 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
-  CBadge,
   CFormInput,
   CFormCheck,
   CAlert,
@@ -184,15 +183,6 @@ const TablesDashboard = () => {
 
                       <CCardBody>
                         <CCardTitle>Table {table.number}</CCardTitle>
-                        {table.unpaidOrders && (
-                          <CBadge
-                            color="warning"
-                            className="ms-2"
-                            style={{ position: 'absolute', top: 10, right: 10 }}
-                          >
-                            Unpaid Orders
-                          </CBadge>
-                        )}
                       </CCardBody>
                     </CCard>
                   </CCol>

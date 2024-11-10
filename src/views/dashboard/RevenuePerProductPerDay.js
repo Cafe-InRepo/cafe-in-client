@@ -6,7 +6,7 @@ import { BaseUrl } from '../../helpers/BaseUrl'
 import { GetToken } from '../../helpers/GetToken'
 import { CSpinner } from '@coreui/react'
 
-const RevenuePerProductPerDay = () => {
+const RevenuePerProductPerDay = ({ onDataUpdate }) => {
   const chartRef = useRef(null)
   const [revenueData, setRevenueData] = useState([])
   const [loading, setLoading] = useState(true)
@@ -23,6 +23,7 @@ const RevenuePerProductPerDay = () => {
           },
         })
         setRevenueData(response.data)
+        onDataUpdate(response.data)
 
         // Calculate the maximum value for the y-axis
         const allValues = response.data.flatMap((dayData) =>
@@ -73,100 +74,60 @@ const RevenuePerProductPerDay = () => {
   )
 
   // Extract product names and generate unique colors
-  const productNames = Object.values(
-    revenueData.reduce((acc, dayData) => {
-      Object.keys(dayData.products).forEach((productId) => {
-        if (!acc[productId]) {
-          acc[productId] = dayData.products[productId].productName
-        }
-      })
-      return acc
-    }, {}),
-  )
+  const productNames = []
+  const datasets = []
 
-  const colors = productNames.map(
-    (_, index) => `hsl(${(index * 360) / productNames.length}, 70%, 50%)`,
-  )
+  revenueData.forEach((dayData) => {
+    dayData.products.forEach((product) => {
+      if (!productNames.includes(product.productName)) {
+        productNames.push(product.productName)
+      }
+    })
+  })
 
-  const datasets = productNames.map((productName, index) => ({
-    label: productName,
-    backgroundColor: 'transparent',
-    borderColor: colors[index],
-    pointHoverBackgroundColor: colors[index],
-    borderWidth: 2,
-    borderDash: index % 2 === 0 ? [] : [5, 5], // Solid line for even indices, dashed line for odd indices
-    data: daysOfWeek.map((day) => {
+  productNames.forEach((productName, index) => {
+    const dataPoints = daysOfWeek.map((date) => {
       const dayData = revenueData.find(
-        (data) => new Date(data.date).toDateString() === day.toDateString(),
+        (day) => new Date(day.date).toDateString() === date.toDateString(),
       )
-      return (
-        dayData?.products[
-          Object.keys(dayData.products).find(
-            (productId) => dayData.products[productId].productName === productName,
-          )
-        ]?.totalRevenue || 0
-      )
-    }),
-  }))
-  if (loading) {
-    return <CSpinner />
-  }
-  return (
-    <>
+      return dayData
+        ? (dayData.products.find((p) => p.productName === productName) || {}).totalRevenue || 0
+        : 0
+    })
+
+    datasets.push({
+      label: productName,
+      data: dataPoints,
+      borderColor: `hsl(${(index * 360) / productNames.length}, 70%, 50%)`,
+      backgroundColor: `hsla(${(index * 360) / productNames.length}, 70%, 50%, 0.2)`,
+      tension: 0.4,
+    })
+  })
+
+  return loading ? (
+    <CSpinner color="primary" />
+  ) : (
+    <div style={{ maxWidth: '600px', margin: '0 auto' }}>
       <CChartLine
         ref={chartRef}
-        style={{ height: '300px', marginTop: '40px' }}
         data={{
           labels,
           datasets,
         }}
         options={{
+          responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: true,
-            },
-          },
           scales: {
-            x: {
-              grid: {
-                color: getStyle('--cui-border-color-translucent'),
-                drawOnChartArea: false,
-              },
-              ticks: {
-                color: getStyle('--cui-body-color'),
-              },
-            },
             y: {
-              beginAtZero: true,
-              border: {
-                color: getStyle('--cui-border-color-translucent'),
-              },
-              grid: {
-                color: getStyle('--cui-border-color-translucent'),
-              },
-              max: maxValue, // Set the max value dynamically
+              suggestedMax: maxValue,
               ticks: {
-                color: getStyle('--cui-body-color'),
-                maxTicksLimit: 5,
-                stepSize: Math.ceil(maxValue / 5),
+                stepSize: maxValue / 5,
               },
-            },
-          },
-          elements: {
-            line: {
-              tension: 0.4,
-            },
-            point: {
-              radius: 0,
-              hitRadius: 10,
-              hoverRadius: 4,
-              hoverBorderWidth: 3,
             },
           },
         }}
       />
-    </>
+    </div>
   )
 }
 
