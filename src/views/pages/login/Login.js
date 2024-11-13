@@ -95,14 +95,14 @@ const Login = () => {
                         <CIcon icon={cilLockLocked} />
                       </CInputGroupText>
                       <CFormInput
-                        type={showPwd ? 'text' : 'password'}
+                        type={!showPwd ? 'text' : 'password'}
                         placeholder="Password"
                         autoComplete="current-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                       />
                       <CInputGroupText onClick={() => setShowPwd(!showPwd)}>
-                        <CIcon icon={showPwd ? cilLockUnlocked : cilLockLocked} />
+                        <CIcon icon={showPwd ?  cilLockLocked:cilLockUnlocked } />
                       </CInputGroupText>
                     </CInputGroup>
 

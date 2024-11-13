@@ -8,32 +8,36 @@ import {
   CTableDataCell,
   CButton,
   CContainer,
+  CCard,
+  CCardHeader,
+  CCardBody,
+  CSpinner,
 } from '@coreui/react'
 import axios from 'axios'
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 import { GetToken } from '../../helpers/GetToken'
 import { BaseUrl } from '../../helpers/BaseUrl'
+import { cilFile, cilCash } from '@coreui/icons'
+import CIcon from '@coreui/icons-react'
 
 const OrdersComponent = () => {
   const [orders, setOrders] = useState([])
   const [totalRevenue, setTotalRevenue] = useState(0)
   const [loading, setLoading] = useState(false)
-  const token = GetToken() // Retrieve token from localStorage
+  const token = GetToken()
 
-  // Function to fetch user orders
   const fetchOrders = async () => {
-    if (!token) return // Ensure the token is present
+    if (!token) return
 
     try {
       setLoading(true)
       const response = await axios.get(`${BaseUrl}/dashboard/daily-receipt`, {
         headers: {
-          Authorization: `Bearer ${token}`, // Include the token in the headers
+          Authorization: `Bearer ${token}`,
         },
       })
 
-      // Extract the orders and total revenue from the response
       setOrders(response.data.orders)
       setTotalRevenue(response.data.totalRevenue)
     } catch (error) {
@@ -43,19 +47,16 @@ const OrdersComponent = () => {
     }
   }
 
-  // Function to handle closing orders and generating receipt
   const handleCloseOrdersAndPrintReceipt = async () => {
     if (!token) return
 
     try {
       setLoading(true)
-      // Send request to close orders and fetch today's receipt
       const response = await axios.post(`${BaseUrl}/dashboard/close-daily`, null, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      // After receiving the confirmation, generate the PDF
       generatePDFReceipt(response.data.closedOrders)
     } catch (error) {
       console.error('Error closing orders', error)
@@ -64,7 +65,6 @@ const OrdersComponent = () => {
     }
   }
 
-  // Function to generate a PDF receipt
   const generatePDFReceipt = (orders) => {
     const doc = new jsPDF()
 
@@ -80,7 +80,7 @@ const OrdersComponent = () => {
             product.product.price * product.quantity,
           ]),
         )
-        .flat(), // Flatten the nested array
+        .flat(),
     })
 
     doc.text(`Total Revenue: ${totalRevenue}`, 10, 140)
@@ -88,63 +88,88 @@ const OrdersComponent = () => {
     fetchOrders()
   }
 
-  // Fetch orders on component mount
   useEffect(() => {
     fetchOrders()
   }, [])
 
   if (orders.length === 0) {
     return (
-      <>
-        <h2>You didn't get any orders for today</h2>
-      </>
+      <CContainer>
+        <h2 className="text-center">No orders for today</h2>
+      </CContainer>
     )
   }
+
   return (
     <CContainer>
-      <h2>User Orders</h2>
+      <CCard className="mb-4">
+        <CCardHeader className="bg-primary text-white">
+          <h3 className="mb-0">Today's Orders</h3>
+        </CCardHeader>
+        <CCardBody>
+          {loading ? (
+            <div className="d-flex justify-content-center">
+              <CSpinner color="primary" />
+            </div>
+          ) : (
+            <>
+              <CTable hover striped responsive>
+                <CTableHead>
+                  <CTableRow>
+                    <CTableHeaderCell>Order #</CTableHeaderCell>
+                    <CTableHeaderCell>Products</CTableHeaderCell>
+                    <CTableHeaderCell>Total Price</CTableHeaderCell>
+                    <CTableHeaderCell>Date</CTableHeaderCell>
+                  </CTableRow>
+                </CTableHead>
+                <CTableBody>
+                  {orders.map((order, index) => (
+                    <CTableRow key={order?.orderId}>
+                      <CTableDataCell>{index + 1}</CTableDataCell>
+                      <CTableDataCell>
+                        {order.products.map((product, index) => (
+                          <p key={index}>
+                            {product?.productId?.name} - {product.quantity} x{' '}
+                            {product?.productId?.price} TND
+                          </p>
+                        ))}
+                      </CTableDataCell>
+                      <CTableDataCell>{order.totalPrice.toFixed(2)} TND</CTableDataCell>
+                      <CTableDataCell>{new Date(order.timestamp).toLocaleString()}</CTableDataCell>
+                    </CTableRow>
+                  ))}
+                </CTableBody>
+              </CTable>
 
-      {loading ? (
-        <p>Loading orders...</p>
-      ) : (
-        <>
-          {/* Table to display orders */}
-          <CTable hover striped>
-            <CTableHead>
-              <CTableRow>
-                <CTableHeaderCell>Order ID</CTableHeaderCell>
-                <CTableHeaderCell>Products</CTableHeaderCell>
-                <CTableHeaderCell>Total Price</CTableHeaderCell>
-                <CTableHeaderCell>Date</CTableHeaderCell>
-              </CTableRow>
-            </CTableHead>
-            <CTableBody>
-              {orders?.map((order,index) => (
-                <CTableRow key={order.orderId}>
-                  <CTableDataCell>{index+1}</CTableDataCell>
-                  <CTableDataCell>
-                    {order.products.map((product) => (
-                      <p key={product.productId}>
-                        {product.productName} - {product.quantity} x {product.productPrice} TND
-                      </p>
-                    ))}
-                  </CTableDataCell>
-                  <CTableDataCell>{order.totalPrice.toFixed(2)} TND</CTableDataCell>
-                  <CTableDataCell>{new Date(order.timestamp).toLocaleString()}</CTableDataCell>
-                </CTableRow>
-              ))}
-            </CTableBody>
-          </CTable>
+              <div className="mt-4">
+                <h4 className="d-flex justify-content-between">
+                  <span>Total Revenue:</span>
+                  <span>{totalRevenue.toFixed(2)} TND</span>
+                </h4>
+              </div>
 
-          {/* Display total revenue */}
-          <h4>Total Revenue: {totalRevenue.toFixed(2)} TND</h4>
-
-          {/* Button to generate receipt and close orders */}
-          <CButton color="primary" className="px-4" onClick={handleCloseOrdersAndPrintReceipt}>
-            Get Today's Receipt and Close Orders
-          </CButton>
-        </>
-      )}
+              <div className="d-flex justify-content-end mt-4">
+                <CButton
+                  color="success"
+                  className="px-5"
+                  onClick={handleCloseOrdersAndPrintReceipt}
+                >
+                  <CIcon icon={cilFile} className="mr-2" />
+                  Generate Receipt
+                </CButton>
+                <CButton
+                  color="danger"
+                  className="ml-3 px-5"
+                  onClick={handleCloseOrdersAndPrintReceipt}
+                >
+                  <CIcon icon={cilCash} className="mr-2" />
+                  Close Orders
+                </CButton>
+              </div>
+            </>
+          )}
+        </CCardBody>
+      </CCard>
     </CContainer>
   )
 }
