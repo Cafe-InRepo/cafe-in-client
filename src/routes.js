@@ -71,8 +71,8 @@ const getRoutesByRole = (role) => {
     { path: '/users/createUser', name: 'Users', element: CreateUser },
     //menu
     { path: '/menu', name: 'Menu', element: DisplayMenu },
-    { path: '/menu/categories', name: 'Menu', element: MenuCategories },
-    { path: '/menu/categories/:categoryId', name: 'Menu', element: CategoriDetails },
+    { path: '/menu/categories', name: 'categories', element: MenuCategories },
+    { path: '/menu/categories/:id', name: 'Menu', element: CategoriDetails },
 
     // ...other admin-specific routes
   ]
