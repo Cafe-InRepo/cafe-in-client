@@ -20,6 +20,7 @@ import Loading from '../../helpers/Loading'
 import './TableDetails.css' // Import the CSS file
 import { GetToken } from '../../helpers/GetToken'
 import ProductSelectionModal from './ProductSelectionModal'
+import { useSelector } from 'react-redux'
 
 const TableDetails = () => {
   const { tableId } = useParams()
@@ -136,6 +137,9 @@ const TableDetails = () => {
     receiptElement.style.display = 'none'
   }
 
+  //theme for colors change
+  const storedTheme = useSelector((state) => state.theme)
+
   if (loading) {
     return <Loading />
   }
@@ -204,13 +208,15 @@ const TableDetails = () => {
                         cursor: order.payed ? 'not-allowed' : 'pointer',
                         opacity: order.payed ? 0.6 : 1,
                         background: '#f8f9fa',
-
                       }}
                     >
                       <CCardBody className="position-relative">
                         {/* Order Number on Top Left */}
-                        <div className="position-absolute top-0 start-0 p-2 card-header">
-                          <strong>{index + 1}</strong>
+                        <div className="position-absolute top-0 start-0 p-2 ">
+                          <strong>
+                            {' '}
+                            <p style={{ color: 'black' }}>{index + 1}</p>
+                          </strong>
                         </div>
 
                         {/* Products in the Middle */}
@@ -236,20 +242,32 @@ const TableDetails = () => {
                               <CCol xs={12}>
                                 <div className="product-details d-flex justify-content-between">
                                   <div>
-                                    <strong>{product.product.name}</strong>
-                                    <div className="small text-muted">
-                                      {product.product.price.toFixed(2)} TND
+                                    <strong style={{ color: 'black' }}>
+                                      {product.product.name}
+                                    </strong>
+                                    <div className="small text-muted ">
+                                      <p style={{ color: 'black' }}>
+                                        {product.product.price.toFixed(2)} TND
+                                      </p>
                                     </div>
                                   </div>
                                   <div className="text-end">
                                     <span
                                       className="quantity"
-                                      style={{ fontWeight: 'bold', fontSize: '1em' }}
+                                      style={{
+                                        fontWeight: 'bold',
+                                        fontSize: '1em',
+                                        color: 'black',
+                                      }}
                                     >
                                       x {product.quantity}
                                     </span>{' '}
                                     <br></br>
-                                    <span className="small text-muted">{product.product.price * product.quantity} TND</span>
+                                    <span className="small text-muted">
+                                      <p style={{ color: 'black' }}>
+                                        {product.product.price * product.quantity} TND
+                                      </p>
+                                    </span>
                                   </div>
                                 </div>
                               </CCol>
