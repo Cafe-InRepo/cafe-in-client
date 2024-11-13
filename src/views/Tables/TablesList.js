@@ -25,7 +25,8 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import Loading from '../../helpers/Loading'
-import tableImage from 'src/assets/images/table.png'
+import tableImageDark from 'src/assets/images/table.jpg'
+
 import { io } from 'socket.io-client'
 import { GetToken } from '../../helpers/GetToken'
 import { saveAs } from 'file-saver'
@@ -222,7 +223,7 @@ const TablesDashboard = () => {
                         onClick={() => handleCardClick(table._id)}
                         className={table.unpaidOrders ? 'bg-danger text-white' : ''}
                       >
-                        <CCardImage height="150" orientation="top" src={tableImage} />
+                        <CCardImage height="150" orientation="top" src={tableImageDark} />
                         <CCardTitle>Table {table.number}</CCardTitle>
                       </CCardBody>
                     </CCard>

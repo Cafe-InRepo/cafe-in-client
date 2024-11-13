@@ -23,7 +23,7 @@ import {
 import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import Loading from '../../helpers/Loading'
-import tableImage from 'src/assets/images/table.png'
+import tableImage from 'src/assets/images/table.jpg'
 
 const TablesDashboard = () => {
   const [tables, setTables] = useState([])
