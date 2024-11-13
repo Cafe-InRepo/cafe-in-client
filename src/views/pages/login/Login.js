@@ -20,7 +20,7 @@ import {
   CSpinner,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
+import { cilLockLocked, cilUser, cilLockUnlocked } from '@coreui/icons'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../context/AuthContext'
 import axios from 'axios'
@@ -34,6 +34,7 @@ const Login = () => {
   const [error, setError] = useState('')
   const [modalVisible, setModalVisible] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [showPwd, setShowPwd] = useState(true)
   const handleLogin = async () => {
     try {
       setLoading(true)
@@ -94,13 +95,17 @@ const Login = () => {
                         <CIcon icon={cilLockLocked} />
                       </CInputGroupText>
                       <CFormInput
-                        type="password"
+                        type={showPwd ? 'text' : 'password'}
                         placeholder="Password"
                         autoComplete="current-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                       />
+                      <CInputGroupText onClick={() => setShowPwd(!showPwd)}>
+                        <CIcon icon={showPwd ? cilLockUnlocked : cilLockLocked} />
+                      </CInputGroupText>
                     </CInputGroup>
+
                     <CRow>
                       <CCol xs={6}>
                         <CButton
