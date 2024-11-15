@@ -72,13 +72,13 @@ const OrderStatusOverview = () => {
             <CAccordionItem itemKey="1">
               <CAccordionHeader>Products</CAccordionHeader>
               <CAccordionBody>
-                {order.products.map((product) => (
-                  <div key={product.product._id} className="my-2">
+                {order?.products.map((product,index) => (
+                  <div key={index} className="my-2">
                     <div className="d-flex justify-content-between">
                       <span>
-                        {product.product.name} x {product.quantity}
+                        {product?.product?.name} x {product.quantity}
                       </span>
-                      <span>{(product.product.price * product.quantity).toFixed(2)} TND</span>
+                      <span>{(product?.product?.price * product?.quantity).toFixed(2)} TND</span>
                     </div>
                   </div>
                 ))}

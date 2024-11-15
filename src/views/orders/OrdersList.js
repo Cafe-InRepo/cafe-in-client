@@ -109,12 +109,12 @@ const OrdersTable = () => {
           <CAccordionItem itemKey="1">
             <CAccordionHeader>Products</CAccordionHeader>
             <CAccordionBody>
-              {order.products.map((product) => (
-                <div key={product.product._id} className="d-flex justify-content-between my-2">
+              {order.products.map((product, index) => (
+                <div key={index} className="d-flex justify-content-between my-2">
                   <span>
-                    {product.product.name} x {product.quantity}
+                    {product?.product?.name} x {product?.quantity}
                   </span>
-                  <span>{(product.product.price * product.quantity).toFixed(2)} TND</span>
+                  <span>{(product?.product?.price * product?.quantity).toFixed(2)} TND</span>
                 </div>
               ))}
             </CAccordionBody>

@@ -189,8 +189,8 @@ const TableDetails = () => {
               {table?.orders.map((order, index) => {
                 // Calculate total unpaid price for each order
                 const totalUnpaidPrice = order.products.reduce((acc, product) => {
-                  const unpaidQuantity = product.quantity - (product.payedQuantity || 0)
-                  return acc + unpaidQuantity * product.product.price
+                  const unpaidQuantity = product?.quantity - (product?.payedQuantity || 0)
+                  return acc + unpaidQuantity * product?.product?.price
                 }, 0)
 
                 return (
@@ -243,11 +243,11 @@ const TableDetails = () => {
                                 <div className="product-details d-flex justify-content-between">
                                   <div>
                                     <strong style={{ color: 'black' }}>
-                                      {product.product.name}
+                                      {product?.product?.name}
                                     </strong>
                                     <div className="small text-muted ">
                                       <p style={{ color: 'black' }}>
-                                        {product.product.price.toFixed(2)} TND
+                                        {product?.product?.price.toFixed(2)} TND
                                       </p>
                                     </div>
                                   </div>
@@ -265,7 +265,7 @@ const TableDetails = () => {
                                     <br></br>
                                     <span className="small text-muted">
                                       <p style={{ color: 'black' }}>
-                                        {product.product.price * product.quantity} TND
+                                        {product?.product?.price * product?.quantity} TND
                                       </p>
                                     </span>
                                   </div>
