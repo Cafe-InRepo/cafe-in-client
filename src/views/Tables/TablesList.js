@@ -105,6 +105,7 @@ const TablesDashboard = () => {
           },
         },
       )
+      console.log(response)
       setModalMessage('Table created successfully')
       setModalError(false)
       setShowCreateModal(false)

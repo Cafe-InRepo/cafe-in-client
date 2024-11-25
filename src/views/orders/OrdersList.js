@@ -63,7 +63,7 @@ const OrdersTable = () => {
   const updateOrderStatus = async (orderId, newStatus) => {
     setLoading(true)
     try {
-      const response = await axios.put(
+      const response = await axios.patch(
         `${BaseUrl}/order/update-status/${orderId}`,
         { status: newStatus },
         {

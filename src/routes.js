@@ -4,9 +4,7 @@ import { jwtDecode } from 'jwt-decode' // Use named import for jwtDecode
 const Dashboard = React.lazy(() => import('./views/dashboard/Categories'))
 //const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Sales = React.lazy(() => import('./views/dashboard/sales/index'))
-const OrderManagment = React.lazy(
-  () => import('./views/dashboard/orderManagment/index'),
-)
+const OrderManagment = React.lazy(() => import('./views/dashboard/orderManagment/index'))
 
 const productPerformance = React.lazy(() => import('./views/dashboard/productPerformance/index'))
 
@@ -18,6 +16,9 @@ const CreateUser = React.lazy(() => import('./views/users/createUser'))
 
 //menu
 const DisplayMenu = React.lazy(() => import('./views/menu/DisplayMenu'))
+const DisplaySections = React.lazy(() => import('./views/menu/section/DisplaySections'))
+const DisplayCategories = React.lazy(() => import('./views/menu/categories/DisplayCategories'))
+
 const MenuCategories = React.lazy(() => import('./views/menu/categoryAccordion'))
 const CategoriDetails = React.lazy(() => import('./views/menu/CategoryDetails'))
 
@@ -76,7 +77,10 @@ const getRoutesByRole = (role) => {
     { path: '/users/usersList', name: 'Users', element: UsersList },
     { path: '/users/createUser', name: 'Users', element: CreateUser },
     //menu
-    { path: '/menu', name: 'Menu', element: DisplayMenu },
+    // { path: '/menu', name: 'Menu', element: DisplayMenu },
+    { path: '/menu/sections', name: 'Sections', element: DisplaySections },
+    { path: '/menu/sections/:sectionId', name: 'Categories', element: DisplayCategories },
+
     { path: '/menu/categories', name: 'categories', element: MenuCategories },
     { path: '/menu/categories/:id', name: 'Menu', element: CategoriDetails },
 

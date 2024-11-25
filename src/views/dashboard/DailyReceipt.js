@@ -56,7 +56,8 @@ const OrdersComponent = () => {
           Authorization: `Bearer ${token}`,
         },
       })
-      // After receiving the confirmation, generate the PDF
+
+      // After receiving the confirmation, generate the PDF with the detailed product info
       generatePDFReceipt(response.data.closedOrders)
     } catch (error) {
       console.error('Error closing orders', error)
@@ -72,17 +73,21 @@ const OrdersComponent = () => {
     doc.text('Receipt', 10, 10)
     doc.autoTable({
       head: [['Product', 'Quantity', 'Price', 'Total']],
-      body: orders
-        ?.map((order) =>
-          order.products?.map((product) => [
-            product.product.name,
-            product.quantity,
-            product.product.price,
-            product.product.price * product.quantity,
-          ]),
-        )
-        .flat(), // Flatten the nested array
+      body: orders?.flatMap((order) =>
+        order.products.map((product) => [
+          product.name,
+          product.quantity,
+          product.price,
+          product.total,
+        ]),
+      ),
     })
+
+    // Calculate the total revenue
+    const totalRevenue = orders.reduce(
+      (sum, order) => sum + order.products.reduce((acc, p) => acc + p.total, 0),
+      0,
+    )
 
     doc.text(`Total Revenue: ${totalRevenue}`, 10, 140)
     doc.save('receipt.pdf')
@@ -126,7 +131,8 @@ const OrdersComponent = () => {
                   <CTableDataCell>
                     {order.products.map((product, index) => (
                       <p key={index}>
-                        {product?.productId?.name} - {product.quantity} x {product?.productId?.price} TND
+                        {product?.productId?.name} - {product.quantity} x{' '}
+                        {product?.productId?.price} TND
                       </p>
                     ))}
                   </CTableDataCell>

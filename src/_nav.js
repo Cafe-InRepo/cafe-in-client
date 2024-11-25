@@ -36,7 +36,7 @@ const _nav = [
   {
     component: CNavItem,
     name: 'Menu',
-    to: '/menu',
+    to: '/menu/sections',
     icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
   },
   //tables

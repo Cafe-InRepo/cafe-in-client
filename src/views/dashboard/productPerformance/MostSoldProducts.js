@@ -18,6 +18,7 @@ const MostSoldProducts = () => {
         },
       })
       setMostSold(response.data)
+      console.log(response.data)
     } catch (err) {
       console.log('Error fetching daily')
       console.error(err)
