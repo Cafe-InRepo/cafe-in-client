@@ -8,6 +8,11 @@ import {
   CTableDataCell,
   CButton,
   CContainer,
+  CCard,
+  CCardBody,
+  CCardHeader,
+  CCol,
+  CRow,
 } from '@coreui/react'
 import axios from 'axios'
 import jsPDF from 'jspdf'
@@ -35,7 +40,6 @@ const OrdersComponent = () => {
 
       // Extract the orders and total revenue from the response
       setOrders(response.data.orders)
-      console.log(response.data.orders)
       setTotalRevenue(response.data.totalRevenue)
     } catch (error) {
       console.error('Error fetching orders', error)
@@ -101,24 +105,32 @@ const OrdersComponent = () => {
 
   if (orders.length === 0) {
     return (
-      <>
+      <CContainer className="text-center">
         <h2>You didn't get any orders for today</h2>
-      </>
+      </CContainer>
     )
   }
+
   return (
     <CContainer>
-      <h2>User Orders</h2>
+      <CRow className="mb-4">
+        <CCol sm={12} md={6}>
+          <h2>User Orders</h2>
+        </CCol>
+        <CCol sm={12} md={6} className="text-md-right">
+          <h4>Total Revenue: {totalRevenue.toFixed(2)} TND</h4>
+        </CCol>
+      </CRow>
 
       {loading ? (
-        <p>Loading orders...</p>
+        <p className="text-center">Loading orders...</p>
       ) : (
         <>
           {/* Table to display orders */}
-          <CTable hover striped>
+          <CTable hover striped responsive>
             <CTableHead>
               <CTableRow>
-                <CTableHeaderCell></CTableHeaderCell>
+                <CTableHeaderCell>#</CTableHeaderCell>
                 <CTableHeaderCell>Products</CTableHeaderCell>
                 <CTableHeaderCell>Total Price</CTableHeaderCell>
                 <CTableHeaderCell>Date</CTableHeaderCell>
@@ -131,8 +143,7 @@ const OrdersComponent = () => {
                   <CTableDataCell>
                     {order.products.map((product, index) => (
                       <p key={index}>
-                        {product?.productId?.name} - {product.quantity} x{' '}
-                        {product?.productId?.price} TND
+                        {product?.productName} - {product.quantity} x {product?.productPrice} TND
                       </p>
                     ))}
                   </CTableDataCell>
@@ -143,13 +154,19 @@ const OrdersComponent = () => {
             </CTableBody>
           </CTable>
 
-          {/* Display total revenue */}
-          <h4>Total Revenue: {totalRevenue.toFixed(2)} TND</h4>
-
-          {/* Button to generate receipt and close orders */}
-          <CButton color="primary" className="px-4" onClick={handleCloseOrdersAndPrintReceipt}>
-            Get Today's Receipt and Close Orders
-          </CButton>
+          {/* Action Button */}
+          <CCard className="mt-4">
+            <CCardBody className="d-flex justify-content-center">
+              <CButton
+                color="primary"
+                className="px-5 py-2"
+                onClick={handleCloseOrdersAndPrintReceipt}
+                disabled={loading}
+              >
+                Get Today's Receipt and Close Orders
+              </CButton>
+            </CCardBody>
+          </CCard>
         </>
       )}
     </CContainer>
