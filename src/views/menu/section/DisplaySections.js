@@ -142,7 +142,7 @@ const Menu = () => {
       {/* Sections display */}
       <CRow className="g-4">
         {filteredSections?.map((section, index) => (
-          <CCol key={index} xs={12} sm={6} md={4} lg={3}>
+          <CCol key={index} xs={12} sm={6} md={4} lg={3} style={{ marginRight: '20px' }}>
             <CCard
               className="text-center shadow-sm"
               style={{

@@ -7,6 +7,7 @@ import OrderManagement from '../../assets/images/categories/OrderManagement-.png
 import CustomerInsights from '../../assets/images/categories/CustomerInsights-.png'
 import RevenueAnalysis from '../../assets/images/categories/RevenueAnalysis-.png'
 import InventoryOverview from '../../assets/images/categories/InventoryOverview-.png'
+import Bill from '../../assets/images/categories/Bill.png'
 
 const Dashboard = () => {
   const navigate = useNavigate()
@@ -47,6 +48,12 @@ const Dashboard = () => {
       color: '#336D86',
       path: '/inventory-overview',
       image: InventoryOverview, // Replace with your image path
+    },
+    {
+      name: 'Bills',
+      color: '#336D56',
+      path: '/bill',
+      image: Bill, // Replace with your image path
     },
   ]
 

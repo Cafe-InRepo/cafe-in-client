@@ -9,7 +9,7 @@ const OrderManagment = React.lazy(() => import('./views/dashboard/orderManagment
 const productPerformance = React.lazy(() => import('./views/dashboard/productPerformance/index'))
 
 const DailyRevenue = React.lazy(() => import('./views/dashboard/sales/DailyReveue'))
-
+const Bill = React.lazy(() => import('./views/dashboard/bill/index'))
 // users
 const UsersList = React.lazy(() => import('./views/users/usersTable'))
 const CreateUser = React.lazy(() => import('./views/users/createUser'))
@@ -71,8 +71,9 @@ const getRoutesByRole = (role) => {
     { path: '/dashboard', name: 'Dashboard', element: Dashboard },
     { path: '/Sales', name: 'sales', element: Sales },
     { path: '/order-management', name: 'Order Managment', element: OrderManagment },
-
     { path: '/product-performance', name: 'product performance', element: productPerformance },
+    { path: '/bill', name: 'Bill', element: Bill },
+
     //users
     { path: '/users/usersList', name: 'Users', element: UsersList },
     { path: '/users/createUser', name: 'Users', element: CreateUser },
@@ -83,8 +84,6 @@ const getRoutesByRole = (role) => {
 
     { path: '/menu/categories', name: 'categories', element: MenuCategories },
     { path: '/menu/categories/:id', name: 'Menu', element: CategoriDetails },
-
-    // ...other admin-specific routes
   ]
 
   const clientRoutes = [
