@@ -7,7 +7,7 @@ import OrderManagement from '../../assets/images/categories/OrderManagement-.png
 import CustomerInsights from '../../assets/images/categories/CustomerInsights-.png'
 import RevenueAnalysis from '../../assets/images/categories/RevenueAnalysis-.png'
 import InventoryOverview from '../../assets/images/categories/InventoryOverview-.png'
-import Bill from '../../assets/images/categories/Bill.png'
+import Bill from '../../assets/images/categories/bill.png'
 
 const Dashboard = () => {
   const navigate = useNavigate()
