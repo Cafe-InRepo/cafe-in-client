@@ -40,6 +40,9 @@ const Support = React.lazy(() => import('./views/SupportRequests/NotifSupport'))
 //daily receipt
 const Daily = React.lazy(() => import('./views/dashboard/DailyReceipt'))
 
+//profile
+const Profile = React.lazy(() => import('./views/pages/profile/profile'))
+
 const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 
 const getRoutesByRole = (role) => {
@@ -84,6 +87,9 @@ const getRoutesByRole = (role) => {
 
     { path: '/menu/categories', name: 'categories', element: MenuCategories },
     { path: '/menu/categories/:id', name: 'Menu', element: CategoriDetails },
+
+    //profile
+    { path: '/profile', name: 'Profile', element: Profile },
   ]
 
   const clientRoutes = [
