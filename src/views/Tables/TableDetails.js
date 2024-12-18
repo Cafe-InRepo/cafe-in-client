@@ -107,7 +107,20 @@ const TableDetails = () => {
   }
 
   const calculateSelectedTotal = () => {
-    return selectedOrders.reduce((acc, order) => acc + order.orderPrice, 0).toFixed(2)
+    return selectedOrders
+      .reduce((total, selectedOrder) => {
+        const fullOrder = table?.orders.find((order) => order._id === selectedOrder.orderId)
+        if (!fullOrder) return total
+
+        // Sum up the unpaid amount for each product in the selected order
+        const unpaidTotal = fullOrder.products.reduce((acc, product) => {
+          const unpaidQuantity = product.quantity - (product.payedQuantity || 0)
+          return acc + unpaidQuantity * product.product.price
+        }, 0)
+
+        return total + unpaidTotal
+      }, 0)
+      .toFixed(2)
   }
 
   const handleCloseDetailsModal = () => {
@@ -154,35 +167,39 @@ const TableDetails = () => {
 
       <CCol xs={12}>
         <CCard className="mb-4">
-          <CCardHeader className="d-flex justify-content-between align-items-center">
+          <CCardHeader className="d-flex justify-content-between align-items-center flex-wrap">
             <CButton color="secondary" onClick={() => navigate(-1)}>
               Back
             </CButton>
 
-            <div className="d-flex justify-content-between align-items-center">
+            {/* Button Group */}
+            <div className="d-flex flex-column flex-md-row align-items-center mt-2 mt-md-0">
               <CButton
                 color="success"
-                className="me-2 btn-sm"
+                className="me-md-2 mb-2 mb-md-0 btn-sm"
                 onClick={handleConfirmAllPayments}
                 disabled={!table?.orders.some((order) => !order.payed)}
               >
                 Confirm All
               </CButton>
+
               <CButton
                 color="primary"
-                className="btn-sm"
+                className="mb-2 mb-md-0 btn-sm"
                 onClick={handleConfirmSelectedPayments}
                 disabled={selectedOrders.length === 0}
               >
                 Confirm Selected
               </CButton>
+
               {selectedOrders.length > 0 && (
-                <CButton color="info" className="btn-sm ms-2" onClick={handlePrintReceipt}>
+                <CButton color="info" className="ms-md-2 btn-sm" onClick={handlePrintReceipt}>
                   Print Receipt
                 </CButton>
               )}
             </div>
           </CCardHeader>
+
           <CCardBody>
             <CCardTitle>Total Orders: {table?.orders.length}</CCardTitle>
             <CRow>
@@ -207,91 +224,74 @@ const TableDetails = () => {
                       style={{
                         cursor: order.payed ? 'not-allowed' : 'pointer',
                         opacity: order.payed ? 0.6 : 1,
-                        background: '#f8f9fa',
                       }}
                     >
                       <CCardBody className="position-relative">
                         {/* Order Number on Top Left */}
-                        <div className="position-absolute top-0 start-0 p-2 ">
-                          <strong>
-                            {' '}
-                            <p style={{ color: 'black' }}>{index + 1}</p>
-                          </strong>
-                        </div>
+                        <CRow className="align-items-start">
+                          <CCol>
+                            <CButton color="light" size="sm" className="mb-2">
+                              {index + 1}
+                            </CButton>
+                          </CCol>
+                        </CRow>
 
                         {/* Products in the Middle */}
-                        <div
+                        <CRow
                           className="product-list"
                           style={{
-                            marginBottom: '40px',
-                            marginTop: '40px',
+                            margin: '20px 0',
                             maxHeight: '300px',
                             overflowY: 'auto',
-                            padding: '10px',
-                            borderRadius: '5px',
                             border: '1px solid #ddd',
-                            background: '#f8f9fa',
-                            height: '180px',
+                            borderRadius: '5px',
+                            padding: '10px',
                           }}
                         >
                           {order.products.map((product) => (
                             <CRow
                               key={product._id}
-                              className={`align-items-center my-2 p-2 rounded product-item ${product.payedQuantity === product.quantity ? 'paid-product-item' : ''}`}
+                              className={`align-items-center my-2 product-item ${product.payedQuantity === product.quantity ? 'bg-light' : ''}`}
                             >
-                              <CCol xs={12}>
-                                <div className="product-details d-flex justify-content-between">
-                                  <div>
-                                    <strong style={{ color: 'black' }}>
-                                      {product?.product?.name}
-                                    </strong>
-                                    <div className="small text-muted ">
-                                      <p style={{ color: 'black' }}>
-                                        {product?.product?.price.toFixed(2)} TND
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div className="text-end">
-                                    <span
-                                      className="quantity"
-                                      style={{
-                                        fontWeight: 'bold',
-                                        fontSize: '1em',
-                                        color: 'black',
-                                      }}
-                                    >
-                                      x {product.quantity}
-                                    </span>{' '}
-                                    <br></br>
-                                    <span className="small text-muted">
-                                      <p style={{ color: 'black' }}>
-                                        {product?.product?.price * product?.quantity} TND
-                                      </p>
-                                    </span>
-                                  </div>
+                              <CCol xs={6}>
+                                <strong style={{ color: 'black' }}>{product?.product?.name}</strong>
+                                <div style={{ color: 'black' }} className="small">
+                                  {product?.product?.price.toFixed(2)} TND
+                                </div>
+                              </CCol>
+                              <CCol xs={6} className="text-end">
+                                <span
+                                  className="quantity"
+                                  style={{ fontWeight: 'bold', color: 'black' }}
+                                >
+                                  x {product.quantity}
+                                </span>
+                                <div className="small" style={{ color: 'black' }}>
+                                  {(product?.product?.price * product?.quantity).toFixed(2)} TND
                                 </div>
                               </CCol>
                             </CRow>
                           ))}
-                        </div>
+                        </CRow>
 
-                        {/* Total Price on Bottom Right */}
-                        <CButton
-                          className="position-absolute bottom-0 start-0 p-2 m-2"
-                          color="primary"
-                          onClick={(e) => {
-                            e.stopPropagation() // Stop the event from propagating
-                            handleDetailsClick(index)
-                          }}
-                        >
-                          Details
-                        </CButton>
-
-                        <div className="position-absolute bottom-0 end-0 p-2 card-price">
-                          <div className="my-2">
-                            <strong>Total Unpaid: {totalUnpaidPrice.toFixed(2)} TND</strong>
-                          </div>
-                        </div>
+                        {/* Details Button and Total Price */}
+                        <CRow className="mt-3">
+                          <CCol xs={6}>
+                            <CButton
+                              color="primary"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDetailsClick(index)
+                              }}
+                            >
+                              Details
+                            </CButton>
+                          </CCol>
+                          <CCol xs={6} className="text-end">
+                            <strong>Unpaid: {totalUnpaidPrice.toFixed(2)} TND</strong>
+                          </CCol>
+                        </CRow>
                       </CCardBody>
                     </CCard>
                   </CCol>
@@ -300,14 +300,21 @@ const TableDetails = () => {
             </CRow>
 
             <div className="text-center mt-4">
-              <strong>Total Selected Price: {calculateSelectedTotal()} TND</strong>
+              <strong>Unpaid Amount (Selected Orders): {calculateSelectedTotal()} TND</strong>
             </div>
             <div className="text-center mt-4">
               <strong>
-                Total Table Price:{' '}
+                Total Unpaid (Table):{' '}
                 {table?.orders
-                  .filter((order) => !order.payed)
-                  .reduce((acc, order) => acc + order.totalPrice, 0)
+                  .reduce((total, order) => {
+                    // Sum up the unpaid amount for each product in the order
+                    const unpaidTotal = order.products.reduce((acc, product) => {
+                      const unpaidQuantity = product.quantity - (product.payedQuantity || 0)
+                      return acc + unpaidQuantity * product.product.price
+                    }, 0)
+
+                    return total + unpaidTotal
+                  }, 0)
                   .toFixed(2)}{' '}
                 TND
               </strong>

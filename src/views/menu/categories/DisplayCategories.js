@@ -14,6 +14,7 @@ import {
   CButton,
   CForm,
   CFormInput,
+  useColorModes,
 } from '@coreui/react'
 import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
@@ -33,6 +34,7 @@ const SectionDetails = () => {
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)
   const navigate = useNavigate()
 
+ 
   // Fetch categories for the section
   const fetchCategories = async () => {
     setLoadingCategories(true)
@@ -122,7 +124,6 @@ const SectionDetails = () => {
   )
 
   // BaseHub for colors display
-  const baseHues = [200, 15, 160, 330, 260, 210]
   if (loadingCategories) return <CSpinner color="primary" />
 
   if (error) return <div>{error}</div>
@@ -130,15 +131,24 @@ const SectionDetails = () => {
   return (
     <>
       {/* Search Bar and Add Category Button */}
-      <div className="d-flex justify-content-between mb-4">
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-2">
+        {/* Search Bar */}
         <CFormInput
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search Categories"
-          style={{ width: '300px' }}
+          className="mb-2 mb-md-0"
+          style={{ width: '100%', maxWidth: '300px' }}
         />
-        <CButton color="primary" onClick={() => setShowAddCategoryModal(true)}>
+
+        {/* Add Category Button */}
+        <CButton
+          color="primary"
+          className="btn-sm"
+          style={{ width: 'auto' }}
+          onClick={() => setShowAddCategoryModal(true)}
+        >
           Add New Category
         </CButton>
       </div>
@@ -149,13 +159,19 @@ const SectionDetails = () => {
             <CCard
               className="text-center shadow-sm"
               style={{
-                backgroundColor: `hsl(${(baseHues[index % baseHues.length] + (Math.random() * 30 - 15)) % 360}, 70%, 65%)`, // Adjusted HSL for controlled randomness
                 cursor: 'pointer',
               }}
               onClick={() => navigate(`/menu/categories/${category._id}`)}
             >
               <CCardBody>
-                <h5 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>
+                <h5
+                  style={{
+                    fontSize: '1.5rem',
+                    fontWeight: 'bold',
+                    margin: 0,
+                    fontFamily: '-moz-initial',
+                  }}
+                >
                   {category.name}
                 </h5>
               </CCardBody>

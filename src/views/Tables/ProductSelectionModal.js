@@ -13,7 +13,7 @@ import {
 import { GetToken } from '../../helpers/GetToken'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import axios from 'axios'
-import "./ProductSelectionModal.css"
+import './ProductSelectionModal.css'
 const ProductSelectionModal = ({ visible, onClose, products, orderId, refetchData }) => {
   const [selectedProducts, setSelectedProducts] = useState([]) // Track selected instances
   const [loading, setLoading] = useState(false)
@@ -90,80 +90,91 @@ const ProductSelectionModal = ({ visible, onClose, products, orderId, refetchDat
 
   return (
     <CModal visible={visible} onClose={onClose} className="select-products-modal">
-  <CModalHeader className="bg-primary text-white">
-    <CModalTitle>Select Products</CModalTitle>
-  </CModalHeader>
-  <CModalBody>
-    {/* Select All Checkbox */}
-    <div className="d-flex align-items-center mb-3">
-      <CFormCheck
-        id="selectAll"
-        label="Select All"
-        className="me-3"
-        checked={selectedProducts.length === expandedProducts.filter((p) => !p.isPaid).length}
-        onChange={(e) => handleSelectAll(e.target.checked)}
-      />
-      <span className="small text-muted">Select all unpaid items</span>
-    </div>
+      <CModalHeader className="bg-primary text-white">
+        <CModalTitle>Select Products</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+        {/* Select All Checkbox */}
+        <div className="d-flex align-items-center mb-3">
+          <CFormCheck
+            id="selectAll"
+            label="Select All"
+            className="me-3"
+            checked={selectedProducts.length === expandedProducts.filter((p) => !p.isPaid).length}
+            onChange={(e) => handleSelectAll(e.target.checked)}
+          />
+          <span className="small text-muted">Select all unpaid items</span>
+        </div>
 
-    {/* Product List with Scrollable Area */}
-    <div className="product-list" style={{ maxHeight: '300px', overflowY: 'auto', padding: '10px', borderRadius: '5px', border: '1px solid #ddd', background: '#f8f9fa' }}>
-      {expandedProducts.map((product) => (
-        <CRow 
-          key={product.instanceId} 
-          className={`align-items-center my-2 p-2 rounded product-item ${product.isPaid ? 'paid-product-item' : ''}`}
+        {/* Product List with Scrollable Area */}
+        <div
+          className="product-list"
+          style={{
+            maxHeight: '300px',
+            overflowY: 'auto',
+            padding: '10px',
+            borderRadius: '5px',
+            border: '1px solid #ddd',
+            background: '#f8f9fa',
+          }}
         >
-          <CCol xs={9}>
-            <div className="product-details">
-              <strong>{product.product.name}</strong>
-              <div className="small text-muted">{product.product.price} TND</div>
-              {product.isPaid && <span className="paid-badge">Paid</span>}
-            </div>
-          </CCol>
-          <CCol xs={3} className="text-end">
-            <CFormCheck
-              checked={selectedProducts.includes(product.instanceId)}
-              onChange={() => handleProductSelection(product.instanceId)}
-              disabled={product.isPaid} // Disable instances where payedQuantity is reached
-              className="custom-checkbox"
-            />
-          </CCol>
-        </CRow>
-      ))}
-    </div>
+          {expandedProducts.map((product) => (
+            <CRow
+              key={product.instanceId}
+              className={`align-items-center my-2 p-2 rounded product-item ${product.isPaid ? 'paid-product-item' : ''}`}
+            >
+              <CCol xs={9}>
+                <div className="product-details">
+                  <strong style={{ color: 'black' }}>{product.product.name}</strong>
+                  <div className="small" style={{ color: 'black' }}>
+                    {product.product.price} TND
+                  </div>
+                  {product.isPaid && <span className="paid-badge">Paid</span>}
+                </div>
+              </CCol>
+              <CCol xs={3} className="text-end">
+                <CFormCheck
+                  checked={selectedProducts.includes(product.instanceId)}
+                  onChange={() => handleProductSelection(product.instanceId)}
+                  disabled={product.isPaid} // Disable instances where payedQuantity is reached
+                  className="custom-checkbox"
+                />
+              </CCol>
+            </CRow>
+          ))}
+        </div>
 
-    {/* Total Selected Price */}
-    <div className="mt-4 text-center total-selected">
-      <strong>Total Selected: {calculateSelectedTotal()} TND</strong>
-    </div>
-  </CModalBody>
+        {/* Total Selected Price */}
+        <div className="mt-4 text-center total-selected">
+          <strong>Total Selected: {calculateSelectedTotal()} TND</strong>
+        </div>
+      </CModalBody>
 
-  {/* Modal Footer with Buttons */}
-  <CModalFooter className="d-flex justify-content-between">
-    <CButton
-      color="secondary"
-      className="cancel-button"
-      onClick={() => {
-        setSelectedProducts([]) // Reset selection on close
-        onClose()
-      }}
-    >
-      Close
-    </CButton>
-    <CButton
-      color="primary"
-      className="confirm-button"
-      onClick={() => {
-        handleConfirmPayment(orderId, selectedProducts) // Send selected instanceIds
-        onClose()
-      }}
-      disabled={selectedProducts.length === 0}
-    >
-      Confirm Selection
-    </CButton>
-  </CModalFooter>
-</CModal>
-
+      {/* Modal Footer with Buttons */}
+      <CModalFooter className="d-flex justify-content-between">
+        <CButton
+          color="secondary"
+          className="cancel-button"
+          onClick={() => {
+            setSelectedProducts([]) // Reset selection on close
+            onClose()
+          }}
+        >
+          Close
+        </CButton>
+        <CButton
+          color="primary"
+          className="confirm-button"
+          onClick={() => {
+            handleConfirmPayment(orderId, selectedProducts) // Send selected instanceIds
+            onClose()
+          }}
+          disabled={selectedProducts.length === 0}
+        >
+          Confirm Selection
+        </CButton>
+      </CModalFooter>
+    </CModal>
   )
 }
 

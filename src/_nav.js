@@ -42,7 +42,7 @@ const _nav = [
   //tables
   {
     component: CNavItem,
-    name: 'Tables',
+    name: 'Payment',
     to: '/tables/tablesList',
     icon: <CIcon icon={cilWallet} customClassName="nav-icon" />,
     // items: [

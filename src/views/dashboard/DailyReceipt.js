@@ -74,7 +74,20 @@ const OrdersComponent = () => {
   const generatePDFReceipt = (orders) => {
     const doc = new jsPDF()
 
+    // Title at the top left
     doc.text('Receipt', 10, 10)
+
+    // Calculate the total revenue
+    const totalRevenue = orders.reduce(
+      (sum, order) => sum + order.products.reduce((acc, p) => acc + p.total, 0),
+      0,
+    )
+
+    // Position the total revenue at the top right
+    const pageWidth = doc.internal.pageSize.width
+    doc.text(`Total Revenue: ${totalRevenue} TND`, pageWidth - 60, 10) // Adjust 60 for positioning
+
+    // Table for the orders
     doc.autoTable({
       head: [['Product', 'Quantity', 'Price', 'Total']],
       body: orders?.flatMap((order) =>
@@ -85,15 +98,9 @@ const OrdersComponent = () => {
           product.total,
         ]),
       ),
+      startY: 20, // Start table below the title and total revenue
     })
 
-    // Calculate the total revenue
-    const totalRevenue = orders.reduce(
-      (sum, order) => sum + order.products.reduce((acc, p) => acc + p.total, 0),
-      0,
-    )
-
-    doc.text(`Total Revenue: ${totalRevenue}`, 10, 140)
     doc.save('receipt.pdf')
     fetchOrders()
   }

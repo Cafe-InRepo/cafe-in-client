@@ -22,7 +22,7 @@ import {
 } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
-import avatar8 from './../../assets/images/avatars/8.jpg'
+import avatar8 from './../../assets/images/avatars/user.jpeg'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 const AppHeaderDropdown = () => {

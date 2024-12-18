@@ -172,7 +172,7 @@ const TablesDashboard = () => {
           <CCard className="mb-4">
             <CCardHeader className="d-flex justify-content-between align-items-center">
               <div>
-                <strong>Tables</strong> <small>with Unpaid Orders</small>
+                <strong>Tables</strong> 
               </div>
               <CButton color="primary" onClick={() => setShowCreateModal(true)}>
                 Create Table
@@ -222,7 +222,8 @@ const TablesDashboard = () => {
                       </CCardHeader>
                       <CCardBody
                         onClick={() => handleCardClick(table._id)}
-                        className={table.unpaidOrders ? 'bg-danger text-white' : ''}
+                        className={table.unpaidOrders ? ' text-white' : ''}
+                        style={{ background: table.unpaidOrders ? '#F39C12' : '' }}
                       >
                         <CCardImage height="150" orientation="top" src={tableImageDark} />
                         <CCardTitle>Table {table.number}</CCardTitle>

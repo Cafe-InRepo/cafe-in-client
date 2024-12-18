@@ -14,12 +14,14 @@ import {
   CButton,
   CForm,
   CFormInput,
+  useColorModes,
 } from '@coreui/react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { cilPencil, cilTrash } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import { BaseUrl } from '../../../helpers/BaseUrl'
+import { useSelector } from 'react-redux'
 
 const Menu = () => {
   const [menu, setMenu] = useState(null)
@@ -30,6 +32,8 @@ const Menu = () => {
   const [newSectionName, setNewSectionName] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [showAddSectionModal, setShowAddSectionModal] = useState(false)
+
+  //navigation
   const navigate = useNavigate()
 
   const fetchMenu = async () => {
@@ -117,8 +121,6 @@ const Menu = () => {
     section.name.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
-  // base hub for colors display
-  const baseHues = [200, 15, 160, 330, 260, 210]
   if (loadingMenu) return <CSpinner color="primary" />
 
   if (error) return <div>{error}</div>
@@ -126,15 +128,24 @@ const Menu = () => {
   return (
     <>
       {/* Search Bar and Add Section Button */}
-      <div className="d-flex justify-content-between mb-4">
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+        {/* Search Bar */}
         <CFormInput
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search Sections"
-          style={{ width: '300px' }}
+          className="mb-2 mb-md-0 me-md-2"
+          style={{ width: '100%', maxWidth: '300px' }}
         />
-        <CButton color="primary" onClick={() => setShowAddSectionModal(true)}>
+
+        {/* Add Section Button */}
+        <CButton
+          color="primary"
+          className="btn-sm"
+          style={{ width: 'auto' }}
+          onClick={() => setShowAddSectionModal(true)}
+        >
           Add New Section
         </CButton>
       </div>
@@ -142,11 +153,10 @@ const Menu = () => {
       {/* Sections display */}
       <CRow className="g-4">
         {filteredSections?.map((section, index) => (
-          <CCol key={index} xs={12} sm={6} md={4} lg={3} style={{ marginRight: '20px' }}>
+          <CCol key={index} xs={12} sm={6} md={4} lg={3} style={{ margin: '10px' }}>
             <CCard
               className="text-center shadow-sm"
               style={{
-                backgroundColor: `hsl(${(baseHues[index % baseHues.length] + (Math.random() * 30 - 15)) % 360}, 70%, 65%)`, // Adjusted HSL for controlled randomness
                 cursor: 'pointer',
                 transform: 'scale(1.1)', // Larger cards
                 textAlign: 'center', // Center text
@@ -154,12 +164,19 @@ const Menu = () => {
               onClick={() => navigate(`/menu/sections/${section._id}`)}
             >
               <CCardBody>
-                <h5 style={{ fontSize: '1.8rem', fontWeight: 'bold', margin: 0 }}>
+                <h5
+                  style={{
+                    fontSize: '1.8rem',
+                    fontWeight: 'bold',
+                    margin: 0,
+                    fontFamily: '-moz-initial',
+                  }}
+                >
                   {section.name}
                 </h5>
               </CCardBody>
               <CCardFooter>
-                <div className="d-flex justify-content-center">
+                <div className="d-flex justify-content-end">
                   <CIcon
                     icon={cilPencil}
                     size="lg"
