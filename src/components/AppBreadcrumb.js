@@ -4,6 +4,8 @@ import { useLocation } from 'react-router-dom'
 import routes from '../routes'
 
 import { CBreadcrumb, CBreadcrumbItem } from '@coreui/react'
+import { useSelector } from 'react-redux'
+import translations from '../app/Language'
 
 const AppBreadcrumb = () => {
   const currentLocation = useLocation().pathname
@@ -30,17 +32,19 @@ const AppBreadcrumb = () => {
   }
 
   const breadcrumbs = getBreadcrumbs(currentLocation)
-
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
   return (
     <CBreadcrumb className="my-0">
-      <CBreadcrumbItem href="/">Home</CBreadcrumbItem>
+      <CBreadcrumbItem href="/">{Language.home}</CBreadcrumbItem>
       {breadcrumbs.map((breadcrumb, index) => {
+        const name = breadcrumb.name
         return (
           <CBreadcrumbItem
             {...(breadcrumb.active ? { active: true } : { href: breadcrumb.pathname })}
             key={index}
           >
-            {breadcrumb.name}
+            {name}
           </CBreadcrumbItem>
         )
       })}

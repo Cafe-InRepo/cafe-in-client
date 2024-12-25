@@ -15,11 +15,9 @@ const UsersList = React.lazy(() => import('./views/users/usersTable'))
 const CreateUser = React.lazy(() => import('./views/users/createUser'))
 
 //menu
-const DisplayMenu = React.lazy(() => import('./views/menu/DisplayMenu'))
 const DisplaySections = React.lazy(() => import('./views/menu/section/DisplaySections'))
 const DisplayCategories = React.lazy(() => import('./views/menu/categories/DisplayCategories'))
 
-const MenuCategories = React.lazy(() => import('./views/menu/categoryAccordion'))
 const CategoriDetails = React.lazy(() => import('./views/menu/CategoryDetails'))
 
 //tables
@@ -85,7 +83,6 @@ const getRoutesByRole = (role) => {
     { path: '/menu/sections', name: 'Sections', element: DisplaySections },
     { path: '/menu/sections/:sectionId', name: 'Categories', element: DisplayCategories },
 
-    { path: '/menu/categories', name: 'categories', element: MenuCategories },
     { path: '/menu/categories/:id', name: 'Menu', element: CategoriDetails },
 
     //profile

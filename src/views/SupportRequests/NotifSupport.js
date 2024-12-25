@@ -17,6 +17,8 @@ import {
 } from '@coreui/react'
 import { GetToken } from '../../helpers/GetToken'
 import { BaseUrl } from '../../helpers/BaseUrl'
+import { useSelector } from 'react-redux'
+import translations from '../../app/Language'
 
 const NotifSupport = () => {
   const token = GetToken()
@@ -76,6 +78,10 @@ const NotifSupport = () => {
     setIsModalOpen(false)
     alert(`Dismissed call from table ${activeTable}`)
   }
+  //language
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
+
 
   return (
     <CContainer>
@@ -83,14 +89,14 @@ const NotifSupport = () => {
         <CCol md="8">
           <CCard>
             <CCardHeader>
-              <h1>Support Requests</h1>
+              <h1>{Language.support +" " + Language.request}</h1>
             </CCardHeader>
             <CCardBody>
               {supportRequests.length > 0 ? (
                 <CListGroup>
                   {supportRequests.map((tableNumber, index) => (
                     <CListGroupItem key={index}>
-                      Table {tableNumber} called for support
+                           {tableNumber} called for support
                     </CListGroupItem>
                   ))}
                 </CListGroup>

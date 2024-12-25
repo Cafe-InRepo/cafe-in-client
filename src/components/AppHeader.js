@@ -24,9 +24,12 @@ import {
   cilMoon,
   cilSun,
 } from '@coreui/icons'
-
+import translations from '../app/Language'
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
+import EN from '../assets/flags/English.png'
+import FR from '../assets/flags/Frensh.jpg'
+import IT from '../assets/flags/Italy.jpg'
 
 const AppHeader = () => {
   const headerRef = useRef()
@@ -34,6 +37,8 @@ const AppHeader = () => {
 
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
@@ -54,7 +59,7 @@ const AppHeader = () => {
         <CHeaderNav className="d-none d-md-flex">
           <CNavItem>
             <CNavLink to="/" as={NavLink}>
-              Dashboard
+              {Language.dashboard}
             </CNavLink>
           </CNavItem>
         </CHeaderNav>
@@ -97,7 +102,7 @@ const AppHeader = () => {
                 type="button"
                 onClick={() => setColorMode('light')}
               >
-                <CIcon className="me-2" icon={cilSun} size="lg" /> Light
+                <CIcon className="me-2" icon={cilSun} size="lg" /> {Language.light}
               </CDropdownItem>
               <CDropdownItem
                 active={colorMode === 'dark'}
@@ -106,7 +111,7 @@ const AppHeader = () => {
                 type="button"
                 onClick={() => setColorMode('dark')}
               >
-                <CIcon className="me-2" icon={cilMoon} size="lg" /> Dark
+                <CIcon className="me-2" icon={cilMoon} size="lg" /> {Language.dark}
               </CDropdownItem>
               <CDropdownItem
                 active={colorMode === 'auto'}
@@ -115,7 +120,50 @@ const AppHeader = () => {
                 type="button"
                 onClick={() => setColorMode('auto')}
               >
-                <CIcon className="me-2" icon={cilContrast} size="lg" /> Auto
+                <CIcon className="me-2" icon={cilContrast} size="lg" /> {Language.auto}
+              </CDropdownItem>
+            </CDropdownMenu>
+          </CDropdown>
+          <li className="nav-item py-1">
+            <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
+          </li>
+          <CDropdown variant="nav-item" placement="bottom-end">
+            <CDropdownToggle caret={false}>
+              {t === 'English' ? (
+                <img src={EN} width={30}></img>
+              ) : t === 'French' ? (
+                <img src={FR} width={30}></img>
+              ) : (
+                <img src={IT} width={30}></img>
+              )}
+            </CDropdownToggle>
+            <CDropdownMenu>
+              <CDropdownItem
+                active={t === 'English'}
+                className="d-flex align-items-center"
+                as="button"
+                type="button"
+                onClick={() => dispatch({ type: 'set', language: 'English' })}
+              >
+                English
+              </CDropdownItem>
+              <CDropdownItem
+                active={t === 'French'}
+                className="d-flex align-items-center"
+                as="button"
+                type="button"
+                onClick={() => dispatch({ type: 'set', language: 'French' })}
+              >
+                Français
+              </CDropdownItem>
+              <CDropdownItem
+                active={t === 'Italian'}
+                className="d-flex align-items-center"
+                as="button"
+                type="button"
+                onClick={() => dispatch({ type: 'set', language: 'Italian' })}
+              >
+                Italiano
               </CDropdownItem>
             </CDropdownMenu>
           </CDropdown>
@@ -126,7 +174,7 @@ const AppHeader = () => {
         </CHeaderNav>
       </CContainer>
       <CContainer className="px-4" fluid>
-        <AppBreadcrumb />
+        {/* <AppBreadcrumb /> */}
       </CContainer>
     </CHeader>
   )

@@ -24,6 +24,8 @@ import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import Loading from '../../helpers/Loading'
 import tableImage from 'src/assets/images/table.jpg'
+import { useSelector } from 'react-redux'
+import translations from '../../app/Language'
 
 const TablesDashboard = () => {
   const [tables, setTables] = useState([])
@@ -38,6 +40,9 @@ const TablesDashboard = () => {
   const [selectedTableId, setSelectedTableId] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(5) // Number of items per page for pagination
+  //language
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
 
   const fetchTables = async () => {
     setLoading(true)
@@ -158,14 +163,14 @@ const TablesDashboard = () => {
       <CRow>
         <CCol xs={12}>
           <CFormInput
-            placeholder="Search tables..."
+            placeholder={Language.search + ' ' + Language.table}
             value={tableSearchQuery}
             onChange={(e) => setTableSearchQuery(e.target.value)}
             className="mb-3"
           />
           <CCard className="mb-4">
             <CCardHeader className="d-flex justify-content-between align-items-center">
-              <strong>Tables</strong>
+              <strong>{Language.tables}</strong>
             </CCardHeader>
             <CCardBody>
               {loading && <Loading />}
@@ -182,7 +187,9 @@ const TablesDashboard = () => {
                       <CCardImage height="150" orientation="top" src={tableImage} />
 
                       <CCardBody>
-                        <CCardTitle>Table {table.number}</CCardTitle>
+                        <CCardTitle>
+                          {Language.table} {table.number}
+                        </CCardTitle>
                       </CCardBody>
                     </CCard>
                   </CCol>
@@ -201,11 +208,11 @@ const TablesDashboard = () => {
         }}
       >
         <CModalHeader>
-          <CModalTitle>Select Products</CModalTitle>
+          <CModalTitle>{Language.selectProducts}</CModalTitle>
         </CModalHeader>
         <CModalBody>
           <CFormInput
-            placeholder="Search products..."
+            placeholder={Language.search + ' ' + Language.products}
             value={productSearchQuery}
             onChange={(e) => setProductSearchQuery(e.target.value)}
             className="mb-3"
@@ -249,11 +256,11 @@ const TablesDashboard = () => {
                 "Loading"
               </>
             ) : (
-              'Place Order'
+              Language.place + ' ' + Language.order
             )}
           </CButton>
           <CButton color="secondary" onClick={() => setShowModal(false)}>
-            Close
+            {Language.close}
           </CButton>
         </CModalFooter>
       </CModal>

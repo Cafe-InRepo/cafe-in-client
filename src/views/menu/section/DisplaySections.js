@@ -22,6 +22,7 @@ import { cilPencil, cilTrash } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import { BaseUrl } from '../../../helpers/BaseUrl'
 import { useSelector } from 'react-redux'
+import translations from '../../../app/Language'
 
 const Menu = () => {
   const [menu, setMenu] = useState(null)
@@ -32,7 +33,9 @@ const Menu = () => {
   const [newSectionName, setNewSectionName] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [showAddSectionModal, setShowAddSectionModal] = useState(false)
-
+  //language
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
   //navigation
   const navigate = useNavigate()
 
@@ -134,7 +137,7 @@ const Menu = () => {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search Sections"
+          placeholder={Language.search + ' ' + Language.sections}
           className="mb-2 mb-md-0 me-md-2"
           style={{ width: '100%', maxWidth: '300px' }}
         />
@@ -146,7 +149,7 @@ const Menu = () => {
           style={{ width: 'auto' }}
           onClick={() => setShowAddSectionModal(true)}
         >
-          Add New Section
+          {Language.newSection}
         </CButton>
       </div>
 
@@ -206,7 +209,7 @@ const Menu = () => {
       {showEditModal && (
         <CModal visible={showEditModal} onClose={() => setShowEditModal(false)}>
           <CModalHeader>
-            <CModalTitle>Edit Section</CModalTitle>
+            <CModalTitle>{Language.edit + ' ' + Language.section}</CModalTitle>
           </CModalHeader>
           <CModalBody>
             <CForm>
@@ -220,10 +223,10 @@ const Menu = () => {
           </CModalBody>
           <CModalFooter>
             <CButton color="secondary" onClick={() => setShowEditModal(false)}>
-              Cancel
+              {Language.cancel}
             </CButton>
             <CButton color="primary" onClick={handleSaveSection}>
-              Save Changes
+              {Language.save}
             </CButton>
           </CModalFooter>
         </CModal>

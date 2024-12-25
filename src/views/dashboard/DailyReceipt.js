@@ -19,12 +19,18 @@ import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 import { GetToken } from '../../helpers/GetToken'
 import { BaseUrl } from '../../helpers/BaseUrl'
+import { useSelector } from 'react-redux'
+import translations from '../../app/Language'
 
 const OrdersComponent = () => {
   const [orders, setOrders] = useState([])
   const [totalRevenue, setTotalRevenue] = useState(0)
   const [loading, setLoading] = useState(false)
   const token = GetToken() // Retrieve token from localStorage
+
+  //language
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
 
   // Function to fetch user orders
   const fetchOrders = async () => {
@@ -113,7 +119,7 @@ const OrdersComponent = () => {
   if (orders.length === 0) {
     return (
       <CContainer className="text-center">
-        <h2>You didn't get any orders for today</h2>
+        <h2>{Language.noOrders}</h2>
       </CContainer>
     )
   }
@@ -122,10 +128,14 @@ const OrdersComponent = () => {
     <CContainer>
       <CRow className="mb-4">
         <CCol sm={12} md={6}>
-          <h2>User Orders</h2>
+          <h2>
+            {Language.user} {Language.orders}
+          </h2>
         </CCol>
         <CCol sm={12} md={6} className="text-md-right">
-          <h4>Total Revenue: {totalRevenue.toFixed(2)} TND</h4>
+          <h4>
+            {Language.total} {Language.revenue}: {totalRevenue.toFixed(2)} TND
+          </h4>
         </CCol>
       </CRow>
 
@@ -138,9 +148,12 @@ const OrdersComponent = () => {
             <CTableHead>
               <CTableRow>
                 <CTableHeaderCell>#</CTableHeaderCell>
-                <CTableHeaderCell>Products</CTableHeaderCell>
-                <CTableHeaderCell>Total Price</CTableHeaderCell>
-                <CTableHeaderCell>Date</CTableHeaderCell>
+                <CTableHeaderCell>{Language.products}</CTableHeaderCell>
+                <CTableHeaderCell>
+                  {Language.total}
+                  {Language.price}
+                </CTableHeaderCell>
+                <CTableHeaderCell>{Language.date}</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody>
@@ -170,7 +183,7 @@ const OrdersComponent = () => {
                 onClick={handleCloseOrdersAndPrintReceipt}
                 disabled={loading}
               >
-                Get Today's Receipt and Close Orders
+                {Language.dailyReceiptBtn}
               </CButton>
             </CCardBody>
           </CCard>

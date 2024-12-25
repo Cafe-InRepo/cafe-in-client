@@ -8,49 +8,52 @@ import CustomerInsights from '../../assets/images/categories/CustomerInsights-.p
 import RevenueAnalysis from '../../assets/images/categories/RevenueAnalysis-.png'
 import InventoryOverview from '../../assets/images/categories/InventoryOverview-.png'
 import Bill from '../../assets/images/categories/bill.png'
+import { useSelector } from 'react-redux'
+import translations from '../../app/Language'
 
 const Dashboard = () => {
   const navigate = useNavigate()
-
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
   const categories = [
     {
-      name: 'Sales Statistics',
+      name: Language.salesStatistic,
       color: '#4A7CA2',
       path: '/sales',
       image: salesImage, // Replace with your image path
     },
     {
-      name: 'Product Performance',
+      name: Language.productPerformance,
       color: '#8A77A3',
       path: '/product-performance',
       image: products, // Replace with your image path
     },
     {
-      name: 'Order Management',
+      name: Language.orderManagement,
       color: '#D88299',
       path: '/order-management',
       image: OrderManagement, // Replace with your image path
     },
     {
-      name: 'Customer Insights',
+      name: Language.CustomerInsights,
       color: '#3BBFA5',
       path: '/customer-insights',
       image: CustomerInsights, // Replace with your image path
     },
     {
-      name: 'Revenue Analysis',
+      name: Language.revenueAnalysis,
       color: '#F08866',
       path: '/revenue-analysis',
       image: RevenueAnalysis, // Replace with your image path
     },
     {
-      name: 'Inventory Overview',
+      name: Language.inventoryOverview,
       color: '#336D86',
       path: '/inventory-overview',
       image: InventoryOverview, // Replace with your image path
     },
     {
-      name: 'Bills',
+      name: Language.bills,
       color: '#336D56',
       path: '/bill',
       image: Bill, // Replace with your image path

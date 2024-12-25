@@ -18,6 +18,8 @@ import axios from 'axios'
 import { GetToken } from '../../helpers/GetToken'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import Loading from '../../helpers/Loading'
+import { useSelector } from 'react-redux'
+import translations from '../../app/Language'
 
 const ProductList = () => {
   const [products, setProducts] = useState([])
@@ -29,6 +31,9 @@ const ProductList = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10) // Set items per page
   const token = GetToken()
+  //language
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -44,7 +49,6 @@ const ProductList = () => {
         })
         setProducts(response.data)
         setFilteredProducts(response.data)
-        setMessage('Products fetched successfully')
       } catch (err) {
         setError('Failed to fetch products')
       } finally {
@@ -120,7 +124,7 @@ const ProductList = () => {
 
       <CInputGroup className="mb-3">
         <CFormInput
-          placeholder="Search products"
+          placeholder={Language.search + ' ' + Language.products}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -129,8 +133,8 @@ const ProductList = () => {
       <CTable align="middle" className="mb-0 border" hover responsive>
         <CTableHead className="text-nowrap">
           <CTableRow>
-            <CTableHeaderCell className="bg-body-tertiary ">Product</CTableHeaderCell>
-            <CTableHeaderCell className="bg-body-tertiary ">Availability</CTableHeaderCell>
+            <CTableHeaderCell className="bg-body-tertiary ">{Language.products}</CTableHeaderCell>
+            <CTableHeaderCell className="bg-body-tertiary ">{Language.available}</CTableHeaderCell>
           </CTableRow>
         </CTableHead>
         <CTableBody>

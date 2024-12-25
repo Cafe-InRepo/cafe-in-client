@@ -32,6 +32,8 @@ import { GetToken } from '../../helpers/GetToken'
 import { saveAs } from 'file-saver'
 import CIcon from '@coreui/icons-react'
 import { cilCloudDownload, cilQrCode, cilTrash } from '@coreui/icons'
+import { useSelector } from 'react-redux'
+import translations from '../../app/Language'
 
 const TablesDashboard = () => {
   const [tables, setTables] = useState([])
@@ -44,7 +46,9 @@ const TablesDashboard = () => {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [tableNumber, setTableNumber] = useState('')
   const token = GetToken()
-
+  //language
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
   const navigate = useNavigate()
 
   const fetchTables = async () => {
@@ -172,17 +176,17 @@ const TablesDashboard = () => {
           <CCard className="mb-4">
             <CCardHeader className="d-flex justify-content-between align-items-center">
               <div>
-                <strong>Tables</strong> 
+                <strong>{Language.tables}</strong>
               </div>
               <CButton color="primary" onClick={() => setShowCreateModal(true)}>
-                Create Table
+                {Language.create + ' ' + Language.table}
               </CButton>
             </CCardHeader>
             <CCardBody>
               <CInputGroup className="mb-3">
                 <CFormInput
                   type="text"
-                  placeholder="Search by table number"
+                  placeholder={Language.searchByTableNumber}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -198,24 +202,24 @@ const TablesDashboard = () => {
                           style={{ display: 'flex', flexDirection: 'row', alignSelf: 'end' }}
                         >
                           <CDropdownToggle color="secondary" size="sm">
-                            Actions
+                            {Language.actions}
                           </CDropdownToggle>
                           <CDropdownMenu>
                             <CDropdownItem
                               onClick={() => downloadQRCode(table.number, table.qrCode)}
                             >
                               <CIcon icon={cilCloudDownload} className="me-2" />
-                              Download QR Code
+                              {Language.downloadQR}
                             </CDropdownItem>
                             <CDropdownItem
                               onClick={() => handleDeleteTable(table._id, table.unpaidOrders)}
                             >
                               <CIcon icon={cilTrash} className="me-2" />
-                              Delete Table
+                              {Language.deleteTable}
                             </CDropdownItem>
                             <CDropdownItem>
                               <CIcon icon={cilQrCode} className="me-2" />
-                              Change QR Code
+                              {Language.changeQR}
                             </CDropdownItem>
                           </CDropdownMenu>
                         </CDropdown>
@@ -226,7 +230,9 @@ const TablesDashboard = () => {
                         style={{ background: table.unpaidOrders ? '#F39C12' : '' }}
                       >
                         <CCardImage height="150" orientation="top" src={tableImageDark} />
-                        <CCardTitle>Table {table.number}</CCardTitle>
+                        <CCardTitle>
+                          {Language.table} {table.number}
+                        </CCardTitle>
                       </CCardBody>
                     </CCard>
                   </CCol>
@@ -240,19 +246,19 @@ const TablesDashboard = () => {
       {/* Create Table Modal */}
       <CModal visible={showCreateModal} onClose={() => setShowCreateModal(false)}>
         <CModalHeader>
-          <CModalTitle>Create New Table</CModalTitle>
+          <CModalTitle>{Language.create + ' ' + Language.new + ' ' + Language.table}</CModalTitle>
         </CModalHeader>
         <CModalBody>
           <CForm onSubmit={handleCreateTable}>
             <CFormInput
               type="number"
-              placeholder="Enter table number"
+              placeholder={Language.enterTableNumber}
               value={tableNumber}
               onChange={(e) => setTableNumber(e.target.value)}
               required
             />
             <CButton type="submit" color="primary" style={{ marginTop: '10px' }}>
-              Create Table
+              {Language.create + ' ' + Language.table}
             </CButton>
           </CForm>
         </CModalBody>
@@ -266,7 +272,7 @@ const TablesDashboard = () => {
         <CModalBody>{modalMessage}</CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={handleCloseModal}>
-            Close
+            {Language.close}
           </CButton>
         </CModalFooter>
       </CModal>

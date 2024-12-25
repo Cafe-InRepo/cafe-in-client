@@ -28,6 +28,8 @@ import { cilPeople, cilPencil, cilTrash } from '@coreui/icons'
 import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import Loading from '../../helpers/Loading'
+import { useSelector } from 'react-redux'
+import translations from '../../app/Language'
 
 const Dashboard = () => {
   const [clients, setClients] = useState([])
@@ -38,7 +40,9 @@ const Dashboard = () => {
   const [validated, setValidated] = useState(false)
   const [modalMessage, setModalMessage] = useState('')
   const [modalError, setModalError] = useState(false)
-
+  // Language
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
   useEffect(() => {
     const fetchClients = async () => {
       setLoading(true)
@@ -162,25 +166,27 @@ const Dashboard = () => {
       <CRow>
         <CCol xs>
           <CCard className="mb-4">
-            <CCardHeader>Users</CCardHeader>
+            <CCardHeader>{Language.users}</CCardHeader>
             <CCardBody>
               {loading && <Loading />}
               {error && <p>{error}</p>}
               <CTable align="middle" className="mb-0 border" hover responsive>
                 <CTableHead className="text-nowrap">
                   <CTableRow>
-                    <CTableHeaderCell className="bg-body-tertiary">User</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary text-center">
-                      Email
+                    <CTableHeaderCell className="bg-body-tertiary">
+                      {Language.user}
                     </CTableHeaderCell>
                     <CTableHeaderCell className="bg-body-tertiary text-center">
-                      Role
+                      {Language.email}
                     </CTableHeaderCell>
                     <CTableHeaderCell className="bg-body-tertiary text-center">
-                      Active
+                      {Language.role}
                     </CTableHeaderCell>
                     <CTableHeaderCell className="bg-body-tertiary text-center">
-                      Actions
+                      {Language.active}
+                    </CTableHeaderCell>
+                    <CTableHeaderCell className="bg-body-tertiary text-center">
+                      {Language.actions}
                     </CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
@@ -228,7 +234,7 @@ const Dashboard = () => {
 
       <CModal visible={showEditModal} onClose={() => setShowEditModal(false)}>
         <CModalHeader>
-          <CModalTitle>Edit User</CModalTitle>
+          <CModalTitle>{Language.edit + ' ' + Language.user}</CModalTitle>
         </CModalHeader>
         <CModalBody>
           <CForm
@@ -238,7 +244,7 @@ const Dashboard = () => {
             onSubmit={handleUpdate}
           >
             <CCol md={6}>
-              <CFormLabel htmlFor="editFullName">Full Name</CFormLabel>
+              <CFormLabel htmlFor="editFullName">{Language.fullName}</CFormLabel>
               <CFormInput
                 type="text"
                 id="fullName"
@@ -249,7 +255,7 @@ const Dashboard = () => {
               <CFormFeedback invalid>Please provide a valid name.</CFormFeedback>
             </CCol>
             <CCol md={6}>
-              <CFormLabel htmlFor="editEmail">Email</CFormLabel>
+              <CFormLabel htmlFor="editEmail">{Language.email}</CFormLabel>
               <CFormInput
                 type="email"
                 id="email"
@@ -260,7 +266,7 @@ const Dashboard = () => {
               <CFormFeedback invalid>Please provide a valid email.</CFormFeedback>
             </CCol>
             <CCol md={6}>
-              <CFormLabel htmlFor="editPassword">Password</CFormLabel>
+              <CFormLabel htmlFor="editPassword">{Language.password}</CFormLabel>
               <CFormInput
                 type="password"
                 id="password"
@@ -272,14 +278,14 @@ const Dashboard = () => {
             </CCol>
             <CCol xs={12}>
               <CButton color="primary" type="submit">
-                Update User
+                {Language.update + ' ' + Language.user}
               </CButton>
             </CCol>
           </CForm>
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setShowEditModal(false)}>
-            Cancel
+            {Language.cancel}
           </CButton>
         </CModalFooter>
       </CModal>

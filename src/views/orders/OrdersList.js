@@ -22,12 +22,17 @@ import { BaseUrl } from '../../helpers/BaseUrl'
 import axios from 'axios'
 import { io } from 'socket.io-client'
 import { GetToken } from '../../helpers/GetToken'
+import { useSelector } from 'react-redux'
+import translations from '../../app/Language'
 
 const OrdersTable = () => {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeKey, setActiveKey] = useState(1)
   const token = GetToken()
+  //language
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
 
   const fetchOrders = async () => {
     setLoading(true)
@@ -92,7 +97,9 @@ const OrdersTable = () => {
     <CCard key={order._id} className="mb-3 shadow-sm">
       <CCardBody>
         <div className="d-flex justify-content-between align-items-center">
-          <h5>Table {order.table.number}</h5>
+          <h5>
+            {Language.table} {order.table.number}
+          </h5>
           <CBadge
             color={
               order.status === 'pending'
@@ -102,12 +109,16 @@ const OrdersTable = () => {
                   : 'success'
             }
           >
-            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+            {order.status === 'pending'
+              ? Language.pending
+              : order.status === 'preparing'
+                ? Language.preparing
+                : Language.completed}
           </CBadge>
         </div>
         <CAccordion flush>
           <CAccordionItem itemKey="1">
-            <CAccordionHeader>Products</CAccordionHeader>
+            <CAccordionHeader>{Language.products}</CAccordionHeader>
             <CAccordionBody>
               {order.products.map((product, index) => (
                 <div key={index} className="d-flex justify-content-between my-2">
@@ -132,9 +143,9 @@ const OrdersTable = () => {
               {loading ? (
                 <CSpinner size="sm" />
               ) : order.status === 'pending' ? (
-                'Move to Preparing'
+                Language.moveToPreparing
               ) : (
-                'Move to Completed'
+                Language.moveToCompleted
               )}
             </CButton>
           </div>
@@ -148,23 +159,23 @@ const OrdersTable = () => {
       <CCol xs={12}>
         <CCard className="mb-4">
           <CCardHeader>
-            <strong>Orders</strong>
+            <strong>{Language.orders}</strong>
           </CCardHeader>
           <CCardBody>
             <CNav variant="tabs" role="tablist">
               <CNavItem>
                 <CNavLink active={activeKey === 1} onClick={() => setActiveKey(1)}>
-                  Pending
+                  {Language.pending}
                 </CNavLink>
               </CNavItem>
               <CNavItem>
                 <CNavLink active={activeKey === 2} onClick={() => setActiveKey(2)}>
-                  Preparing
+                  {Language.preparing}
                 </CNavLink>
               </CNavItem>
               <CNavItem>
                 <CNavLink active={activeKey === 3} onClick={() => setActiveKey(3)}>
-                  Completed
+                  {Language.completed}
                 </CNavLink>
               </CNavItem>
             </CNav>
