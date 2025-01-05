@@ -23,6 +23,8 @@ const CategoriDetails = React.lazy(() => import('./views/menu/CategoryDetails'))
 //tables
 const TablesList = React.lazy(() => import('./views/Tables/TablesList'))
 const TableDetails = React.lazy(() => import('./views/Tables/TableDetails'))
+const TablesReservation = React.lazy(() => import('./views/Tables/ReservationsDashboard'))
+const News = React.lazy(() => import('./views/News/News'))
 
 //orders
 const OrdersList = React.lazy(() => import('./views/orders/OrdersList'))
@@ -50,6 +52,10 @@ const getRoutesByRole = (role) => {
     //tables
     { path: '/tables/tablesList', name: 'Tables', element: TablesList },
     { path: '/tables/:tableId', name: 'Tables', element: TableDetails },
+    { path: '/tables/reservation', name: 'Tables', element: TablesReservation },
+
+    //news
+    { path: '/news', name: 'News', element: News },
 
     //orders
     { path: '/orders/ordersList', name: 'orders', element: OrdersList },
