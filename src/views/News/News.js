@@ -4,7 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import axios from 'axios'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import CreatePostModal from '../News/CreatePostModel'
-import PostCard from './PostCard' // Import the PostCard component
+import PostCard from './postCard' // Import the PostCard component
 import { BaseUrl } from '../../helpers/BaseUrl'
 import './News.css'
 const News = () => {
@@ -84,7 +84,7 @@ const News = () => {
               <b>No more posts to load</b>
             </p>
           }
-          style={{ overflow: 'hidden' }} 
+          style={{ overflow: 'hidden' }}
         >
           <Row className="no-gutters">
             {posts.map((post) => (
