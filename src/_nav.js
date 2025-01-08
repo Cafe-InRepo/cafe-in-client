@@ -9,6 +9,7 @@ import {
   cilListNumbered,
   cilBraille,
   cilBell,
+  cilNewspaper,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem } from '@coreui/react'
 import { jwtDecode } from 'jwt-decode'
@@ -44,6 +45,12 @@ const NavItems = () => {
       name: Language?.menu || 'Menu',
       to: '/menu/sections',
       icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
+    },
+    {
+      component: CNavItem,
+      name: Language?.news || 'News',
+      to: '/news',
+      icon: <CIcon icon={cilNewspaper} customClassName="nav-icon" />,
     },
     {
       component: CNavItem,

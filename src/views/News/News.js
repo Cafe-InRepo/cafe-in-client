@@ -26,7 +26,7 @@ const News = () => {
       const response = await axios.get(`${BaseUrl}/posts?page=${pageNumber}&limit=10`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-
+      console.log(response.data)
       if (response.data.length > 0) {
         setPosts((prevPosts) => [...prevPosts, ...response.data])
       } else {

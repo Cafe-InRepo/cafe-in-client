@@ -74,12 +74,14 @@ const Post = ({ post, onEdit, onDelete }) => {
           style={{
             objectFit: 'cover',
             width: '100%',
-            maxHeight: '300px',
+            maxHeight: '400px',
             cursor: 'pointer',
-            paddingRight: '15px',
-            paddingLeft: '15px',
+            borderRadius: '8px',
+            transition: 'transform 0.3s',
           }}
           onClick={toggleModal}
+          onMouseEnter={(e) => (e.target.style.transform = 'scale(1.02)')}
+          onMouseLeave={(e) => (e.target.style.transform = 'scale(1)')}
         />
       ) : (
         <video
@@ -87,17 +89,19 @@ const Post = ({ post, onEdit, onDelete }) => {
           src={item.url}
           style={{
             width: '100%',
-            maxHeight: '300px',
+            maxHeight: '400px',
             cursor: 'pointer',
-            paddingRight: '15px',
-            paddingLeft: '15px',
+            borderRadius: '8px',
+            transition: 'transform 0.3s',
           }}
           onClick={toggleModal}
+          onMouseEnter={(e) => (e.target.style.transform = 'scale(1.02)')}
+          onMouseLeave={(e) => (e.target.style.transform = 'scale(1)')}
         />
       )
     } else if (post.media.length === 2) {
       return (
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex', gap: '10px' }}>
           {post.media.map((item, index) =>
             item.type === 'image' ? (
               <CardImg
@@ -107,15 +111,17 @@ const Post = ({ post, onEdit, onDelete }) => {
                 style={{
                   objectFit: 'cover',
                   width: '50%',
-                  cursor: 'pointer',
                   maxHeight: '300px',
-                  paddingRight: '10px',
-                  paddingLeft: '10px',
+                  cursor: 'pointer',
+                  borderRadius: '8px',
+                  transition: 'transform 0.3s',
                 }}
                 onClick={() => {
                   setCurrentMediaIndex(index)
                   toggleModal()
                 }}
+                onMouseEnter={(e) => (e.target.style.transform = 'scale(1.02)')}
+                onMouseLeave={(e) => (e.target.style.transform = 'scale(1)')}
               />
             ) : (
               <video
@@ -124,15 +130,17 @@ const Post = ({ post, onEdit, onDelete }) => {
                 src={item.url}
                 style={{
                   width: '50%',
-                  cursor: 'pointer',
                   maxHeight: '300px',
-                  paddingRight: '10px',
-                  paddingLeft: '10px',
+                  cursor: 'pointer',
+                  borderRadius: '8px',
+                  transition: 'transform 0.3s',
                 }}
                 onClick={() => {
                   setCurrentMediaIndex(index)
                   toggleModal()
                 }}
+                onMouseEnter={(e) => (e.target.style.transform = 'scale(1.02)')}
+                onMouseLeave={(e) => (e.target.style.transform = 'scale(1)')}
               />
             ),
           )}
@@ -140,7 +148,13 @@ const Post = ({ post, onEdit, onDelete }) => {
       )
     } else {
       return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '5px' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '10px',
+          }}
+        >
           {post.media.slice(0, 4).map((item, index) =>
             item.type === 'image' ? (
               <CardImg
@@ -150,15 +164,17 @@ const Post = ({ post, onEdit, onDelete }) => {
                 style={{
                   objectFit: 'cover',
                   width: '100%',
-                  cursor: 'pointer',
                   maxHeight: '200px',
-                  paddingRight: '10px',
-                  paddingLeft: '10px',
+                  cursor: 'pointer',
+                  borderRadius: '8px',
+                  transition: 'transform 0.3s',
                 }}
                 onClick={() => {
                   setCurrentMediaIndex(index)
                   toggleModal()
                 }}
+                onMouseEnter={(e) => (e.target.style.transform = 'scale(1.02)')}
+                onMouseLeave={(e) => (e.target.style.transform = 'scale(1)')}
               />
             ) : (
               <video
@@ -167,15 +183,17 @@ const Post = ({ post, onEdit, onDelete }) => {
                 src={item.url}
                 style={{
                   width: '100%',
-                  cursor: 'pointer',
                   maxHeight: '200px',
-                  paddingRight: '10px',
-                  paddingLeft: '10px',
+                  cursor: 'pointer',
+                  borderRadius: '8px',
+                  transition: 'transform 0.3s',
                 }}
                 onClick={() => {
                   setCurrentMediaIndex(index)
                   toggleModal()
                 }}
+                onMouseEnter={(e) => (e.target.style.transform = 'scale(1.02)')}
+                onMouseLeave={(e) => (e.target.style.transform = 'scale(1)')}
               />
             ),
           )}
@@ -185,10 +203,12 @@ const Post = ({ post, onEdit, onDelete }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: '#000',
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
                 color: '#fff',
                 fontSize: '1.5rem',
+                borderRadius: '8px',
                 cursor: 'pointer',
+                position: 'relative',
               }}
               onClick={toggleModal}
             >
@@ -199,11 +219,12 @@ const Post = ({ post, onEdit, onDelete }) => {
       )
     }
   }
+
   const handleAddReply = async (commentId, replyText) => {
     try {
       const response = await axios.post(
         `${BaseUrl}/posts/${post._id}/reply/${commentId}`,
-        { text:replyText, type: 'User' },
+        { text: replyText, type: 'User' },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -218,15 +239,25 @@ const Post = ({ post, onEdit, onDelete }) => {
   }
 
   return (
-    <Card style={{ margin: 'auto', marginBottom: '20px', maxWidth: '800px' }}>
-      <CardBody style={{ position: 'relative', paddingBottom: '0' }}>
-        <p>{post.summary}</p>
+    <Card
+      style={{
+        margin: 'auto',
+        marginBottom: '20px',
+        maxWidth: '800px',
+        borderRadius: '10px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      }}
+    >
+      <CardBody style={{ position: 'relative', paddingBottom: '0', padding: '15px' }}>
+        <p style={{ fontSize: '1rem', color: '#333', lineHeight: '1.5', marginBottom: '10px' }}>
+          {post.summary}
+        </p>
         <ButtonDropdown
           isOpen={dropdownOpen}
           toggle={toggleDropdown}
           style={{ position: 'absolute', top: '10px', right: '10px' }}
         >
-          <DropdownToggle color="link" style={{ padding: '0' }}>
+          <DropdownToggle color="link" style={{ padding: '0', color: '#888', fontSize: '1.2rem' }}>
             <FaEllipsisH />
           </DropdownToggle>
           <DropdownMenu>
@@ -236,15 +267,25 @@ const Post = ({ post, onEdit, onDelete }) => {
         </ButtonDropdown>
       </CardBody>
 
-      {post.media && post.media.length > 0 && renderMedia()}
+      {post.media && post.media.length > 0 && (
+        <div style={{ padding: '15px' }}>{renderMedia()}</div>
+      )}
 
-      <CardBody>
-        <span style={{ cursor: 'pointer', marginTop: '7px' }}>
-          {' '}
+      <CardBody style={{ padding: '15px' }}>
+        <span
+          style={{
+            display: 'block',
+            color: '#007bff',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            fontSize: '0.9rem',
+          }}
+          onClick={() => document.getElementById('comment-section').scrollIntoView()}
+        >
           {post.comments.length} Comments
         </span>
 
-        <div style={{ marginTop: '20px' }}>
+        <div id="comment-section" style={{ marginTop: '20px' }}>
           <CommentSection
             post={post}
             handleAddComment={handleAddComment}
@@ -255,38 +296,28 @@ const Post = ({ post, onEdit, onDelete }) => {
 
       <div
         style={{
-          padding: '10px',
-          borderTop: '1px solid #ccc',
+          padding: '10px 15px',
+          borderTop: '1px solid #ddd',
           display: 'flex',
-          justifyContent: 'space-between',
           alignItems: 'center',
+          gap: '10px',
         }}
       >
-        <span
-          style={{
-            cursor: 'pointer',
-            flex: '1', // Takes 1/4 of the space
-            maxWidth: '25%', // Ensures it doesn’t exceed 25%
-            marginLeft: '8%',
-          }}
-        >
-          <Reactions />
+        <span style={{ flex: '1' }}>
+          <Reactions postId={post._id} StoredReaction={post.storedReaction} />
         </span>
-        <div
-          style={{
-            position: 'relative',
-            flex: '3', // Takes 3/4 of the space
-            maxWidth: '75%', // Ensures it doesn’t exceed 75%
-          }}
-        >
+        <div style={{ flex: '5', position: 'relative' }}>
           <Input
             type="text"
             placeholder="Write a comment..."
             value={text}
             onChange={(e) => setText(e.target.value)}
             style={{
-              width: '100%', // Ensures the input takes up the available width
-              boxSizing: 'border-box', // Prevents overflow issues
+              width: '100%',
+              borderRadius: '20px',
+              padding: '10px 15px',
+              border: '1px solid #ddd',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
             }}
           />
           <FaCommentDots
@@ -308,30 +339,54 @@ const Post = ({ post, onEdit, onDelete }) => {
 
       {isModalOpen && (
         <Modal isOpen={isModalOpen} toggle={toggleModal} size="lg">
-          <ModalBody style={{ position: 'relative', textAlign: 'center' }}>
+          <ModalBody style={{ position: 'relative', textAlign: 'center', padding: '20px' }}>
             <Button
-              style={{ position: 'absolute', top: '50%', left: '5%' }}
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '5%',
+                transform: 'translateY(-50%)',
+                background: '#007bff',
+                color: '#fff',
+                borderRadius: '50%',
+                padding: '10px',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '1rem',
+              }}
               onClick={handlePreviousMedia}
             >
-              Previous
+              &#8249;
             </Button>
             {post.media[currentMediaIndex].type === 'image' ? (
               <img
                 src={post.media[currentMediaIndex].url}
                 alt="Fullscreen Media"
-                style={{ maxWidth: '100%', maxHeight: '80vh' }}
+                style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: '10px' }}
               />
             ) : (
-              <video controls style={{ maxWidth: '100%', maxHeight: '80vh' }}>
+              <video controls style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: '10px' }}>
                 <source src={post.media[currentMediaIndex].url} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             )}
             <Button
-              style={{ position: 'absolute', top: '50%', right: '5%' }}
+              style={{
+                position: 'absolute',
+                top: '50%',
+                right: '5%',
+                transform: 'translateY(-50%)',
+                background: '#007bff',
+                color: '#fff',
+                borderRadius: '50%',
+                padding: '10px',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '1rem',
+              }}
               onClick={handleNextMedia}
             >
-              Next
+              &#8250;
             </Button>
           </ModalBody>
         </Modal>
