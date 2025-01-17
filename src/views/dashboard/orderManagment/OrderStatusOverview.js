@@ -60,6 +60,18 @@ const OrderStatusOverview = () => {
       socket.disconnect()
     }
   }, [])
+  function convertMinutesToDHM(minutes) {
+    const days = Math.floor(minutes / (24 * 60))
+    const hours = Math.floor((minutes % (24 * 60)) / 60)
+    const mins = minutes % 60
+
+    let result = []
+    if (days > 0) result.push(`${days} days`)
+    if (hours > 0) result.push(`${hours} hours`)
+    if (mins > 0 || (days === 0 && hours === 0)) result.push(`${mins} minutes`)
+
+    return result.join(', ')
+  }
 
   const renderOrderCard = (order) => {
     return (
@@ -72,7 +84,7 @@ const OrderStatusOverview = () => {
             <CAccordionItem itemKey="1">
               <CAccordionHeader>Products</CAccordionHeader>
               <CAccordionBody>
-                {order?.products.map((product,index) => (
+                {order?.products.map((product, index) => (
                   <div key={index} className="my-2">
                     <div className="d-flex justify-content-between">
                       <span>
@@ -87,12 +99,19 @@ const OrderStatusOverview = () => {
           </CAccordion>
           <div className="mt-3">
             <h6>Time Spent on:</h6>
-            {Object.entries(order.statusDurations).map((duration, index) => (
-              <div key={index} className="d-flex justify-content-between">
-                <span>{duration.toString().match(/[a-zA-Z]+/)[0]}</span>
-                <span>{(duration?.toString().replace(/[^\d]/g, '') / 60000).toFixed(0)} mins</span>
-              </div>
-            ))}
+            {Object.entries(order.statusDurations).map((duration, index) => {
+              const durationInMinutes = (
+                parseInt(duration[1].toString().replace(/[^\d]/g, ''), 10) / 60000
+              ).toFixed(0)
+              const formattedDuration = convertMinutesToDHM(durationInMinutes)
+
+              return (
+                <div key={index} className="d-flex justify-content-between">
+                  <span>{duration[0]}</span>
+                  <span>{formattedDuration}</span>
+                </div>
+              )
+            })}
           </div>
         </CCardBody>
       </CCard>

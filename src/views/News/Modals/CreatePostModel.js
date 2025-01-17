@@ -13,8 +13,8 @@ import {
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './CreatePostModal.css'
 import axios from 'axios'
-import { BaseUrl } from '../../helpers/BaseUrl'
-import { GetToken } from '../../helpers/GetToken'
+import { GetToken } from '../../../helpers/GetToken'
+import { BaseUrl } from '../../../helpers/BaseUrl'
 
 const CreatePostModal = ({ isOpen, toggle }) => {
   const [postContent, setPostContent] = useState('')

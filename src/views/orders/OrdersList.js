@@ -123,7 +123,7 @@ const OrdersTable = () => {
               {order.products.map((product, index) => (
                 <div key={index} className="d-flex justify-content-between my-2">
                   <span>
-                    {product?.product?.name} x {product?.quantity}
+                    {product?.product?.name} ({product?.product?.description}) x {product?.quantity}
                   </span>
                   <span>{(product?.product?.price * product?.quantity).toFixed(2)} TND</span>
                 </div>
@@ -131,6 +131,14 @@ const OrdersTable = () => {
             </CAccordionBody>
           </CAccordionItem>
         </CAccordion>
+
+        {order.comment && (
+          <div className="mt-3">
+            <h6>{Language.comment || 'Comment'}</h6>
+            <p>{order.comment}</p>
+          </div>
+        )}
+
         {order.status !== 'completed' && (
           <div className="d-flex justify-content-end mt-3">
             <CButton

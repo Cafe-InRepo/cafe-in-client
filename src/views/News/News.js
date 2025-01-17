@@ -3,10 +3,11 @@ import { Button, Row, Col, Spinner, Alert } from 'reactstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import axios from 'axios'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import CreatePostModal from '../News/CreatePostModel'
+import CreatePostModal from '../News/Modals/CreatePostModel'
 import PostCard from './postCard' // Import the PostCard component
 import { BaseUrl } from '../../helpers/BaseUrl'
 import './News.css'
+import UpdatePostModal from './Modals/UpdatePostCardModal'
 const News = () => {
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(false)
@@ -52,6 +53,33 @@ const News = () => {
     setPage((prevPage) => prevPage + 1)
   }
 
+  //delete post
+  const handleDeletePost = async (postId) => {
+    if (window.confirm('Are you sure you want to delete this post?')) {
+      try {
+        await axios.delete(`${BaseUrl}/posts/${postId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        // Update the posts array by removing the deleted post
+        setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId))
+      } catch (err) {
+        console.error('Error deleting product', err)
+      }
+    }
+  }
+  const [postToUpdate, setPostToUpdate] = useState(null)
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false)
+  const toggleUpdate = () => {
+    setIsUpdateOpen(!isUpdateOpen)
+  }
+  const HandleUpdateModal = (post) => {
+    console.log(post)
+    setPostToUpdate(post)
+    toggleUpdate()
+  }
+
   return (
     <div className="container mt-4">
       <Button color="primary" className="mb-3" onClick={toggleModal}>
@@ -87,12 +115,12 @@ const News = () => {
           style={{ overflow: 'hidden' }}
         >
           <Row className="no-gutters">
-            {posts.map((post) => (
-              <Col lg="12" md="12" sm="12" className="mb-4" key={post._id}>
+            {posts.map((post, index) => (
+              <Col lg="12" md="12" sm="12" className="mb-4" key={index}>
                 <PostCard
                   post={post}
-                  onEdit={() => console.log('Edit post:', post.id)}
-                  onDelete={() => console.log('Delete post:', post.id)}
+                  onEdit={() => HandleUpdateModal(post)}
+                  onDelete={() => handleDeletePost(post._id)}
                 />
               </Col>
             ))}
@@ -101,6 +129,7 @@ const News = () => {
       </div>
 
       <CreatePostModal isOpen={modalOpen} toggle={toggleModal} />
+      <UpdatePostModal post={postToUpdate} isOpen={isUpdateOpen} toggle={toggleUpdate} />
 
       {message && (
         <Alert color="info" className="text-center mt-3">

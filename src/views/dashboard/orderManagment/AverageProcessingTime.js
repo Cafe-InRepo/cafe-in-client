@@ -1,29 +1,22 @@
-import React, { useState } from 'react';
-import {
-  CCard,
-  CCardBody,
-  CCardHeader,
-  CButton,
-  CSpinner,
-  CAlert,
-} from '@coreui/react';
-import axios from 'axios';
-import { BaseUrl } from '../../../helpers/BaseUrl';
-import { GetToken } from '../../../helpers/GetToken';
+import React, { useState } from 'react'
+import { CCard, CCardBody, CCardHeader, CButton, CSpinner, CAlert } from '@coreui/react'
+import axios from 'axios'
+import { BaseUrl } from '../../../helpers/BaseUrl'
+import { GetToken } from '../../../helpers/GetToken'
 
 const AverageProcessingTime = () => {
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [avgTimes, setAvgTimes] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [avgTimes, setAvgTimes] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  const token = GetToken();
+  const token = GetToken()
 
   const fetchAverageProcessingTime = async () => {
-    setLoading(true);
-    setError(null);
-    setAvgTimes(null);
+    setLoading(true)
+    setError(null)
+    setAvgTimes(null)
 
     try {
       const response = await axios.post(
@@ -33,16 +26,16 @@ const AverageProcessingTime = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
-      );
-      setAvgTimes(response.data);
+        },
+      )
+      setAvgTimes(response.data)
     } catch (error) {
-      console.error('Error fetching average processing time:', error);
-      setError('Failed to fetch average processing time. Please try again.');
+      console.error('Error fetching average processing time:', error)
+      setError('Failed to fetch average processing time. Please try again.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <CCard className="mb-4">
@@ -72,18 +65,28 @@ const AverageProcessingTime = () => {
           {loading ? <CSpinner size="sm" /> : 'Get Average Time'}
         </CButton>
 
-        {error && <CAlert color="danger" className="mt-3">{error}</CAlert>}
+        {error && (
+          <CAlert color="danger" className="mt-3">
+            {error}
+          </CAlert>
+        )}
 
         {avgTimes && (
           <div className="mt-4">
             <h5>Results:</h5>
-            <p><strong>Average Pending to Preparing Time:</strong> {avgTimes.avgPendingToPreparing} mins</p>
-            <p><strong>Average Preparing to Completed Time:</strong> {avgTimes.avgPreparingToCompleted} mins</p>
+            <p>
+              <strong>Average Pending to Preparing Time:</strong> {avgTimes.avgPendingToPreparing}{' '}
+              mins
+            </p>
+            <p>
+              <strong>Average Preparing to Completed Time:</strong>{' '}
+              {avgTimes.avgPreparingToCompleted} mins
+            </p>
           </div>
         )}
       </CCardBody>
     </CCard>
-  );
-};
+  )
+}
 
-export default AverageProcessingTime;
+export default AverageProcessingTime
