@@ -8,25 +8,20 @@
   transition:
     transform 0.2s,
     border-color 0.2s;
+  background-color: #ffffff;
 }
 
 .card-container:hover {
   transform: translateY(-5px);
+  border-color: #007bff; /* Subtle blue for hover */
 }
 
 .selected-card {
-  border-color: blue;
+  border-color: #007bff;
 }
 
-/* .card-header {
-    border: 2px solid blue;
-    border-radius: 50%;
-    padding: 7px;
-    background-color: white;
-  } */
-
 .card-price {
-  color: #f39c12;
+  color: #555; /* Neutral gray for prices */
   font-weight: bold;
 }
 
@@ -35,9 +30,46 @@
 }
 
 .payed-border {
-  border-left: 8px solid green;
+  border-left: 8px solid #4caf50; /* Soft green for paid */
 }
 
 .not-payed-border {
-  border-left: 8px solid red;
+  border-left: 8px solid #f44336; /* Soft red for not paid */
+}
+
+.total-card,
+.unpaid-card {
+  border-radius: 10px;
+  padding: 20px;
+  margin: 10px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9; /* Light neutral background */
+}
+
+.total-card h5,
+.unpaid-card h5 {
+  font-weight: bold;
+  color: #333; /* Standard dark text */
+}
+
+.total-card p,
+.unpaid-card p {
+  font-size: 1.5rem;
+  color: #555; /* Neutral gray for text */
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+.bg-primary {
+  background-color: #007bff !important;
+  color: #ffffff;
+}
+
+.bg-success,
+.bg-warning,
+.bg-danger {
+  background-color: #f9f9f9 !important; /* Uniform light background */
+  color: #333; /* Standard text color */
 }

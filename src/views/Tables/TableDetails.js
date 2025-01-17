@@ -12,6 +12,7 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
+  CTooltip,
 } from '@coreui/react'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
@@ -284,6 +285,7 @@ const TableDetails = () => {
                                 e.stopPropagation()
                                 handleDetailsClick(index)
                               }}
+                              disabled={order.payed}
                             >
                               Details
                             </CButton>
@@ -291,6 +293,24 @@ const TableDetails = () => {
                           <CCol xs={6} className="text-end">
                             <strong>Unpaid: {totalUnpaidPrice.toFixed(2)} TND</strong>
                           </CCol>
+                          {order.tips && (
+                            <CTooltip content={`Tip: ${order?.tips?.toFixed(2)} TND`}>
+                              <span
+                                style={{
+                                  backgroundColor: '#ffc107',
+                                  color: '#fff',
+                                  padding: '1px 4px', // Smaller padding for a smaller badge
+                                  borderRadius: '3px', // Slightly smaller border radius
+                                  margin: '15px auto', // Margin from all directions and centered horizontally
+                                  fontSize: '0.7rem', // Smaller font size
+                                  display: 'inline-block', // To respect margin auto for centering
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                Tip : {order.tips} TND
+                              </span>
+                            </CTooltip>
+                          )}
                         </CRow>
                       </CCardBody>
                     </CCard>
@@ -299,26 +319,100 @@ const TableDetails = () => {
               })}
             </CRow>
 
-            <div className="text-center mt-4">
-              <strong>Unpaid Amount (Selected Orders): {calculateSelectedTotal()} TND</strong>
-            </div>
-            <div className="text-center mt-4">
-              <strong>
-                Total Unpaid (Table):{' '}
-                {table?.orders
-                  .reduce((total, order) => {
-                    // Sum up the unpaid amount for each product in the order
-                    const unpaidTotal = order.products.reduce((acc, product) => {
-                      const unpaidQuantity = product.quantity - (product.payedQuantity || 0)
-                      return acc + unpaidQuantity * product.product.price
-                    }, 0)
+            <CCardBody>
+              <CRow className="mt-4">
+                <CCol xs={12} md={6}>
+                  <CCard className="unpaid-card bg-danger text-center text-white">
+                    <CCardBody>
+                      <h5>Unpaid Amount (Selected Orders)</h5>
+                      <p className="display-6">{calculateSelectedTotal()} TND</p>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
 
-                    return total + unpaidTotal
-                  }, 0)
-                  .toFixed(2)}{' '}
-                TND
-              </strong>
-            </div>
+                <CCol xs={12} md={6}>
+                  <CCard className="unpaid-card bg-primary text-center text-white">
+                    <CCardBody>
+                      <h5>Total Unpaid (Table)</h5>
+                      <p className="display-6">
+                        {table?.orders
+                          .reduce((total, order) => {
+                            const unpaidTotal = order.products.reduce((acc, product) => {
+                              const unpaidQuantity = product.quantity - (product.payedQuantity || 0)
+                              return acc + unpaidQuantity * product.product.price
+                            }, 0)
+                            return total + unpaidTotal
+                          }, 0)
+                          .toFixed(2)}{' '}
+                        TND
+                      </p>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+              </CRow>
+            </CCardBody>
+
+            <CCardBody>
+              <CRow className="mt-4">
+                <CCol xs={12} md={4}>
+                  <CCard className="total-card bg-light text-center">
+                    <CCardBody>
+                      <h5>Total Unpaid (Without Tips)</h5>
+                      <p className="display-6 text-danger">
+                        {table?.orders
+                          .reduce((total, order) => {
+                            const unpaidTotal = order.products.reduce((acc, product) => {
+                              const unpaidQuantity = product.quantity - (product.payedQuantity || 0)
+                              return acc + unpaidQuantity * product.product.price
+                            }, 0)
+                            return total + unpaidTotal
+                          }, 0)
+                          .toFixed(2)}{' '}
+                        TND
+                      </p>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+
+                <CCol xs={12} md={4}>
+                  <CCard className="total-card bg-warning text-center">
+                    <CCardBody>
+                      <h5>Total Tips</h5>
+                      <p className="display-6">
+                        {table?.orders
+                          .reduce((total, order) => total + (order.tips || 0), 0)
+                          .toFixed(2)}{' '}
+                        TND (paid:{' '}
+                        {table?.orders
+                          .reduce((total, order) => total + (order.payed ? order.tips || 0 : 0), 0)
+                          .toFixed(2)}{' '}
+                        TND)
+                      </p>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+
+                <CCol xs={12} md={4}>
+                  <CCard className="total-card bg-success text-center">
+                    <CCardBody>
+                      <h5>Total (With Tips)</h5>
+                      <p className="display-6">
+                        {table?.orders
+                          .reduce((total, order) => {
+                            const unpaidTotal = order.products.reduce((acc, product) => {
+                              const unpaidQuantity = product.quantity - (product.payedQuantity || 0)
+                              return acc + unpaidQuantity * product.product.price
+                            }, 0)
+                            return total + unpaidTotal + (order.tips || 0)
+                          }, 0)
+                          .toFixed(2)}{' '}
+                        TND
+                      </p>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+              </CRow>
+            </CCardBody>
           </CCardBody>
         </CCard>
       </CCol>
