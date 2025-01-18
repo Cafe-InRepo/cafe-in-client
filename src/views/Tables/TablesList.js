@@ -26,7 +26,6 @@ import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import Loading from '../../helpers/Loading'
 import tableImageDark from 'src/assets/images/table.jpg'
-
 import { io } from 'socket.io-client'
 import { GetToken } from '../../helpers/GetToken'
 import { saveAs } from 'file-saver'
@@ -44,7 +43,11 @@ const TablesDashboard = () => {
   const [modalMessage, setModalMessage] = useState('')
   const [modalError, setModalError] = useState(false)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showMoveOrdersModal, setShowMoveOrdersModal] = useState(false)
   const [tableNumber, setTableNumber] = useState('')
+  const [selectedTable, setSelectedTable] = useState(null)
+  const [targetTable, setTargetTable] = useState('')
+  const [targetTableNumber, setTargetTableNumber] = useState('')
   const token = GetToken()
   //language
   const t = useSelector((state) => state.language)
@@ -167,8 +170,42 @@ const TablesDashboard = () => {
     }
   }
 
-  const filteredTables = tables.filter((table) => table.number.toString().includes(searchTerm))
+  const handleMoveOrders = async () => {
+    if (!targetTable) {
+      setModalMessage('Please select a target table.')
+      setModalError(true)
+      setShowModal(true)
+      return
+    }
+    setLoading(true)
+    try {
+      await axios.post(
+        `${BaseUrl}/tables/move-orders`,
+        { sourceTableId: selectedTable._id, targetTableId: targetTable },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      setModalMessage('Orders moved successfully')
+      setModalError(false)
+      setShowMoveOrdersModal(false)
+      fetchTables() // Refresh the tables list after moving orders
+    } catch (err) {
+      setModalMessage('Error moving orders')
+      setModalError(true)
+      console.error(err)
+    }
+    setLoading(false)
+    setShowModal(true)
+  }
 
+  const filteredTables = tables.filter((table) => table.number.toString().includes(searchTerm))
+  const hundleTargetTableChange = (e) => {
+    setTargetTable(e.target.value)
+    setTargetTableNumber(e.target.value)
+  }
   return (
     <>
       <CRow>
@@ -217,9 +254,14 @@ const TablesDashboard = () => {
                               <CIcon icon={cilTrash} className="me-2" />
                               {Language.deleteTable}
                             </CDropdownItem>
-                            <CDropdownItem>
+                            <CDropdownItem
+                              onClick={() => {
+                                setSelectedTable(table)
+                                setShowMoveOrdersModal(true)
+                              }}
+                            >
                               <CIcon icon={cilQrCode} className="me-2" />
-                              {Language.changeQR}
+                              move orders to other table
                             </CDropdownItem>
                           </CDropdownMenu>
                         </CDropdown>
@@ -242,6 +284,55 @@ const TablesDashboard = () => {
           </CCard>
         </CCol>
       </CRow>
+
+      {/* Move Orders Modal */}
+      <CModal visible={showMoveOrdersModal} onClose={() => setShowMoveOrdersModal(false)}>
+        <CModalHeader>
+          <CModalTitle>Move Orders to Another Table</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CInputGroup className="mb-3">
+            <CFormInput
+              type="text"
+              placeholder="Search table by number"
+              value={targetTableNumber}
+              onChange={(e) => hundleTargetTableChange(e)}
+            />
+          </CInputGroup>
+          <CRow>
+            {tables
+              .filter(
+                (table) =>
+                  table.number.toString().includes(targetTable) && table._id !== selectedTable?._id,
+              )
+              .map((table) => (
+                <CCol xs={12} key={table._id}>
+                  <CCard
+                    onClick={() => {
+                      setTargetTable(table._id)
+                      setTargetTableNumber(table.number)
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <CCardBody>
+                      <CCardTitle>
+                        {Language.table} {table.number}
+                      </CCardTitle>
+                    </CCardBody>
+                  </CCard>
+                </CCol>
+              ))}
+          </CRow>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setShowMoveOrdersModal(false)}>
+            {Language.cancel}
+          </CButton>
+          <CButton color="primary" onClick={handleMoveOrders}>
+            Move Orders
+          </CButton>
+        </CModalFooter>
+      </CModal>
 
       {/* Create Table Modal */}
       <CModal visible={showCreateModal} onClose={() => setShowCreateModal(false)}>
