@@ -56,10 +56,27 @@ const OrdersTable = () => {
       auth: { token },
     })
 
-    socket.on('newOrder', () => {
-      fetchOrders()
+    // Handle newOrder event
+    socket.on('newOrder', (newOrder) => {
+      setOrders((prevOrders) => {
+        const existingOrderIndex = prevOrders.findIndex((order) => order._id === newOrder._id)
+
+        if (existingOrderIndex > -1) {
+          // Update existing order
+          return prevOrders.map((order, index) => (index === existingOrderIndex ? newOrder : order))
+        } else {
+          // Add new order
+          return [...prevOrders, newOrder]
+        }
+      })
     })
 
+    // Handle deleteOrder event
+    socket.on('deleteOrder', (deletedOrderId) => {
+      setOrders((prevOrders) => prevOrders.filter((order) => order._id !== deletedOrderId))
+    })
+
+    // Cleanup on component unmount
     return () => {
       socket.disconnect()
     }
