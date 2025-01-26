@@ -84,6 +84,9 @@ const TablesDashboard = () => {
     socket.on('newOrder', () => {
       fetchTables()
     })
+    socket.on('deleteOrder', () => {
+      fetchTables()
+    })
 
     return () => {
       socket.disconnect()

@@ -29,8 +29,6 @@ const News = React.lazy(() => import('./views/News/News'))
 //orders
 const OrdersList = React.lazy(() => import('./views/orders/OrdersList'))
 
-//manual orders
-const ManualOrders = React.lazy(() => import('./views/manualOrders/manualOrders'))
 //products
 const ProductsList = React.lazy(() => import('./views/products/ProductsList'))
 
@@ -60,8 +58,6 @@ const getRoutesByRole = (role) => {
     //orders
     { path: '/orders/ordersList', name: 'orders', element: OrdersList },
 
-    //manual Orders
-    { path: '/Manuel-orders', name: 'Tables', element: ManualOrders },
     //products
     { path: '/product/availability', name: 'Products', element: ProductsList },
 

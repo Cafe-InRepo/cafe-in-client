@@ -13,6 +13,10 @@ import {
   CModalHeader,
   CModalTitle,
   CTooltip,
+  CFormInput,
+  CPagination,
+  CFormCheck,
+  CPaginationItem,
 } from '@coreui/react'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
@@ -22,6 +26,7 @@ import './TableDetails.css' // Import the CSS file
 import { GetToken } from '../../helpers/GetToken'
 import ProductSelectionModal from './ProductSelectionModal'
 import { useSelector } from 'react-redux'
+import translations from '../../app/Language'
 
 const TableDetails = () => {
   const { tableId } = useParams()
@@ -29,13 +34,106 @@ const TableDetails = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showModal, setShowModal] = useState(false)
+  const [showMaualModal, setShowManualModal] = useState(false)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [modalMessage, setModalMessage] = useState('')
   const [modalError, setModalError] = useState(false)
   const [selectedOrders, setSelectedOrders] = useState([])
   const [selectedOrderIndex, setSelectedOrderIndex] = useState()
+  const [productSearchQuery, setProductSearchQuery] = useState('')
+  const [selectedProducts, setSelectedProducts] = useState([])
+  const [successMessage, setSuccessMessage] = useState('')
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(5) // Number of items per page for pagination
+
   const navigate = useNavigate()
   const token = GetToken()
+  //language
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
+  //deal with placing nmanually
+  const [modalProducts, setModalProducts] = useState([])
+
+  const filteredProducts = modalProducts.filter((product) =>
+    product.name.toLowerCase().includes(productSearchQuery.toLowerCase()),
+  )
+
+  const indexOfLastProduct = currentPage * itemsPerPage
+  const indexOfFirstProduct = indexOfLastProduct - itemsPerPage
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct)
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber)
+  //fetch all current user products
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get(`${BaseUrl}/products`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setModalProducts(response.data)
+      //setShowModal(true)
+    } catch (err) {
+      setError('Error fetching products')
+      console.error('Error fetching products', err)
+    }
+  }
+
+  //handling product changing
+  const handleProductChange = (productId, quantity) => {
+    setSelectedProducts((prevSelectedProducts) => {
+      const existingProduct = prevSelectedProducts.find((p) => p.productId === productId)
+      if (existingProduct) {
+        return prevSelectedProducts.map((p) => (p.productId === productId ? { ...p, quantity } : p))
+      } else {
+        return [...prevSelectedProducts, { productId, quantity }]
+      }
+    })
+  }
+  // handling product selection
+  const handleProductSelect = (productId) => {
+    setSelectedProducts((prevSelectedProducts) => {
+      if (prevSelectedProducts.find((p) => p.productId === productId)) {
+        return prevSelectedProducts.filter((p) => p.productId !== productId)
+      } else {
+        return [...prevSelectedProducts, { productId, quantity: 1 }]
+      }
+    })
+  }
+  const handlePlaceOrder = async () => {
+    setLoading(true)
+    try {
+      const products = selectedProducts.map((product) => ({
+        product: product.productId,
+        quantity: product.quantity,
+      }))
+
+      await axios.post(
+        `${BaseUrl}/order/manual`,
+        { products, tableId: table._id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      setShowManualModal(false)
+      setSelectedProducts([])
+      setModalMessage('Order placed successfully')
+      setModalError(false)
+      setShowModal(true)
+      setLoading(false)
+    } catch (err) {
+      setShowManualModal(false)
+      //setError('Error placing order')
+      console.error('Error placing order', err.response.data.error)
+      setModalMessage(err.response.data.error)
+      setModalError(true)
+      setShowModal(true)
+      setLoading(false)
+    }
+  }
   const fetchTableDetails = async () => {
     setLoading(true)
     try {
@@ -54,6 +152,7 @@ const TableDetails = () => {
   }
   useEffect(() => {
     fetchTableDetails()
+    fetchProducts()
   }, [tableId])
 
   const handleConfirmPayment = async (orderIds) => {
@@ -169,9 +268,14 @@ const TableDetails = () => {
       <CCol xs={12}>
         <CCard className="mb-4">
           <CCardHeader className="d-flex justify-content-between align-items-center flex-wrap">
-            <CButton color="secondary" onClick={() => navigate(-1)}>
-              Back
-            </CButton>
+            <div className="d-flex align-items-center">
+              {/* Back Button */}
+              <CButton className="ms-2 btn-sm" color="secondary" onClick={() => navigate(-1)}>
+                Back
+              </CButton>
+
+              {/* Place Order Button */}
+            </div>
 
             {/* Button Group */}
             <div className="d-flex flex-column flex-md-row align-items-center mt-2 mt-md-0">
@@ -202,6 +306,13 @@ const TableDetails = () => {
           </CCardHeader>
 
           <CCardBody>
+            <CButton
+              color="warning"
+              className="ms-2 btn-sm mb-4"
+              onClick={() => setShowManualModal(true)} // Add your function for placing an order here
+            >
+              Place Order
+            </CButton>
             <CCardTitle>Total Orders: {table?.orders.length}</CCardTitle>
             <CRow>
               {table?.orders.map((order, index) => {
@@ -319,115 +430,132 @@ const TableDetails = () => {
               })}
             </CRow>
 
-            <CCardBody>
-              <CRow className="mt-4">
-                <CCol xs={12} md={6}>
-                  <CCard className="unpaid-card bg-danger text-center text-white">
-                    <CCardBody>
-                      <h5>Unpaid Amount (Selected Orders)</h5>
-                      <p className="display-6">{calculateSelectedTotal()} TND</p>
-                    </CCardBody>
-                  </CCard>
-                </CCol>
+            {table?.orders.length > 0 && (
+              <>
+                <CCardBody>
+                  <CRow className="mt-4">
+                    <CCol xs={12} md={6}>
+                      <CCard className="unpaid-card bg-danger text-center text-white">
+                        <CCardBody>
+                          <h5>Unpaid Amount (Selected Orders)</h5>
+                          <p className="display-6">{calculateSelectedTotal()} TND</p>
+                        </CCardBody>
+                      </CCard>
+                    </CCol>
 
-                <CCol xs={12} md={6}>
-                  <CCard className="unpaid-card bg-primary text-center text-white">
-                    <CCardBody>
-                      <h5>Total Unpaid (Table)</h5>
-                      <p className="display-6">
-                        {table?.orders
-                          .reduce((total, order) => {
-                            const unpaidTotal = order.products.reduce((acc, product) => {
-                              const unpaidQuantity = product.quantity - (product.payedQuantity || 0)
-                              return acc + unpaidQuantity * product.product.price
-                            }, 0)
-                            return total + unpaidTotal
-                          }, 0)
-                          .toFixed(2)}{' '}
-                        TND
-                      </p>
-                    </CCardBody>
-                  </CCard>
-                </CCol>
-              </CRow>
-            </CCardBody>
+                    <CCol xs={12} md={6}>
+                      <CCard className="unpaid-card bg-primary text-center text-white">
+                        <CCardBody>
+                          <h5>Total Unpaid (Table)</h5>
+                          <p className="display-6">
+                            {table?.orders
+                              .reduce((total, order) => {
+                                const unpaidTotal = order.products.reduce((acc, product) => {
+                                  const unpaidQuantity =
+                                    product.quantity - (product.payedQuantity || 0)
+                                  return acc + unpaidQuantity * product.product.price
+                                }, 0)
+                                return total + unpaidTotal
+                              }, 0)
+                              .toFixed(2)}{' '}
+                            TND
+                          </p>
+                        </CCardBody>
+                      </CCard>
+                    </CCol>
+                  </CRow>
+                </CCardBody>
 
-            <CCardBody>
-              <CRow className="mt-4">
-                <CCol xs={12} md={4}>
-                  <CCard className="total-card bg-light text-center">
-                    <CCardBody>
-                      <h5>Total Unpaid (Without Tips)</h5>
-                      <p className="display-6 text-danger">
-                        {table?.orders
-                          .reduce((total, order) => {
-                            const unpaidTotal = order.products.reduce((acc, product) => {
-                              const unpaidQuantity = product.quantity - (product.payedQuantity || 0)
-                              return acc + unpaidQuantity * product.product.price
-                            }, 0)
-                            return total + unpaidTotal
-                          }, 0)
-                          .toFixed(2)}{' '}
-                        TND
-                      </p>
-                    </CCardBody>
-                  </CCard>
-                </CCol>
+                <CCardBody>
+                  <CRow className="mt-4">
+                    <CCol xs={12} md={4}>
+                      <CCard className="total-card bg-light text-center">
+                        <CCardBody>
+                          <h5>Total Unpaid (Without Tips)</h5>
+                          <p className="display-6 text-danger">
+                            {table?.orders
+                              .reduce((total, order) => {
+                                const unpaidTotal = order.products.reduce((acc, product) => {
+                                  const unpaidQuantity =
+                                    product.quantity - (product.payedQuantity || 0)
+                                  return acc + unpaidQuantity * product.product.price
+                                }, 0)
+                                return total + unpaidTotal
+                              }, 0)
+                              .toFixed(2)}{' '}
+                            TND
+                          </p>
+                        </CCardBody>
+                      </CCard>
+                    </CCol>
 
-                <CCol xs={12} md={4}>
-                  <CCard className="total-card bg-warning text-center">
-                    <CCardBody>
-                      <h5>Total Tips</h5>
-                      <p className="display-6">
-                        {table?.orders
-                          .reduce((total, order) => total + (order.tips || 0), 0)
-                          .toFixed(2)}{' '}
-                        TND (paid:{' '}
-                        {table?.orders
-                          .reduce((total, order) => total + (order.payed ? order.tips || 0 : 0), 0)
-                          .toFixed(2)}{' '}
-                        TND)
-                      </p>
-                    </CCardBody>
-                  </CCard>
-                </CCol>
+                    <CCol xs={12} md={4}>
+                      <CCard className="total-card bg-warning text-center">
+                        <CCardBody>
+                          <h5>Total Tips</h5>
+                          <p className="display-6">
+                            {table?.orders
+                              .reduce((total, order) => total + (order.tips || 0), 0)
+                              .toFixed(2)}{' '}
+                            TND (paid:{' '}
+                            {table?.orders
+                              .reduce(
+                                (total, order) => total + (order.payed ? order.tips || 0 : 0),
+                                0,
+                              )
+                              .toFixed(2)}{' '}
+                            TND)
+                          </p>
+                        </CCardBody>
+                      </CCard>
+                    </CCol>
 
-                <CCol xs={12} md={4}>
-                  <CCard className="total-card bg-success text-center">
-                    <CCardBody>
-                      <h5>Total (With Tips)</h5>
-                      <p className="display-6">
-                        {table?.orders
-                          .reduce((total, order) => {
-                            const unpaidTotal = order.products.reduce((acc, product) => {
-                              const unpaidQuantity = product.quantity - (product.payedQuantity || 0)
-                              return acc + unpaidQuantity * product.product.price
-                            }, 0)
-                            return total + unpaidTotal + (order.tips || 0)
-                          }, 0)
-                          .toFixed(2)}{' '}
-                        TND
-                      </p>
-                    </CCardBody>
-                  </CCard>
-                </CCol>
-              </CRow>
-            </CCardBody>
+                    <CCol xs={12} md={4}>
+                      <CCard className="total-card bg-success text-center">
+                        <CCardBody>
+                          <h5>Total (With Tips)</h5>
+                          <p className="display-6">
+                            {table?.orders
+                              .reduce((total, order) => {
+                                const unpaidTotal = order.products.reduce((acc, product) => {
+                                  const unpaidQuantity =
+                                    product.quantity - (product.payedQuantity || 0)
+                                  return acc + unpaidQuantity * product.product.price
+                                }, 0)
+                                return total + unpaidTotal + (order.tips || 0)
+                              }, 0)
+                              .toFixed(2)}{' '}
+                            TND
+                          </p>
+                        </CCardBody>
+                      </CCard>
+                    </CCol>
+                  </CRow>
+                </CCardBody>
+              </>
+            )}
           </CCardBody>
         </CCard>
       </CCol>
 
-      <CModal visible={showModal} onClose={handleCloseModal}>
-        <CModalHeader>
+      <CModal
+        visible={showModal}
+        onClose={handleCloseModal}
+        className={modalError ? 'modal-error' : 'modal-success'}
+      >
+        <CModalHeader className={modalError ? 'header-error' : 'header-success'}>
           <CModalTitle>{modalError ? 'Error' : 'Success'}</CModalTitle>
         </CModalHeader>
-        <CModalBody>{modalMessage}</CModalBody>
-        <CModalFooter>
-          <CButton color="primary" onClick={handleCloseModal}>
+        <CModalBody className={modalError ? 'body-error' : 'body-success'}>
+          {modalMessage}
+        </CModalBody>
+        <CModalFooter className={modalError ? 'footer-error' : 'footer-success'}>
+          <CButton color={modalError ? 'danger' : 'success'} onClick={handleCloseModal}>
             Close
           </CButton>
         </CModalFooter>
       </CModal>
+
       <ProductSelectionModal
         visible={showDetailsModal}
         onClose={handleCloseDetailsModal}
@@ -464,6 +592,92 @@ const TableDetails = () => {
         </p>
         <p>Thank you for your payment!</p>
       </div>
+
+      {
+        //place order manually modal
+      }
+      <CModal visible={showMaualModal} onClose={() => setShowManualModal(false)} size="lg" >
+        <CModalHeader className="bg-light">
+          <CModalTitle className="text-primary">{Language.selectProducts}</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CFormInput
+            placeholder={`${Language.search} ${Language.products}`}
+            value={productSearchQuery}
+            onChange={(e) => setProductSearchQuery(e.target.value)}
+            className="mb-4"
+            aria-label="Search Products"
+          />
+
+          <div className="product-list">
+            {currentProducts.length ? (
+              currentProducts.map((product) => (
+                <div
+                  key={product._id}
+                  className="d-flex justify-content-between align-items-center p-2 border-bottom"
+                >
+                  <div className="d-flex align-items-center gap-3">
+                    <CFormCheck
+                      checked={!!selectedProducts.find((p) => p.productId === product._id)}
+                      onChange={() => handleProductSelect(product._id)}
+                      aria-label={`Select ${product.name}`}
+                    />
+                    <span className="product-name">{product.name} ({product.description})</span>
+                  </div>
+                  <CFormInput
+                    type="number"
+                    min="1"
+                    value={
+                      selectedProducts.find((p) => p.productId === product._id)?.quantity || ''
+                    }
+                    onChange={(e) => handleProductChange(product._id, e.target.value)}
+                    style={{ maxWidth: '80px' }}
+                    aria-label={`Quantity for ${product.name}`}
+                  />
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-muted">{Language.noProductsFound}</p>
+            )}
+          </div>
+
+          <div className="d-flex justify-content-center mt-3">
+            <CPagination aria-label="Product Pagination">
+              {Array.from({ length: Math.ceil(filteredProducts.length / itemsPerPage) }).map(
+                (_, index) => (
+                  <CPaginationItem
+                    key={index}
+                    active={index + 1 === currentPage}
+                    onClick={() => paginate(index + 1)}
+                  >
+                    {index + 1}
+                  </CPaginationItem>
+                ),
+              )}
+            </CPagination>
+          </div>
+        </CModalBody>
+        <CModalFooter className="bg-light d-flex justify-content-between">
+          <CButton
+            disabled={loading}
+            color="primary"
+            onClick={handlePlaceOrder}
+            className="d-flex align-items-center gap-2"
+          >
+            {loading ? (
+              <>
+                <CSpinner size="sm" />
+                {Language.loading}
+              </>
+            ) : (
+              `${Language.place} ${Language.order}`
+            )}
+          </CButton>
+          <CButton color="secondary" onClick={() => setShowManualModal(false)}>
+            {Language.close}
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </CRow>
   )
 }

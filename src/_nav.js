@@ -84,12 +84,6 @@ const NavItems = () => {
     },
     {
       component: CNavItem,
-      name: Language?.manuallyPlaceOrder || 'Place an Order manually',
-      to: '/Manuel-orders',
-      icon: <CIcon icon={cilBraille} customClassName="nav-icon" />,
-    },
-    {
-      component: CNavItem,
       name: Language?.productAvailability || "Product's availability",
       to: '/product/availability',
       icon: <CIcon icon={cilBraille} customClassName="nav-icon" />,

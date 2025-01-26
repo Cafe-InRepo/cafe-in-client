@@ -13,11 +13,13 @@
 
 .card-container:hover {
   transform: translateY(-5px);
-  border-color: #007bff; /* Subtle blue for hover */
+  border-color: #6c757d; /* Neutral gray for hover */
 }
 
 .selected-card {
-  border-color: #007bff;
+  border-color: #007bff; /* Distinct blue for selected */
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); /* Add a subtle blue glow */
+  transform: none; /* Disable hover transform when selected */
 }
 
 .card-price {
@@ -39,8 +41,8 @@
 
 .total-card,
 .unpaid-card {
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: 8px; /* Slightly smaller border radius */
+  padding: 15px; /* Reduced padding */
   margin: 10px 0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   background-color: #f9f9f9; /* Light neutral background */
@@ -54,7 +56,7 @@
 
 .total-card p,
 .unpaid-card p {
-  font-size: 1.5rem;
+  font-size: 1.2rem; /* Slightly smaller font size */
   color: #555; /* Neutral gray for text */
 }
 

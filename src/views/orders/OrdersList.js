@@ -30,7 +30,7 @@ const OrdersTable = () => {
   const [loading, setLoading] = useState(true)
   const [activeKey, setActiveKey] = useState(1)
   const token = GetToken()
-  //language
+  // language
   const t = useSelector((state) => state.language)
   const Language = translations[t]
 
@@ -52,37 +52,44 @@ const OrdersTable = () => {
 
   useEffect(() => {
     fetchOrders()
-    const socket = io(BaseUrl, {
-      auth: { token },
+    const socket = io(BaseUrl, { auth: { token } })
+
+    socket.on('connect', () => {
+      console.log('Connected to socket:', socket.id)
     })
 
-    // Handle newOrder event
     socket.on('newOrder', (newOrder) => {
+      console.log('Received new order:', newOrder)
       setOrders((prevOrders) => {
         const existingOrderIndex = prevOrders.findIndex((order) => order._id === newOrder._id)
-
         if (existingOrderIndex > -1) {
-          // Update existing order
           return prevOrders.map((order, index) => (index === existingOrderIndex ? newOrder : order))
-        } else {
-          // Add new order
-          return [...prevOrders, newOrder]
         }
+        return [...prevOrders, newOrder]
       })
     })
-
     // Handle deleteOrder event
     socket.on('deleteOrder', (deletedOrderId) => {
       setOrders((prevOrders) => prevOrders.filter((order) => order._id !== deletedOrderId))
     })
 
-    // Cleanup on component unmount
+    socket.on('disconnect', () => {
+      console.log('Socket disconnected')
+    })
+
     return () => {
       socket.disconnect()
     }
   }, [])
 
+  const cancelOrder = (orderId) => {
+    if (confirm('are you sure you want to cancel this order ?')) {
+      updateOrderStatus(orderId, 'cancelled')
+    }
+  }
+
   const updateOrderStatus = async (orderId, newStatus) => {
+    console.log(newStatus)
     setLoading(true)
     try {
       const response = await axios.patch(
@@ -110,6 +117,25 @@ const OrdersTable = () => {
     }
   }
 
+  //delete all cancelled orders function
+  const deleteAllCancelledOrders = async () => {
+    if (confirm('are you sure you want to delete all cancelled orders ?')) {
+      setLoading(true)
+      try {
+        await axios.delete(`${BaseUrl}/order/delete/cancelled`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        setOrders((prevOrders) => prevOrders.filter((order) => order.status !== 'cancelled'))
+      } catch (error) {
+        console.error('Failed to delete cancelled orders:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+  }
+
   const renderOrderCard = (order) => (
     <CCard key={order._id} className="mb-3 shadow-sm">
       <CCardBody>
@@ -123,14 +149,19 @@ const OrdersTable = () => {
                 ? 'warning'
                 : order.status === 'preparing'
                   ? 'info'
-                  : 'success'
+                  : order.status === 'completed'
+                    ? 'success'
+                    : 'danger' // New badge color for 'cancelled'
             }
           >
             {order.status === 'pending'
               ? Language.pending
               : order.status === 'preparing'
                 ? Language.preparing
-                : Language.completed}
+                : order.status === 'completed'
+                  ? Language.completed
+                  : 'Cancelled'}{' '}
+            {/* New language entry for 'cancelled' */}
           </CBadge>
         </div>
         <CAccordion flush>
@@ -156,7 +187,7 @@ const OrdersTable = () => {
           </div>
         )}
 
-        {order.status !== 'completed' && (
+        {order.status !== 'completed' && order.status !== 'cancelled' && (
           <div className="d-flex justify-content-end mt-3">
             <CButton
               color={order.status === 'pending' ? 'info' : 'success'}
@@ -173,6 +204,17 @@ const OrdersTable = () => {
                 Language.moveToCompleted
               )}
             </CButton>
+            {order.status === 'pending' && (
+              <CButton
+                color="danger"
+                className="ms-2"
+                onClick={() => cancelOrder(order._id)}
+                disabled={loading}
+              >
+                {loading ? <CSpinner size="sm" /> : 'Cancel order'}{' '}
+                {/* New language entry for 'Cancel Order' */}
+              </CButton>
+            )}
           </div>
         )}
       </CCardBody>
@@ -203,6 +245,11 @@ const OrdersTable = () => {
                   {Language.completed}
                 </CNavLink>
               </CNavItem>
+              <CNavItem>
+                <CNavLink active={activeKey === 4} onClick={() => setActiveKey(4)}>
+                  Cancelled {/* New language entry for 'Cancelled' */}
+                </CNavLink>
+              </CNavItem>
             </CNav>
             <CTabContent>
               <CTabPane visible={activeKey === 1}>
@@ -224,6 +271,20 @@ const OrdersTable = () => {
                   <CSpinner />
                 ) : (
                   orders.filter((order) => order.status === 'completed').map(renderOrderCard)
+                )}
+              </CTabPane>
+              <CTabPane visible={activeKey === 4}>
+                {loading ? (
+                  <CSpinner />
+                ) : (
+                  <>
+                    <div className="d-flex justify-content-end mb-3 mt-2">
+                      <CButton color="danger" onClick={deleteAllCancelledOrders}>
+                        Delete all
+                      </CButton>
+                    </div>
+                    {orders.filter((order) => order.status === 'cancelled').map(renderOrderCard)}
+                  </>
                 )}
               </CTabPane>
             </CTabContent>
