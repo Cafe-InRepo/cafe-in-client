@@ -46,12 +46,12 @@ const NavItems = () => {
       to: '/menu/sections',
       icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
     },
-    {
-      component: CNavItem,
-      name: Language?.news || 'News',
-      to: '/news',
-      icon: <CIcon icon={cilNewspaper} customClassName="nav-icon" />,
-    },
+    // {
+    //   component: CNavItem,
+    //   name: Language?.news || 'News',
+    //   to: '/news',
+    //   icon: <CIcon icon={cilNewspaper} customClassName="nav-icon" />,
+    // },
     {
       component: CNavItem,
       name: Language?.payment || 'Payment',

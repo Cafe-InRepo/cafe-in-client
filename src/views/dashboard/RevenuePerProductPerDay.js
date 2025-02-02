@@ -23,6 +23,7 @@ const RevenuePerProductPerDay = ({ onDataUpdate }) => {
           },
         })
         setRevenueData(response.data)
+        console.log(response.data)
         onDataUpdate(response.data)
 
         // Calculate the maximum value for the y-axis

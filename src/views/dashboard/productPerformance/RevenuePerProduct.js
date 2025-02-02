@@ -21,7 +21,7 @@ const RevenuePerProduct = () => {
   }
   const handleDataUpdateDay = (newData) => {
     setDataDay(newData)
-    console.log(newData)
+    console.log('newdata', newData)
   }
 
   const handleDownloadPDF = () => {

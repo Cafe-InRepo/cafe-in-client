@@ -4,9 +4,11 @@ import './CSS/Dashboard.css' // Import the CSS file for styling
 import salesImage from '../../assets/images/categories/sales-.png'
 import products from '../../assets/images/categories/products-.png'
 import OrderManagement from '../../assets/images/categories/OrderManagement-.png'
-import CustomerInsights from '../../assets/images/categories/CustomerInsights-.png'
-import RevenueAnalysis from '../../assets/images/categories/RevenueAnalysis-.png'
-import InventoryOverview from '../../assets/images/categories/InventoryOverview-.png'
+// import CustomerInsights from '../../assets/images/categories/CustomerInsights-.png'
+import EmployeePerformance from '../../assets/images/categories/Employee-Performance.png'
+
+// import RevenueAnalysis from '../../assets/images/categories/RevenueAnalysis-.png'
+// import InventoryOverview from '../../assets/images/categories/InventoryOverview-.png'
 import Bill from '../../assets/images/categories/bill.png'
 import { useSelector } from 'react-redux'
 import translations from '../../app/Language'
@@ -34,24 +36,30 @@ const Dashboard = () => {
       path: '/order-management',
       image: OrderManagement, // Replace with your image path
     },
+    // {
+    //   name: Language.CustomerInsights,
+    //   color: '#3BBFA5',
+    //   path: '/customer-insights',
+    //   image: CustomerInsights, // Replace with your image path
+    // },
     {
-      name: Language.CustomerInsights,
-      color: '#3BBFA5',
-      path: '/customer-insights',
-      image: CustomerInsights, // Replace with your image path
+      name: 'Employee Performance',
+      color: '#3AAFB5',
+      path: '/employee-performance',
+      image: EmployeePerformance, // Replace with your image path
     },
-    {
-      name: Language.revenueAnalysis,
-      color: '#F08866',
-      path: '/revenue-analysis',
-      image: RevenueAnalysis, // Replace with your image path
-    },
-    {
-      name: Language.inventoryOverview,
-      color: '#336D86',
-      path: '/inventory-overview',
-      image: InventoryOverview, // Replace with your image path
-    },
+    // {
+    //   name: Language.revenueAnalysis,
+    //   color: '#F08866',
+    //   path: '/revenue-analysis',
+    //   image: RevenueAnalysis, // Replace with your image path
+    // },
+    // {
+    //   name: Language.inventoryOverview,
+    //   color: '#336D86',
+    //   path: '/inventory-overview',
+    //   image: InventoryOverview, // Replace with your image path
+    // },
     {
       name: Language.bills,
       color: '#336D56',

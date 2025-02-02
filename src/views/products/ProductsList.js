@@ -158,7 +158,7 @@ const ProductList = () => {
           disabled={currentPage === 1}
           onClick={() => setCurrentPage((prevPage) => prevPage - 1)}
         >
-          Previous
+          {Language.previous}
         </CPaginationItem>
         {[...Array(totalPages).keys()].map((page) => (
           <CPaginationItem
@@ -173,7 +173,7 @@ const ProductList = () => {
           disabled={currentPage === totalPages}
           onClick={() => setCurrentPage((prevPage) => prevPage + 1)}
         >
-          Next
+          {Language.next}
         </CPaginationItem>
       </CPagination>
     </div>
