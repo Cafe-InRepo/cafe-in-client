@@ -173,7 +173,14 @@ const OrdersTable = () => {
                   <span>
                     {product?.product?.name} ({product?.product?.description}) x {product?.quantity}
                   </span>
-                  <span>{(product?.product?.price * product?.quantity).toFixed(2)} TND</span>
+                  <span>
+                    {(product.product.discountPercentage > 0
+                      ? product.product.price -
+                        (product.product.discountPercentage / 100) * product.product.price
+                      : product.product.price * product?.quantity
+                    ).toFixed(2)}{' '}
+                    TND
+                  </span>
                 </div>
               ))}
             </CAccordionBody>

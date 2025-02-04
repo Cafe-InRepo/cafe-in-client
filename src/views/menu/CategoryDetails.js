@@ -38,11 +38,13 @@ const CategoryDetails = () => {
     name: '',
     description: '',
     price: '',
+    discountPercentage: 0, // Added discountPercentage
     img: '',
   })
   const [tempSrc, setTempSrc] = useState(null)
   const [errorMsg, setErrorMsg] = useState(null)
 
+  // Fetch category details and products
   const fetchCategoryDetails = async () => {
     setLoading(true)
     try {
@@ -65,20 +67,22 @@ const CategoryDetails = () => {
     fetchCategoryDetails()
   }, [id])
 
+  // Filter products based on search query
   useEffect(() => {
     setFilteredProducts(
       products.filter((product) => product.name.toLowerCase().includes(searchQuery.toLowerCase())),
     )
   }, [searchQuery, products])
+
+  // Handle error display
   const handleErrorDisplay = (er) => {
     setErrorMsg(er)
-
-    // Set a timeout to clear the error message after 5 seconds
     setTimeout(() => {
       setErrorMsg(null)
-    }, 3000) // 5000 milliseconds = 5 seconds
+    }, 3000) // Clear error after 3 seconds
   }
 
+  // Add a new product
   const handleAddProduct = async () => {
     setLoading(true)
     try {
@@ -100,6 +104,7 @@ const CategoryDetails = () => {
         name: '',
         description: '',
         price: '',
+        discountPercentage: 0, // Reset discountPercentage
         img: '',
       })
       setTempSrc(null)
@@ -112,6 +117,7 @@ const CategoryDetails = () => {
     }
   }
 
+  // Edit a product
   const handleEditProduct = (product) => {
     setTempSrc(product.img)
     setProductToEdit(product)
@@ -119,6 +125,7 @@ const CategoryDetails = () => {
     setShowEditModal(true)
   }
 
+  // Save edited product
   const handleSaveEditedProduct = async () => {
     try {
       const token = localStorage.getItem('token')
@@ -136,6 +143,7 @@ const CategoryDetails = () => {
         name: '',
         description: '',
         price: '',
+        discountPercentage: 0, // Reset discountPercentage
         img: '',
       })
       setTempSrc(null)
@@ -148,6 +156,7 @@ const CategoryDetails = () => {
     }
   }
 
+  // Delete a product
   const handleDeleteProduct = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
@@ -163,10 +172,14 @@ const CategoryDetails = () => {
       }
     }
   }
+
+  // Handle file upload for product image
   const handleFileChange = (e) => {
     const file = e.target.files[0]
     previewFile(file)
   }
+
+  // Preview uploaded image
   const previewFile = (file) => {
     const reader = new FileReader()
     reader.readAsDataURL(file)
@@ -203,7 +216,7 @@ const CategoryDetails = () => {
       <CRow className="g-4">
         {filteredProducts.length === 0 ? (
           <div>
-            <h3>there are no products!</h3>
+            <h3>There are no products!</h3>
           </div>
         ) : (
           filteredProducts.map((product) => (
@@ -228,6 +241,15 @@ const CategoryDetails = () => {
                   <h5 className="card-title">{product.name}</h5>
                   <p className="card-text">{product.description}</p>
                   <p className="text-muted">Price: {product.price} TND</p>
+                  {product.discountPercentage > 0 && (
+                    <>
+                      <p className="text-success">Discount: {product.discountPercentage}%</p>
+                      <p className="text-success">
+                        Discounted Price:{' '}
+                        {(product.price * (1 - product.discountPercentage / 100)).toFixed(2)} TND
+                      </p>
+                    </>
+                  )}
                 </CCardBody>
                 <CCardFooter>
                   <div className="d-flex justify-content-end">
@@ -279,6 +301,17 @@ const CategoryDetails = () => {
               value={newProductData.price}
               onChange={(e) => setNewProductData({ ...newProductData, price: e.target.value })}
             />
+            <CFormInput
+              label="Discount Percentage"
+              type="number"
+              value={newProductData.discountPercentage || 0}
+              onChange={(e) =>
+                setNewProductData({
+                  ...newProductData,
+                  discountPercentage: parseFloat(e.target.value),
+                })
+              }
+            />
             <CFormInput label="Image" type="file" name="img" onChange={handleFileChange} />
             {tempSrc && (
               <div>
@@ -311,6 +344,7 @@ const CategoryDetails = () => {
             name: '',
             description: '',
             price: '',
+            discountPercentage: 0, // Reset discountPercentage
             img: '',
           })
           setTempSrc(null)
@@ -340,6 +374,17 @@ const CategoryDetails = () => {
               value={newProductData.price}
               onChange={(e) => setNewProductData({ ...newProductData, price: e.target.value })}
             />
+            <CFormInput
+              label="Discount Percentage"
+              type="number"
+              value={newProductData.discountPercentage || 0}
+              onChange={(e) =>
+                setNewProductData({
+                  ...newProductData,
+                  discountPercentage: parseFloat(e.target.value),
+                })
+              }
+            />
             <CFormInput type="file" label="Image" onChange={handleFileChange} />
             {tempSrc && (
               <div>
@@ -362,6 +407,7 @@ const CategoryDetails = () => {
                 name: '',
                 description: '',
                 price: '',
+                discountPercentage: 0, // Reset discountPercentage
                 img: '',
               })
               setTempSrc(null)

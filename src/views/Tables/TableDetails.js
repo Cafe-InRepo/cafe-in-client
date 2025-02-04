@@ -17,6 +17,7 @@ import {
   CPagination,
   CFormCheck,
   CPaginationItem,
+  CSpinner,
 } from '@coreui/react'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
@@ -27,6 +28,7 @@ import { GetToken } from '../../helpers/GetToken'
 import ProductSelectionModal from './ProductSelectionModal'
 import { useSelector } from 'react-redux'
 import translations from '../../app/Language'
+import jsPDF from 'jspdf'
 
 const TableDetails = () => {
   const { tableId } = useParams()
@@ -150,9 +152,27 @@ const TableDetails = () => {
     }
     setLoading(false)
   }
+  const [placeDetails, setPlaceDetails] = useState()
+  const fetchPlaceDetails = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.get(`${BaseUrl}/auth/place-details`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setPlaceDetails(response.data)
+      console.log(response.data)
+    } catch (err) {
+      setError('Error fetching place details')
+      console.error(err)
+    }
+    setLoading(false)
+  }
   useEffect(() => {
     fetchTableDetails()
     fetchProducts()
+    fetchPlaceDetails()
   }, [tableId])
 
   const handleConfirmPayment = async (orderIds) => {
@@ -215,7 +235,12 @@ const TableDetails = () => {
         // Sum up the unpaid amount for each product in the selected order
         const unpaidTotal = fullOrder.products.reduce((acc, product) => {
           const unpaidQuantity = product.quantity - (product.payedQuantity || 0)
-          return acc + unpaidQuantity * product.product.price
+          const discount =
+            product.product.discountPercentage > 0
+              ? (product.product.discountPercentage / 100) * product.product.price
+              : 0
+          const discountedPrice = product.product.price - discount
+          return acc + unpaidQuantity * discountedPrice
         }, 0)
 
         return total + unpaidTotal
@@ -239,15 +264,152 @@ const TableDetails = () => {
   // Calculate total unpaid price for the order
 
   const handlePrintReceipt = () => {
-    // Show the receipt
-    const receiptElement = document.getElementById('receipt')
-    receiptElement.style.display = 'block'
+    const doc = new jsPDF()
 
-    // Trigger the print dialog
-    window.print()
+    // Set up margins and initial position
+    const marginLeft = 10
+    const marginTop = 20
+    let yPos = marginTop
 
-    // Hide the receipt after printing
-    receiptElement.style.display = 'none'
+    // Add restaurant logo (placeholder)
+    const logoUrl = 'https://th.bing.com/th/id/OIP.REqzysVeL8E29CU3Is72ywHaE7?rs=1&pid=ImgDetMain' // Replace with your logo URL
+    const logoWidth = 50
+    const logoHeight = 20
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const logoX = (pageWidth - logoWidth) / 2 // Center the logo horizontally
+    doc.addImage(logoUrl, 'PNG', logoX, yPos, logoWidth, logoHeight)
+    yPos += 25 // Move down after the logo
+
+    // Add restaurant name and location
+    doc.setFontSize(18)
+    doc.setFont('helvetica', 'bold')
+    const restaurantName = placeDetails.placeName
+    const restaurantNameWidth = doc.getTextWidth(restaurantName)
+    const restaurantNameX = (pageWidth - restaurantNameWidth) / 2 // Center the restaurant name
+    doc.text(restaurantName, restaurantNameX, yPos)
+    yPos += 10
+
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+    const restaurantLocation = 'location'
+    const restaurantLocationWidth = doc.getTextWidth(restaurantLocation)
+    const restaurantLocationX = (pageWidth - restaurantLocationWidth) / 2 // Center the location
+    doc.text(restaurantLocation, restaurantLocationX, yPos)
+    yPos += 10
+
+    // Add table number, waiter's name, and dates
+    const tableNumberText = `Table Number: ${table?.number}`
+    const tableNumberX = (pageWidth - doc.getTextWidth(tableNumberText)) / 2
+    doc.text(tableNumberText, tableNumberX, yPos)
+    yPos += 7
+
+    const waiterNameText = `Waiter's Name: John Doe`
+    const waiterNameX = (pageWidth - doc.getTextWidth(waiterNameText)) / 2
+    doc.text(waiterNameText, waiterNameX, yPos)
+    yPos += 7
+
+    const orderDateText = `Order Date: ${new Date().toLocaleDateString()}`
+    const orderDateX = (pageWidth - doc.getTextWidth(orderDateText)) / 2
+    doc.text(orderDateText, orderDateX, yPos)
+    yPos += 7
+
+    const printDateText = `Print Date: ${new Date().toLocaleDateString()}`
+    const printDateX = (pageWidth - doc.getTextWidth(printDateText)) / 2
+    doc.text(printDateText, printDateX, yPos)
+    yPos += 7
+
+    const wifiPasswordText = `WiFi Password: guest123`
+    const wifiPasswordX = (pageWidth - doc.getTextWidth(wifiPasswordText)) / 2
+    doc.text(wifiPasswordText, wifiPasswordX, yPos)
+    yPos += 15
+
+    // Add a line separator
+    doc.setLineWidth(0.5)
+    doc.line(marginLeft, yPos, pageWidth - marginLeft, yPos)
+    yPos += 10
+
+    // Add orders
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    const orderDetailsText = 'Order Details'
+    const orderDetailsX = (pageWidth - doc.getTextWidth(orderDetailsText)) / 2
+    doc.text(orderDetailsText, orderDetailsX, yPos)
+    yPos += 10
+
+    table?.orders.forEach((order, index) => {
+      doc.setFontSize(12)
+      doc.setFont('helvetica', 'bold')
+      const orderText = `Order ${index + 1}`
+      const orderX = (pageWidth - doc.getTextWidth(orderText)) / 2
+      doc.text(orderText, orderX, yPos)
+      yPos += 7
+
+      // Add products in the order
+      order.products.forEach((product) => {
+        doc.setFontSize(10)
+        doc.setFont('helvetica', 'normal')
+        const discount =
+          product.product.discountPercentage > 0
+            ? (product.product.discountPercentage / 100) * product.product.price
+            : 0
+        const discountedPrice = product.product.price - discount
+        const productText = `${product.quantity} x ${product.product.name} - ${discountedPrice.toFixed(2)} TND`
+        const productX = (pageWidth - doc.getTextWidth(productText)) / 2
+        doc.text(productText, productX, yPos)
+        yPos += 7
+      })
+
+      // Add total for the order
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'bold')
+      const orderTotalText = `Total: ${order.totalPrice.toFixed(2)} TND`
+      const orderTotalX = (pageWidth - doc.getTextWidth(orderTotalText)) / 2
+      doc.text(orderTotalText, orderTotalX, yPos)
+      yPos += 7
+
+      // Add tips if any
+      if (order.tips) {
+        const tipsText = `Tips: ${order.tips.toFixed(2)} TND`
+        const tipsX = (pageWidth - doc.getTextWidth(tipsText)) / 2
+        doc.text(tipsText, tipsX, yPos)
+        yPos += 7
+      }
+
+      // Add a line separator between orders
+      doc.setLineWidth(0.2)
+      doc.line(marginLeft, yPos, pageWidth - marginLeft, yPos)
+      yPos += 10
+    })
+
+    // Add total amount and total tips for the entire table
+    const totalAmount = table?.orders
+      .reduce((total, order) => total + order.totalPrice, 0)
+      .toFixed(2)
+    const totalTips = table?.orders
+      .reduce((total, order) => total + (order.tips || 0), 0)
+      .toFixed(2)
+
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'bold')
+    const totalAmountText = `Total Amount: ${totalAmount} TND`
+    const totalAmountX = (pageWidth - doc.getTextWidth(totalAmountText)) / 2
+    doc.text(totalAmountText, totalAmountX, yPos)
+    yPos += 7
+
+    const totalTipsText = `Total Tips: ${totalTips} TND`
+    const totalTipsX = (pageWidth - doc.getTextWidth(totalTipsText)) / 2
+    doc.text(totalTipsText, totalTipsX, yPos)
+    yPos += 7
+
+    // Add a thank you message
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'italic')
+    const thankYouText = 'Thank you for dining with us!'
+    const thankYouX = (pageWidth - doc.getTextWidth(thankYouText)) / 2
+    doc.text(thankYouText, thankYouX, yPos)
+
+    // Save the PDF
+    doc.save(`table_${table?.number}_receipt.pdf`)
   }
 
   //theme for colors change
@@ -297,11 +459,9 @@ const TableDetails = () => {
                 Confirm Selected
               </CButton>
 
-              {selectedOrders.length > 0 && (
-                <CButton color="info" className="ms-md-2 btn-sm" onClick={handlePrintReceipt}>
-                  Print Receipt
-                </CButton>
-              )}
+              <CButton color="info" className="ms-md-2 btn-sm" onClick={handlePrintReceipt}>
+                Print Receipt
+              </CButton>
             </div>
           </CCardHeader>
 
@@ -319,7 +479,12 @@ const TableDetails = () => {
                 // Calculate total unpaid price for each order
                 const totalUnpaidPrice = order.products.reduce((acc, product) => {
                   const unpaidQuantity = product?.quantity - (product?.payedQuantity || 0)
-                  return acc + unpaidQuantity * product?.product?.price
+                  const discount =
+                    product.product.discountPercentage > 0
+                      ? (product.product.discountPercentage / 100) * product.product.price
+                      : 0
+                  const discountedPrice = product.product.price - discount
+                  return acc + unpaidQuantity * discountedPrice
                 }, 0)
 
                 return (
@@ -368,7 +533,12 @@ const TableDetails = () => {
                               <CCol xs={6}>
                                 <strong style={{ color: 'black' }}>{product?.product?.name}</strong>
                                 <div style={{ color: 'black' }} className="small">
-                                  {product?.product?.price.toFixed(2)} TND
+                                  {product.product.discountPercentage > 0
+                                    ? product.product.price -
+                                      (product.product.discountPercentage / 100) *
+                                        product.product.price
+                                    : product.product.price.toFixed(2)}{' '}
+                                  TND
                                 </div>
                               </CCol>
                               <CCol xs={6} className="text-end">
@@ -379,7 +549,13 @@ const TableDetails = () => {
                                   x {product.quantity}
                                 </span>
                                 <div className="small" style={{ color: 'black' }}>
-                                  {(product?.product?.price * product?.quantity).toFixed(2)} TND
+                                  {(product.product.discountPercentage > 0
+                                    ? product.product.price -
+                                      (product.product.discountPercentage / 100) *
+                                        product.product.price
+                                    : product.product.price * product?.quantity
+                                  ).toFixed(2)}{' '}
+                                  TND
                                 </div>
                               </CCol>
                             </CRow>
@@ -453,7 +629,13 @@ const TableDetails = () => {
                                 const unpaidTotal = order.products.reduce((acc, product) => {
                                   const unpaidQuantity =
                                     product.quantity - (product.payedQuantity || 0)
-                                  return acc + unpaidQuantity * product.product.price
+                                  const discount =
+                                    product.product.discountPercentage > 0
+                                      ? (product.product.discountPercentage / 100) *
+                                        product.product.price
+                                      : 0
+                                  const discountedPrice = product.product.price - discount
+                                  return acc + unpaidQuantity * discountedPrice
                                 }, 0)
                                 return total + unpaidTotal
                               }, 0)
@@ -478,7 +660,13 @@ const TableDetails = () => {
                                 const unpaidTotal = order.products.reduce((acc, product) => {
                                   const unpaidQuantity =
                                     product.quantity - (product.payedQuantity || 0)
-                                  return acc + unpaidQuantity * product.product.price
+                                  const discount =
+                                    product.product.discountPercentage > 0
+                                      ? (product.product.discountPercentage / 100) *
+                                        product.product.price
+                                      : 0
+                                  const discountedPrice = product.product.price - discount
+                                  return acc + unpaidQuantity * discountedPrice
                                 }, 0)
                                 return total + unpaidTotal
                               }, 0)
@@ -520,7 +708,13 @@ const TableDetails = () => {
                                 const unpaidTotal = order.products.reduce((acc, product) => {
                                   const unpaidQuantity =
                                     product.quantity - (product.payedQuantity || 0)
-                                  return acc + unpaidQuantity * product.product.price
+                                  const discount =
+                                    product.product.discountPercentage > 0
+                                      ? (product.product.discountPercentage / 100) *
+                                        product.product.price
+                                      : 0
+                                  const discountedPrice = product.product.price - discount
+                                  return acc + unpaidQuantity * discountedPrice
                                 }, 0)
                                 return total + unpaidTotal + (order.tips || 0)
                               }, 0)
@@ -564,39 +758,10 @@ const TableDetails = () => {
         refetchData={handleRefetchData}
       />
 
-      <div id="receipt" style={{ display: 'none' }}>
-        <h2>Payment Receipt</h2>
-        <p>Table: {table?.number}</p>
-        <p>Date: {new Date().toLocaleDateString()}</p>
-        <hr />
-        {selectedOrders.map((order) => {
-          const fullOrder = table?.orders.find((o) => o._id === order.orderId)
-          return (
-            <div key={order.orderId}>
-              <p>Order ID: {order.orderId}</p>
-              {fullOrder?.products.map((product) => (
-                <p key={product._id}>
-                  {product.quantity} x {product.product.name} - {product.product.price.toFixed(2)}{' '}
-                  TND
-                </p>
-              ))}
-              <p>
-                <strong>Total: {order.orderPrice.toFixed(2)} TND</strong>
-              </p>
-              <hr />
-            </div>
-          )
-        })}
-        <p>
-          <strong>Total Selected: {calculateSelectedTotal()} TND</strong>
-        </p>
-        <p>Thank you for your payment!</p>
-      </div>
-
       {
         //place order manually modal
       }
-      <CModal visible={showMaualModal} onClose={() => setShowManualModal(false)} size="lg" >
+      <CModal visible={showMaualModal} onClose={() => setShowManualModal(false)} size="lg">
         <CModalHeader className="bg-light">
           <CModalTitle className="text-primary">{Language.selectProducts}</CModalTitle>
         </CModalHeader>
@@ -622,7 +787,9 @@ const TableDetails = () => {
                       onChange={() => handleProductSelect(product._id)}
                       aria-label={`Select ${product.name}`}
                     />
-                    <span className="product-name">{product.name} ({product.description})</span>
+                    <span className="product-name">
+                      {product.name} ({product.description})
+                    </span>
                   </div>
                   <CFormInput
                     type="number"

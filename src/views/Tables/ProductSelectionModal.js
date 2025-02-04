@@ -77,7 +77,12 @@ const ProductSelectionModal = ({ visible, onClose, products, orderId, refetchDat
     return selectedProducts
       .reduce((acc, instanceId) => {
         const product = expandedProducts.find((p) => p.instanceId === instanceId)
-        return acc + product.product.price
+        const discount =
+          product.product.discountPercentage > 0
+            ? (product.product.discountPercentage / 100) * product.product.price
+            : 0
+        const discountedPrice = product.product.price - discount
+        return acc + discountedPrice
       }, 0)
       .toFixed(2)
   }
@@ -127,7 +132,11 @@ const ProductSelectionModal = ({ visible, onClose, products, orderId, refetchDat
                 <div className="product-details">
                   <strong style={{ color: 'black' }}>{product.product.name}</strong>
                   <div className="small" style={{ color: 'black' }}>
-                    {product.product.price} TND
+                    {product.product.discountPercentage > 0
+                      ? product.product.price -
+                        (product.product.discountPercentage / 100) * product.product.price
+                      : product.product.price}{' '}
+                    TND
                   </div>
                   {product.isPaid && <span className="paid-badge">Paid</span>}
                 </div>
