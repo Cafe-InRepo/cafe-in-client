@@ -1,38 +1,37 @@
 import React, { useEffect, useState } from 'react'
 import {
-  CForm,
-  CFormInput,
-  CFormLabel,
-  CButton,
-  CContainer,
-  CRow,
-  CCol,
   CCard,
   CCardBody,
   CCardHeader,
+  CCardImage,
+  CCardText,
+  CCardTitle,
+  CButton,
+  CRow,
+  CCol,
+  CForm,
+  CFormInput,
   CModal,
   CModalHeader,
   CModalBody,
   CModalFooter,
-  CAlert,
-  CModalTitle,
+  CSpinner,
+  CFormLabel,
+  CImage,
 } from '@coreui/react'
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
-import 'leaflet/dist/leaflet.css'
-import L from 'leaflet'
+import { CIcon } from '@coreui/icons-react'
+import { cilUser, cilPencil, cilSettings, cilEnvelopeOpen, cilLockLocked } from '@coreui/icons'
 import { GetToken } from '../../../helpers/GetToken'
 import { BaseUrl } from '../../../helpers/BaseUrl'
+
 import axios from 'axios'
 
-// Fix Leaflet marker icon issue
-delete L.Icon.Default.prototype._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-})
+const Profile = () => {
+  const [visible, setVisible] = useState(false)
+  const [DetailsVisible, setDetailsVisible] = useState(false)
 
-const ClientProfile = () => {
+  const [emailSent, setEmailSent] = useState(false)
+  const [confirmationCode, setConfirmationCode] = useState('')
   const [profileData, setProfileData] = useState({
     placeName: '',
     phoneNumber: '',
@@ -45,11 +44,15 @@ const ClientProfile = () => {
   const [loading, setLoading] = useState(true)
   const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [verificationCode, setVerificationCode] = useState('')
-  const [emailSent, setEmailSent] = useState(false)
   const [error, setError] = useState('')
+  const [data, setUserDate] = useState()
   const token = GetToken()
+  const [tempSrcProfile, setTempSrcProfile] = useState('')
+  const [tempSrcLogo, setTempSrcLogo] = useState('')
+  const [tempSrcPlacePic, setTempSrcPlacePic] = useState('')
 
   const fetchUserData = async () => {
+    setLoading(true)
     try {
       const response = await axios.get(`${BaseUrl}/auth/get-user`, {
         headers: {
@@ -57,6 +60,10 @@ const ClientProfile = () => {
         },
       })
       const userData = response.data
+      console.log(response.data)
+      setUserDate(userData)
+      setEmail(response.data.email)
+      setPersonalPhoneNumber(response.data.personalPhoneNumber)
 
       setProfileData((prevState) => ({
         ...prevState,
@@ -73,280 +80,376 @@ const ClientProfile = () => {
       setLoading(false)
     }
   }
+  //send verification code to change pwd
+  const [oldPassword, setOldPassword] = useState()
+  const [massage, setMessage] = useState('')
+  const sendPwdVerificationCode = async (oldPassword) => {
+    setLoading(true)
 
+    try {
+      const response = await axios.post(
+        `${BaseUrl}/auth/client/pwd-verification-code`,
+        { oldPassword }, // Only send oldPassword for this step
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+
+      // Handle successful response
+      console.log('Verification email sent:', response.data.message)
+      setMessage(response.data.message) // Show success message in UI
+      setEmailSent(true)
+    } catch (error) {
+      console.error('Error sending verification code:', error.response?.data || error.message)
+
+      // Display error message in UI
+      setError(error.response?.data?.error || 'Failed to send verification code')
+    } finally {
+      setLoading(false)
+    }
+  }
+  //change pwd after sending verification code
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
+  const changePassword = async (verificationCode, newPassword, confirmPassword) => {
+    setLoading(true)
+
+    try {
+      const response = await axios.post(
+        `${BaseUrl}/auth/client/change-password`,
+        { verificationCode, newPassword, confirmPassword }, // Send the verification code and new passwords
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+
+      // Handle successful response
+      console.log('Password changed successfully:', response.data.message)
+      setMessage(response.data.message) // Show success message in UI
+      setEmailSent(false)
+      setNewPassword('')
+      setOldPassword('')
+      setConfirmPassword('')
+      setConfirmationCode('')
+    } catch (error) {
+      console.error('Error changing password:', error.response?.data || error.message)
+
+      // Display error message in UI
+      setError(error.response?.data?.error || 'Failed to change password')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const changeProfilePic = (e, picType) => {
+    const file = e.target.files[0]
+    previewFile(file, picType)
+  }
+
+  // Preview uploaded image
+  const previewFile = (file, picType) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onloadend = () => {
+      if (picType === 'profile') {
+        setTempSrcProfile(reader.result)
+      }
+      if (picType === 'logo') {
+        setTempSrcLogo(reader.result)
+      }
+      if (picType === 'place') {
+        setTempSrcPlacePic(reader.result)
+      }
+    }
+  }
+
+  //personal details modal
+  const [visiblePDModal, setVisiblePDModal] = useState(false)
+  const [email, setEmail] = useState(data?.email)
+  const [personalPhoneNumber, setPersonalPhoneNumber] = useState(data?.personalPhoneNumber)
+  const [pDVerifModal, setPDVerifModal] = useState(false)
+  const [PDVerifCode, setPDVerifCode] = useState('')
+  const sendEmailPDVerif = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.post(
+        `${BaseUrl}/auth/client/personal-details-change`,
+        {}, // Empty request body (if needed)
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+
+      // Handle successful response
+      console.log('Verification email sent:', response.data.message)
+      setVisiblePDModal(false)
+      setPDVerifModal(true)
+      setMessage(response.data.message) // Show success message in UI
+    } catch (error) {
+      console.error('Error sending verification code:', error.response?.data || error.message)
+
+      // Display error message in UI
+      setError(error.response?.data?.error || 'Failed to send verification code')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const closePDModal = () => {
+    setVisiblePDModal(false)
+    setEmail(data?.email)
+    setPersonalPhoneNumber(data?.personalPhoneNumber)
+  }
+  const closePDVerifModal = () => {
+    setPDVerifCode(false)
+  }
   useEffect(() => {
     fetchUserData()
   }, [])
 
-  // Map Click Event Handler
-  const LocationSelector = () => {
-    useMapEvents({
-      click(e) {
-        setProfileData((prevState) => ({
-          ...prevState,
-          location: {
-            lat: e.latlng.lat,
-            long: e.latlng.long,
-          },
-        }))
-      },
-    })
-    return null
-  }
-
-  // Handle Input Changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setProfileData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }))
-  }
-
-  // Handle Location Input
-  const handleLocationChange = (e) => {
-    const { name, value } = e.target
-    setProfileData((prevState) => ({
-      ...prevState,
-      location: {
-        ...prevState.location,
-        [name]: parseFloat(value),
-      },
-    }))
-  }
-
-  // Handle Distance Radius Change
-  const handleDistanceChange = (e) => {
-    setProfileData((prevState) => ({
-      ...prevState,
-      distanceRadius: parseInt(e.target.value, 10),
-    }))
-  }
-
-  // Handle Password Change Flow
-  const handlePasswordChange = async () => {
-    if (profileData.password !== profileData.confirmPassword) {
-      setError('Passwords do not match.')
-      return
-    }
-
-    try {
-      // Send verification code to email
-      await axios.post(`${BaseUrl}/auth/send-verification-code`, {
-        email: 'user@example.com', // Replace with the user's email
-      })
-      setEmailSent(true)
-      setShowPasswordModal(true)
-    } catch (error) {
-      setError('Failed to send verification code. Please try again.')
-    }
-  }
-
-  // Verify Code and Update Password
-  const verifyCodeAndUpdatePassword = async () => {
-    try {
-      await axios.post(`${BaseUrl}/auth/verify-code-and-update-password`, {
-        code: verificationCode,
-        newPassword: profileData.password,
-      })
-      setShowPasswordModal(false)
-      alert('Password updated successfully!')
-    } catch (error) {
-      setError('Invalid verification code. Please try again.')
-    }
-  }
-
-  // Handle Form Submission
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    try {
-      const formData = new FormData()
-      formData.append('placeName', profileData.placeName)
-      formData.append('phoneNumber', profileData.phoneNumber)
-      formData.append('latitude', profileData.location.lat)
-      formData.append('longitude', profileData.location.long)
-      formData.append('distanceRadius', profileData.distanceRadius)
-      if (profileData.logo) {
-        formData.append('logo', profileData.logo)
-      }
-
-      await axios.put(`${BaseUrl}/auth/superClient/${profileData?.id}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-      alert('Profile updated successfully!')
-    } catch (error) {
-      console.error('Error updating profile:', error.response?.data || error.message)
-    }
-  }
-
   if (loading) {
-    return <p>Loading...</p>
+    return <CSpinner />
   }
 
   return (
-    <CContainer className="mt-5">
-      <CRow className="justify-content-center">
-        <CCol lg={8}>
-          <CCard>
-            <CCardHeader>
-              <h3>Profile Settings</h3>
-            </CCardHeader>
-            <CCardBody>
-              <CForm onSubmit={handleSubmit}>
-                <CFormLabel htmlFor="placeName">Place Name</CFormLabel>
-                <CFormInput
-                  type="text"
-                  id="placeName"
-                  name="placeName"
-                  value={profileData.placeName}
-                  onChange={handleInputChange}
-                  required
-                />
+    <CRow className="justify-content-center mt-5">
+      <CCol xs={12} md={6} lg={4}>
+        <CCard className="shadow-lg p-4 bg-white rounded-4 border-0">
+          {/* Card Header */}
+          <CCardHeader className="text-center bg-gradient bg-primary text-white rounded-top-4 py-3">
+            <CIcon icon={cilUser} size="xl" className="me-2" />
+            <span className="fw-bold fs-5">Profile</span>
+          </CCardHeader>
 
-                <CFormLabel htmlFor="phoneNumber" className="mt-3">
-                  Phone Number
-                </CFormLabel>
-                <CFormInput
-                  type="tel"
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  value={profileData.phoneNumber}
-                  onChange={handleInputChange}
-                  required
-                />
+          {/* Card Body */}
+          <CCardBody className="text-center">
+            {/* Profile Image */}
+            <div className="position-relative d-flex justify-content-center mb-3">
+              <CCardImage
+                src={data?.profilePicture}
+                alt="Profile Picture"
+                className="border border-primary shadow-sm"
+                style={{ objectFit: 'cover', maxHeight: '300px' }}
+              />
+            </div>
 
-                <CFormLabel htmlFor="logo" className="mt-3">
-                  Upload Logo
-                </CFormLabel>
-                <CFormInput
-                  type="file"
-                  id="logo"
-                  name="logo"
-                  onChange={(e) => setProfileData({ ...profileData, logo: e.target.files[0] })}
-                />
+            {/* User Information */}
+            <CCardTitle className="fw-bold fs-4 text-dark">{data?.fullName}</CCardTitle>
+            <CCardText className="text-muted fs-6 mb-2 text-break">{data?.placeName}</CCardText>
+            <CCardText className="text-dark fw-semibold text-break">
+              📧 Email: <span className="text-primary">{data?.email}</span>
+            </CCardText>
+            <CCardText className="text-dark fw-semibold text-break">
+              📍 Location: <span className="text-success">{data?.PlaceAddress}</span>
+            </CCardText>
 
-                <CFormLabel className="mt-4">Select Place Location</CFormLabel>
-                <div style={{ height: '400px', width: '100%', border: '1px solid #ced4da' }}>
-                  <MapContainer
-                    center={[profileData?.location.lat, profileData?.location.long]}
-                    zoom={13}
-                    style={{ height: '100%', width: '100%' }}
-                  >
-                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                    <Marker position={[profileData?.location.lat, profileData?.location.long]} />
-                    <LocationSelector />
-                  </MapContainer>
-                </div>
-                <p className="text-muted mt-2">
-                  Coordinates: {profileData?.location?.lat}, {profileData?.location?.long}
-                </p>
+            {/* Action Buttons */}
+            <div className="d-flex flex-column flex-md-column justify-content-center gap-3 mt-3">
+              <CButton
+                color="primary"
+                variant="outline"
+                className="rounded-pill px-4 py-2"
+                onClick={() => setVisible(true)}
+              >
+                <CIcon icon={cilSettings} className="me-1" /> Change Password
+              </CButton>
+              <CButton
+                color="primary"
+                variant="outline"
+                className="rounded-pill px-4 py-2"
+                onClick={() => setDetailsVisible(true)}
+              >
+                <CIcon icon={cilSettings} className="me-1" /> Change Place Details
+              </CButton>
+              <CButton
+                color="primary"
+                variant="outline"
+                className="rounded-pill px-4 py-2"
+                onClick={() => setVisiblePDModal(true)}
+              >
+                <CIcon icon={cilSettings} className="me-1" /> Change Personal Details
+              </CButton>
+            </div>
+          </CCardBody>
+        </CCard>
+      </CCol>
 
-                <CRow>
-                  <CCol md={6}>
-                    <CFormLabel htmlFor="lat" className="mt-3">
-                      Latitude
-                    </CFormLabel>
-                    <CFormInput
-                      type="number"
-                      id="lat"
-                      name="lat"
-                      value={profileData.location.lat}
-                      onChange={handleLocationChange}
-                      step="0.0001"
-                      required
-                    />
-                  </CCol>
-                  <CCol md={6}>
-                    <CFormLabel htmlFor="long" className="mt-3">
-                      Longitude
-                    </CFormLabel>
-                    <CFormInput
-                      type="number"
-                      id="long"
-                      name="long"
-                      value={profileData.location.long}
-                      onChange={handleLocationChange}
-                      step="0.0001"
-                      required
-                    />
-                  </CCol>
-                </CRow>
-
-                <CFormLabel htmlFor="distanceRadius" className="mt-3">
-                  Distance Radius (km)
-                </CFormLabel>
-                <CFormInput
-                  type="number"
-                  id="distanceRadius"
-                  name="distanceRadius"
-                  value={profileData.distanceRadius}
-                  onChange={handleDistanceChange}
-                  min="1"
-                  required
-                />
-
-                <CFormLabel htmlFor="password" className="mt-3">
-                  New Password
-                </CFormLabel>
-                <CFormInput
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={profileData.password}
-                  onChange={handleInputChange}
-                />
-
-                <CFormLabel htmlFor="confirmPassword" className="mt-3">
-                  Confirm Password
-                </CFormLabel>
-                <CFormInput
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={profileData.confirmPassword}
-                  onChange={handleInputChange}
-                />
-
-                {error && <CAlert color="danger">{error}</CAlert>}
-
-                <CButton color="primary" type="submit" className="mt-4 w-100">
-                  Save Changes
-                </CButton>
-              </CForm>
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
-
-      {/* Password Verification Modal */}
-      <CModal visible={showPasswordModal} onClose={() => setShowPasswordModal(false)}>
-        <CModalHeader>
-          <CModalTitle>Verify Your Email</CModalTitle>
-        </CModalHeader>
+      <CModal visible={visible} onClose={() => setVisible(false)}>
+        <CModalHeader>Settings</CModalHeader>
         <CModalBody>
-          <p>We've sent a verification code to your email. Please enter it below.</p>
-          <CFormInput
-            type="text"
-            placeholder="Enter verification code"
-            value={verificationCode}
-            onChange={(e) => setVerificationCode(e.target.value)}
-          />
-          {error && <CAlert color="danger">{error}</CAlert>}
+          <h5>Change Password</h5>
+
+          {!emailSent ? (
+            <>
+              <CForm>
+                <CFormInput
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  type="password"
+                  placeholder="old password"
+                  className="mt-2 mb-2"
+                />
+              </CForm>
+              <CButton color="warning" onClick={() => sendPwdVerificationCode(oldPassword)}>
+                <CIcon icon={cilEnvelopeOpen} className="me-1" /> Send Confirmation Email
+              </CButton>
+            </>
+          ) : (
+            <CForm>
+              <CFormInput
+                type="text"
+                placeholder="Enter confirmation code"
+                value={confirmationCode}
+                onChange={(e) => setConfirmationCode(e.target.value)}
+              />
+              <CFormInput
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                type="password"
+                placeholder="new password"
+                className="mt-2"
+              />
+              <CFormInput
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                type="password"
+                placeholder="confirm password"
+                className="mt-2 mb-2"
+              />
+              <CButton
+                color="success"
+                className="mt-2 me-3"
+                onClick={() => changePassword(confirmationCode, newPassword, confirmPassword)}
+              >
+                <CIcon icon={cilLockLocked} className="me-1" /> Confirm
+              </CButton>
+              <CButton color="warning" className="mt-2" onClick={() => setEmailSent(false)}>
+                Cancel
+              </CButton>
+            </CForm>
+          )}
         </CModalBody>
         <CModalFooter>
-          <CButton color="secondary" onClick={() => setShowPasswordModal(false)}>
-            Cancel
-          </CButton>
-          <CButton color="primary" onClick={verifyCodeAndUpdatePassword}>
-            Verify
+          <CButton color="secondary" onClick={() => setVisible(false)}>
+            Close
           </CButton>
         </CModalFooter>
       </CModal>
-    </CContainer>
+      <CModal visible={DetailsVisible} onClose={() => setDetailsVisible(false)}>
+        <CModalHeader>Place Details</CModalHeader>
+        <CModalBody>
+          <CForm>
+            <CFormLabel>Place name</CFormLabel>
+            <CFormInput
+              type="text"
+              placeholder="Place Name"
+              value={data?.placeName}
+              className="mb-2"
+            />
+            <CFormLabel>Place address</CFormLabel>
+
+            <CFormInput
+              type="text"
+              className="mb-2"
+              placeholder="Place address"
+              value={data?.PlaceAddress}
+            />
+            <CFormLabel>Phone number</CFormLabel>
+
+            <CFormInput
+              type="text"
+              className="mb-2"
+              placeholder="Phone Number"
+              value={data?.phoneNumber}
+            />
+            <CFormLabel>Place logo</CFormLabel>
+            <CFormInput type="file" className="mb-2" placeholder="Place Logo" />
+            <CFormLabel>Place picture</CFormLabel>
+            <CFormInput type="file" className="mb-2" placeholder="Place Profile Picture" />
+            <CFormLabel>Distance</CFormLabel>
+
+            <CFormInput type="number" placeholder="Distance" className="mt-2" />
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setDetailsVisible(false)}>
+            Close
+          </CButton>
+        </CModalFooter>
+      </CModal>
+      <CModal visible={visiblePDModal} onClose={closePDModal}>
+        <CModalHeader> Personal Details</CModalHeader>
+        <CModalBody>
+          <CForm>
+            <CFormLabel>Email</CFormLabel>
+            <CFormInput
+              value={data?.email}
+              // onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="email"
+              className="mb-2"
+            />
+            <CFormLabel>Phone Number</CFormLabel>
+            <CFormInput
+              value={data?.personalPhoneNumber}
+              // onChange={(e) => setPersonalPhoneNumber(e.target.value)}
+              type="tel"
+              placeholder="Personal Phone Number"
+              className="mb-2"
+            />
+            <CButton color="info" className="mt-2" onClick={() => sendEmailPDVerif()}>
+              <CIcon icon={cilEnvelopeOpen} className="me-1" /> change Email or phone number
+            </CButton>
+            <br />
+            <CFormLabel>Profile picture</CFormLabel>
+            <CFormInput
+              onChange={(e) => changeProfilePic(e, 'profile')}
+              type="file"
+              placeholder="Profile Picture"
+              className="mb-2"
+            />
+            <CImage
+              src={tempSrcProfile !== '' ? tempSrcProfile : data?.profilePicture}
+              alt="pic"
+              height={100}
+              width={100}
+            ></CImage>
+          </CForm>
+        </CModalBody>
+      </CModal>
+      <CModal visible={pDVerifModal} onClose={closePDVerifModal}>
+        <CModalHeader> Verification Code</CModalHeader>
+        <CModalBody>
+          <CForm>
+            <CFormLabel>enter code recieved by email</CFormLabel>
+            <CFormInput
+              value={PDVerifCode}
+              onChange={(e) => setPDVerifCode(e.target.value)}
+              type="text"
+              placeholder="email"
+              className="mb-2"
+            />
+            <CButton
+                color="success"
+                className="mt-2 me-3"
+                onClick={() => changePassword(confirmationCode, newPassword, confirmPassword)}
+              >
+                Confirm
+              </CButton>
+              <CButton color="warning" className="mt-2" onClick={() => setEmailSent(false)}>
+                Cancel
+              </CButton>
+          </CForm>
+        </CModalBody>
+      </CModal>
+    </CRow>
   )
 }
 
-export default ClientProfile
+export default Profile
