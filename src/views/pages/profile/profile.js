@@ -179,7 +179,7 @@ const Profile = () => {
     try {
       const response = await axios.post(
         `${BaseUrl}/auth/client/personal-details-change`,
-        {}, // Empty request body (if needed)
+        { newemail: email, newpersonalPhoneNumber: personalPhoneNumber }, // Empty request body (if needed)
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -191,6 +191,34 @@ const Profile = () => {
       console.log('Verification email sent:', response.data.message)
       setVisiblePDModal(false)
       setPDVerifModal(true)
+      setMessage(response.data.message) // Show success message in UI
+    } catch (error) {
+      console.error('Error sending verification code:', error.response?.data || error.message)
+
+      // Display error message in UI
+      setError(error.response?.data?.error || 'Failed to send verification code')
+    } finally {
+      setLoading(false)
+    }
+  }
+  const confirmChangePDCode = async () => {
+    setLoading(true)
+    try {
+      const response = await axios.post(
+        `${BaseUrl}/auth/client/verify-pd-change-code`,
+        { PDVerifCode }, // Empty request body (if needed)
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+
+      // Handle successful response
+      console.log('personal details changed successfully:', response.data.message)
+      setPDVerifModal(false)
+      setPDVerifCode('')
+      fetchUserData()
       setMessage(response.data.message) // Show success message in UI
     } catch (error) {
       console.error('Error sending verification code:', error.response?.data || error.message)
@@ -389,22 +417,22 @@ const Profile = () => {
           <CForm>
             <CFormLabel>Email</CFormLabel>
             <CFormInput
-              value={data?.email}
-              // onChange={(e) => setEmail(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               type="text"
               placeholder="email"
               className="mb-2"
             />
             <CFormLabel>Phone Number</CFormLabel>
             <CFormInput
-              value={data?.personalPhoneNumber}
-              // onChange={(e) => setPersonalPhoneNumber(e.target.value)}
+              value={personalPhoneNumber}
+              onChange={(e) => setPersonalPhoneNumber(e.target.value)}
               type="tel"
               placeholder="Personal Phone Number"
               className="mb-2"
             />
             <CButton color="info" className="mt-2" onClick={() => sendEmailPDVerif()}>
-              <CIcon icon={cilEnvelopeOpen} className="me-1" /> change Email or phone number
+              <CIcon icon={cilEnvelopeOpen} className="me-1" /> change Credentials
             </CButton>
             <br />
             <CFormLabel>Profile picture</CFormLabel>
@@ -435,16 +463,12 @@ const Profile = () => {
               placeholder="email"
               className="mb-2"
             />
-            <CButton
-                color="success"
-                className="mt-2 me-3"
-                onClick={() => changePassword(confirmationCode, newPassword, confirmPassword)}
-              >
-                Confirm
-              </CButton>
-              <CButton color="warning" className="mt-2" onClick={() => setEmailSent(false)}>
-                Cancel
-              </CButton>
+            <CButton color="success" className="mt-2 me-3" onClick={() => confirmChangePDCode()}>
+              Confirm
+            </CButton>
+            <CButton color="warning" className="mt-2">
+              Cancel
+            </CButton>
           </CForm>
         </CModalBody>
       </CModal>

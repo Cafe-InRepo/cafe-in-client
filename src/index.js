@@ -5,9 +5,13 @@ import 'core-js'
 
 import App from './App'
 import store from './store'
+import { SocketProvider } from './context/SocketContext'
 
 createRoot(document.getElementById('root')).render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
+  <SocketProvider>
+    <Provider store={store}>
+      <App />
+    </Provider>
+    ,
+  </SocketProvider>,
 )

@@ -88,12 +88,12 @@ const NavItems = () => {
       to: '/product/availability',
       icon: <CIcon icon={cilBraille} customClassName="nav-icon" />,
     },
-    {
-      component: CNavItem,
-      name: Language?.support || 'Support',
-      to: '/support',
-      icon: <CIcon icon={cilBell} customClassName="nav-icon" />,
-    },
+    // {
+    //   component: CNavItem,
+    //   name: Language?.support || 'Support',
+    //   to: '/support',
+    //   icon: <CIcon icon={cilBell} customClassName="nav-icon" />,
+    // },
     {
       component: CNavItem,
       name: Language?.dailyReceipt || 'Daily Receipt',

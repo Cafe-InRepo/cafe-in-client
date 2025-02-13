@@ -6,6 +6,7 @@ import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
 import PrivateRoute from './helpers/PrivateRoute'
 import { AuthProvider } from './context/AuthContext'
+import GlobalNotification from './components/GlobalNotification'
 
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
@@ -51,6 +52,7 @@ const App = () => {
             <Route exact path="/500" name="Page 500" element={<Page500 />} />
             <Route path="*" name="Home" element={<PrivateRoute element={DefaultLayout} />} />{' '}
           </Routes>
+          <GlobalNotification /> {/* Always available */}
         </AuthProvider>
       </Suspense>
     </HashRouter>

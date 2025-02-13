@@ -9,7 +9,7 @@ const OrderManagment = React.lazy(() => import('./views/dashboard/orderManagment
 const productPerformance = React.lazy(() => import('./views/dashboard/productPerformance/index'))
 const employeePerformance = React.lazy(() => import('./views/dashboard/employeePerformance/index'))
 
-const DailyRevenue = React.lazy(() => import('./views/dashboard/sales/DailyReveue'))
+// const DailyRevenue = React.lazy(() => import('./views/dashboard/sales/DailyReveue'))
 const Bill = React.lazy(() => import('./views/dashboard/bill/index'))
 // users
 const UsersList = React.lazy(() => import('./views/users/usersTable'))
@@ -34,7 +34,7 @@ const OrdersList = React.lazy(() => import('./views/orders/OrdersList'))
 const ProductsList = React.lazy(() => import('./views/products/ProductsList'))
 
 //support
-const Support = React.lazy(() => import('./views/SupportRequests/NotifSupport'))
+// const Support = React.lazy(() => import('./views/SupportRequests/NotifSupport'))
 
 //daily receipt
 const Daily = React.lazy(() => import('./views/dashboard/DailyReceipt'))
@@ -63,9 +63,9 @@ const getRoutesByRole = (role) => {
     { path: '/product/availability', name: 'Products', element: ProductsList },
 
     //spport
-    { path: '/support', name: 'Support', element: Support },
+    // { path: '/support', name: 'Support', element: Support },
     //daily
-    { path: '/daily-receipt', name: 'Support', element: Daily },
+    { path: '/daily-receipt', name: 'dailyReceipt', element: Daily },
     { path: '/widgets', name: 'Widgets', element: Widgets },
   ]
 

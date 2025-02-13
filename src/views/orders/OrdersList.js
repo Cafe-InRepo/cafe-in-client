@@ -29,6 +29,7 @@ const OrdersTable = () => {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeKey, setActiveKey] = useState(1)
+
   const token = GetToken()
   // language
   const t = useSelector((state) => state.language)
@@ -67,6 +68,7 @@ const OrdersTable = () => {
         }
         return [...prevOrders, newOrder]
       })
+      playRingtone()
     })
     // Handle deleteOrder event
     socket.on('deleteOrder', (deletedOrderId) => {
@@ -133,6 +135,21 @@ const OrdersTable = () => {
       } finally {
         setLoading(false)
       }
+    }
+  }
+  //rington for new order coming
+  const [ringtone, setRingtone] = useState(null)
+  const playRingtone = () => {
+    stopRingtone()
+    const audio = new Audio('/newOrder.mp3')
+    audio.loop = false
+    audio.play()
+    setRingtone(audio)
+  }
+  const stopRingtone = () => {
+    if (ringtone) {
+      ringtone.pause()
+      ringtone.currentTime = 0
     }
   }
 
