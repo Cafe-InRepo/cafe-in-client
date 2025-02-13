@@ -116,7 +116,7 @@ const OrdersComponent = () => {
     fetchOrders()
   }, [])
 
-  if (orders.length === 0) {
+  if (!loading && orders.length === 0) {
     return (
       <CContainer className="text-center">
         <h2>{Language.noOrders}</h2>

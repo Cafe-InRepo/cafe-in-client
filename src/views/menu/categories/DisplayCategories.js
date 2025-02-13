@@ -21,8 +21,14 @@ import axios from 'axios'
 import { cilPencil, cilTrash } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import { BaseUrl } from '../../../helpers/BaseUrl'
+import { useSelector } from 'react-redux'
+import translations from '../../../app/Language'
 
 const SectionDetails = () => {
+  //language
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
+
   const { sectionId } = useParams() // Get sectionId from URL params
   const [categories, setCategories] = useState(null)
   const [loadingCategories, setLoadingCategories] = useState(false)
@@ -34,7 +40,6 @@ const SectionDetails = () => {
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)
   const navigate = useNavigate()
 
- 
   // Fetch categories for the section
   const fetchCategories = async () => {
     setLoadingCategories(true)
@@ -137,7 +142,7 @@ const SectionDetails = () => {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search Categories"
+          placeholder={Language.searchCategories}
           className="mb-2 mb-md-0"
           style={{ width: '100%', maxWidth: '300px' }}
         />
@@ -149,7 +154,7 @@ const SectionDetails = () => {
           style={{ width: 'auto' }}
           onClick={() => setShowAddCategoryModal(true)}
         >
-          Add New Category
+          {Language.addNewCategory}
         </CButton>
       </div>
 
@@ -206,7 +211,7 @@ const SectionDetails = () => {
       {showEditModal && (
         <CModal visible={showEditModal} onClose={() => setShowEditModal(false)}>
           <CModalHeader>
-            <CModalTitle>Edit Category</CModalTitle>
+            <CModalTitle>{Language.editCategory}</CModalTitle>
           </CModalHeader>
           <CModalBody>
             <CForm>
@@ -214,16 +219,16 @@ const SectionDetails = () => {
                 type="text"
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder="Enter new category name"
+                placeholder={Language.enterNewCategoryName}
               />
             </CForm>
           </CModalBody>
           <CModalFooter>
             <CButton color="secondary" onClick={() => setShowEditModal(false)}>
-              Cancel
+              {Language.cancel}
             </CButton>
             <CButton color="primary" onClick={handleSaveCategory}>
-              Save Changes
+              {Language.saveChanges}
             </CButton>
           </CModalFooter>
         </CModal>
@@ -233,7 +238,7 @@ const SectionDetails = () => {
       {showAddCategoryModal && (
         <CModal visible={showAddCategoryModal} onClose={() => setShowAddCategoryModal(false)}>
           <CModalHeader>
-            <CModalTitle>Add New Category</CModalTitle>
+            <CModalTitle>{Language.AddNewCategory}</CModalTitle>
           </CModalHeader>
           <CModalBody>
             <CForm>
@@ -241,16 +246,16 @@ const SectionDetails = () => {
                 type="text"
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder="Enter new category name"
+                placeholder={Language.enterNewCategoryName}
               />
             </CForm>
           </CModalBody>
           <CModalFooter>
             <CButton color="secondary" onClick={() => setShowAddCategoryModal(false)}>
-              Cancel
+              {Language.cancel}
             </CButton>
             <CButton color="primary" onClick={handleAddCategory}>
-              Add Category
+              {Language.addCategory}
             </CButton>
           </CModalFooter>
         </CModal>

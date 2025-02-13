@@ -14,6 +14,8 @@ import axios from 'axios'
 
 import { BaseUrl } from '../../../helpers/BaseUrl'
 import { GetToken } from '../../../helpers/GetToken'
+import { useSelector } from 'react-redux'
+import translations from '../../../app/Language'
 
 const DailyRevenue = (props) => {
   const widgetChartRef1 = useRef(null)
@@ -21,7 +23,8 @@ const DailyRevenue = (props) => {
   const token = GetToken()
   const [loading, setLoading] = useState(false)
 
-  
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
   //daily revenue
 
   const [dailyRevenue, setDailyRevenue] = useState()
@@ -70,7 +73,7 @@ const DailyRevenue = (props) => {
           <CWidgetStatsA
             color="primary"
             value={dailyRevenue?.toFixed(2) + ' TND '}
-            title="Today's Revenue"
+            title={Language.TodaysRevenue}
           />
         ) : (
           <CSpinner color="primary" style={{ width: '3rem', height: '3rem' }} />

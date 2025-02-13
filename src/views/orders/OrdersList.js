@@ -235,7 +235,7 @@ const OrdersTable = () => {
                 onClick={() => cancelOrder(order._id)}
                 disabled={loading}
               >
-                {loading ? <CSpinner size="sm" /> : 'Cancel order'}{' '}
+                {loading ? <CSpinner size="sm" /> : Language.cancelOrder}{' '}
                 {/* New language entry for 'Cancel Order' */}
               </CButton>
             )}
@@ -304,7 +304,7 @@ const OrdersTable = () => {
                   <>
                     <div className="d-flex justify-content-end mb-3 mt-2">
                       <CButton color="danger" onClick={deleteAllCancelledOrders}>
-                        Delete all
+                        {Language.deleteAll}
                       </CButton>
                     </div>
                     {orders.filter((order) => order.status === 'cancelled').map(renderOrderCard)}

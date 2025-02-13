@@ -23,8 +23,13 @@ import axios from 'axios'
 import { BaseUrl } from '../../helpers/BaseUrl'
 import { cilPencil, cilTrash, cilSearch } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
+import { useSelector } from 'react-redux'
+import translations from '../../app/Language'
 
 const CategoryDetails = () => {
+  //Language
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
   const { id } = useParams()
   const [category, setCategory] = useState(null)
   const [products, setProducts] = useState([])
@@ -209,7 +214,7 @@ const CategoryDetails = () => {
       </CInputGroup>
       <div className="d-flex justify-content-end mt-4 mb-4">
         <CButton color="success" onClick={() => setShowAddModal(true)}>
-          Add New Product
+          {Language.addNewProduct}
         </CButton>
       </div>
 
@@ -240,7 +245,9 @@ const CategoryDetails = () => {
                   )}
                   <h5 className="card-title">{product.name}</h5>
                   <p className="card-text">{product.description}</p>
-                  <p className="text-muted">Price: {product.price} TND</p>
+                  <p className="text-muted">
+                    {Language.price}: {product.price} TND
+                  </p>
                   {product.discountPercentage > 0 && (
                     <>
                       <p className="text-success">Discount: {product.discountPercentage}%</p>
@@ -276,19 +283,19 @@ const CategoryDetails = () => {
       {/* Add Product Modal */}
       <CModal visible={showAddModal} onClose={() => setShowAddModal(false)}>
         <CModalHeader>
-          <CModalTitle>Add Product</CModalTitle>
+          <CModalTitle>{Language.addProduct}</CModalTitle>
         </CModalHeader>
         {errorMsg && <CAlert color="danger">{errorMsg}</CAlert>}
         <CModalBody>
           <CForm>
             <CFormInput
               required
-              label="Name"
+              label={Language.name}
               value={newProductData.name}
               onChange={(e) => setNewProductData({ ...newProductData, name: e.target.value })}
             />
             <CFormInput
-              label="Description"
+              label={Language.description}
               value={newProductData.description}
               onChange={(e) =>
                 setNewProductData({ ...newProductData, description: e.target.value })
@@ -296,13 +303,13 @@ const CategoryDetails = () => {
             />
             <CFormInput
               required
-              label="Price"
+              label={Language.price}
               type="number"
               value={newProductData.price}
               onChange={(e) => setNewProductData({ ...newProductData, price: e.target.value })}
             />
             <CFormInput
-              label="Discount Percentage"
+              label={Language.discountPercentage}
               type="number"
               value={newProductData.discountPercentage || 0}
               onChange={(e) =>
@@ -327,10 +334,10 @@ const CategoryDetails = () => {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setShowAddModal(false)}>
-            Cancel
+            {Language.cancel}
           </CButton>
           <CButton color="primary" onClick={handleAddProduct}>
-            Add Product
+            {Language.addProduct}
           </CButton>
         </CModalFooter>
       </CModal>
@@ -351,31 +358,31 @@ const CategoryDetails = () => {
         }}
       >
         <CModalHeader>
-          <CModalTitle>Edit Product</CModalTitle>
+          <CModalTitle>{Language.editProduct}</CModalTitle>
         </CModalHeader>
         {errorMsg && <CAlert color="danger">{errorMsg}</CAlert>}
         <CModalBody>
           <CForm>
             <CFormInput
-              label="Name"
+              label={Language.name}
               value={newProductData.name}
               onChange={(e) => setNewProductData({ ...newProductData, name: e.target.value })}
             />
             <CFormInput
-              label="Description"
+              label={Language.description}
               value={newProductData.description}
               onChange={(e) =>
                 setNewProductData({ ...newProductData, description: e.target.value })
               }
             />
             <CFormInput
-              label="Price"
+              label= {Language.price}
               type="number"
               value={newProductData.price}
               onChange={(e) => setNewProductData({ ...newProductData, price: e.target.value })}
             />
             <CFormInput
-              label="Discount Percentage"
+              label={Language.discountPercentage}
               type="number"
               value={newProductData.discountPercentage || 0}
               onChange={(e) =>
@@ -413,10 +420,10 @@ const CategoryDetails = () => {
               setTempSrc(null)
             }}
           >
-            Cancel
+            {Language.cancel}
           </CButton>
           <CButton color="primary" onClick={handleSaveEditedProduct}>
-            Save Changes
+            {Language.saveChanges}
           </CButton>
         </CModalFooter>
       </CModal>

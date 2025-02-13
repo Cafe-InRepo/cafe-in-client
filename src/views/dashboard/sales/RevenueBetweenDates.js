@@ -32,8 +32,14 @@ import { BaseUrl } from '../../../helpers/BaseUrl'
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 import * as XLSX from 'xlsx'
+import { useSelector } from 'react-redux'
+import translations from '../../../app/Language'
 
 const RevenueBetweenDates = ({ className }) => {
+  //language
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
+
   const token = GetToken()
   const [loading, setLoading] = useState(false)
   const [startDate, setStartDate] = useState('')
@@ -176,14 +182,14 @@ const RevenueBetweenDates = ({ className }) => {
           name="startDate"
           value={startDate}
           onChange={handleDateChange}
-          placeholder="Start Date"
+          placeholder={Language.startDate}
         />
         <CFormInput
           type="date"
           name="endDate"
           value={endDate}
           onChange={handleDateChange}
-          placeholder="End Date"
+          placeholder={Language.endDate}
           className="mt-2"
         />
       </div>
@@ -274,13 +280,13 @@ const RevenueBetweenDates = ({ className }) => {
                 onClick={() => setModalVisible(true)}
                 className="mb-2 mb-md-0 me-md-2"
               >
-                Details
+                {Language.details}
               </CButton>
               <CDropdown>
-                <CDropdownToggle color="secondary">Export</CDropdownToggle>
+                <CDropdownToggle color="secondary">{Language.details}</CDropdownToggle>
                 <CDropdownMenu>
-                  <CDropdownItem onClick={exportToPDF}>Export to PDF</CDropdownItem>
-                  <CDropdownItem onClick={exportToExcel}>Export to Excel</CDropdownItem>
+                  <CDropdownItem onClick={exportToPDF}>{Language.ExporttoPDF}</CDropdownItem>
+                  <CDropdownItem onClick={exportToExcel}>{Language.ExporttoExel}</CDropdownItem>
                 </CDropdownMenu>
               </CDropdown>
             </div>
@@ -289,15 +295,15 @@ const RevenueBetweenDates = ({ className }) => {
 
         <CModal size="lg" visible={modalVisible} onClose={() => setModalVisible(false)}>
           <CModalHeader onClose={() => setModalVisible(false)}>
-            <CModalTitle>Revenue Between Dates</CModalTitle>
+            <CModalTitle>{Language.RevenueBetween2Dates}</CModalTitle>
           </CModalHeader>
           <CModalBody>
             <CTable striped>
               <CTableHead>
                 <CTableRow>
-                  <CTableHeaderCell>Day</CTableHeaderCell>
-                  <CTableHeaderCell>Date</CTableHeaderCell>
-                  <CTableHeaderCell>Revenue (TND)</CTableHeaderCell>
+                  <CTableHeaderCell>{Language.day}</CTableHeaderCell>
+                  <CTableHeaderCell>{Language.date}</CTableHeaderCell>
+                  <CTableHeaderCell>{Language.revenue} (TND)</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
@@ -313,7 +319,7 @@ const RevenueBetweenDates = ({ className }) => {
           </CModalBody>
           <CModalFooter>
             <CButton color="secondary" onClick={() => setModalVisible(false)}>
-              Close
+              {Language.close}
             </CButton>
           </CModalFooter>
         </CModal>

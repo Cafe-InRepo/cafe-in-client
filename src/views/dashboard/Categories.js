@@ -43,7 +43,7 @@ const Dashboard = () => {
     //   image: CustomerInsights, // Replace with your image path
     // },
     {
-      name: 'Employee Performance',
+      name: Language.EmployeePerformance,
       color: '#3AAFB5',
       path: '/employee-performance',
       image: EmployeePerformance, // Replace with your image path

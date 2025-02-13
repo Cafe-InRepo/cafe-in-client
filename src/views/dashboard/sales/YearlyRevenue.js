@@ -30,8 +30,13 @@ import 'jspdf-autotable'
 import * as XLSX from 'xlsx'
 import { BaseUrl } from '../../../helpers/BaseUrl'
 import { GetToken } from '../../../helpers/GetToken'
+import { useSelector } from 'react-redux'
+import translations from '../../../app/Language'
 
 const YearlyRevenue = ({ className }) => {
+  //language
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
   const months = [
     'January',
     'February',
@@ -157,16 +162,16 @@ const YearlyRevenue = ({ className }) => {
                 onClick={() => setModalVisible(true)}
                 className="mb-2 mb-md-0 me-md-2"
               >
-                Details
+                {Language.details}
               </CButton>
               <CDropdown>
-                <CDropdownToggle color="secondary">Export</CDropdownToggle>
+                <CDropdownToggle color="secondary">{Language.Export}</CDropdownToggle>
                 <CDropdownMenu>
                   <CDropdownItem onClick={() => exportToPDF(yearlyRevenue)}>
-                    Export to PDF
+                    {Language.ExporttoPDF}
                   </CDropdownItem>
                   <CDropdownItem onClick={() => exportToExcel(yearlyRevenue)}>
-                    Export to Excel
+                    {Language.ExporttoExel}
                   </CDropdownItem>
                 </CDropdownMenu>
               </CDropdown>
@@ -184,8 +189,8 @@ const YearlyRevenue = ({ className }) => {
           <CTable striped hover responsive>
             <CTableHead>
               <CTableRow>
-                <CTableHeaderCell>Month</CTableHeaderCell>
-                <CTableHeaderCell>Revenue (TND)</CTableHeaderCell>
+                <CTableHeaderCell>{Language.month}</CTableHeaderCell>
+                <CTableHeaderCell>{Language.revenue} (TND)</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody>
@@ -200,7 +205,7 @@ const YearlyRevenue = ({ className }) => {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setModalVisible(false)}>
-            Close
+            {Language.close}
           </CButton>
         </CModalFooter>
       </CModal>

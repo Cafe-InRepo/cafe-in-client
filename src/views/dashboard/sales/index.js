@@ -7,6 +7,8 @@ import YearlyRevenue from './YearlyRevenue'
 import CurrentMonthRevenue from './MonthlyRevenue'
 import CurrentWeekRevenue from './WeeklyRevenue'
 import RevenueBetweenDates from './RevenueBetweenDates'
+import { useSelector } from 'react-redux'
+import translations from '../../../app/Language'
 
 // Reusable Card Component to avoid repetition
 const RevenueCard = ({ icon, title, children }) => (
@@ -24,25 +26,27 @@ const RevenueCard = ({ icon, title, children }) => (
 )
 
 const Sales = () => {
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
   return (
     <CContainer className="d-flex flex-column align-items-center">
-      <RevenueCard icon={cilCalendar} title="Daily Revenue">
+      <RevenueCard icon={cilCalendar} title={Language.DailyRevenue}>
         <DailyRevenue />
       </RevenueCard>
 
-      <RevenueCard icon={cilChart} title="Weekly Revenue">
+      <RevenueCard icon={cilChart} title={Language.WeeklyRevenue}>
         <CurrentWeekRevenue />
       </RevenueCard>
 
-      <RevenueCard icon={cilChart} title="Monthly Revenue">
+      <RevenueCard icon={cilChart} title={Language.MonthlyRevenue}>
         <CurrentMonthRevenue />
       </RevenueCard>
 
-      <RevenueCard icon={cilChart} title="Yearly Revenue">
+      <RevenueCard icon={cilChart} title={Language.YearlyRevenue}>
         <YearlyRevenue />
       </RevenueCard>
 
-      <RevenueCard icon={cilChart} title="Revenue Between 2 Dates">
+      <RevenueCard icon={cilChart} title={Language.RevenueBetween2Dates}>
         <RevenueBetweenDates />
       </RevenueCard>
     </CContainer>

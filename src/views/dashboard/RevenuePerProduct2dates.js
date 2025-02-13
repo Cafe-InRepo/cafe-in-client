@@ -7,8 +7,14 @@ import { GetToken } from '../../helpers/GetToken'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { CCol, CForm, CFormLabel, CRow, CSpinner } from '@coreui/react'
+import { useSelector } from 'react-redux'
+import translations from '../../app/Language'
 
 const RevenuePerProduct2dates = () => {
+  //language
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
+
   const chartRef = useRef(null)
   const [revenueData, setRevenueData] = useState([])
   const [loading, setLoading] = useState(true)
@@ -85,7 +91,7 @@ const RevenuePerProduct2dates = () => {
         <CRow className="align-items-center mb-3">
           <CCol md="6">
             <CForm>
-              <CFormLabel>Select Start Date</CFormLabel>
+              <CFormLabel>{Language.SelectStartDate}</CFormLabel>
               <div className="input-group">
                 <DatePicker
                   selected={startDate}
@@ -98,7 +104,7 @@ const RevenuePerProduct2dates = () => {
           </CCol>
           <CCol md="6">
             <CForm>
-              <CFormLabel>Select End Date</CFormLabel>
+              <CFormLabel>{Language.SelectEndDate}</CFormLabel>
               <div className="input-group">
                 <DatePicker
                   selected={endDate}

@@ -217,7 +217,7 @@ const Menu = () => {
                 type="text"
                 value={newSectionName}
                 onChange={(e) => setNewSectionName(e.target.value)}
-                placeholder="Enter new section name"
+                placeholder={Language.enterNewSectionName}
               />
             </CForm>
           </CModalBody>
@@ -236,7 +236,7 @@ const Menu = () => {
       {showAddSectionModal && (
         <CModal visible={showAddSectionModal} onClose={() => setShowAddSectionModal(false)}>
           <CModalHeader>
-            <CModalTitle>Add New Section</CModalTitle>
+            <CModalTitle>{Language.AddNewSection}</CModalTitle>
           </CModalHeader>
           <CModalBody>
             <CForm>
@@ -244,16 +244,16 @@ const Menu = () => {
                 type="text"
                 value={newSectionName}
                 onChange={(e) => setNewSectionName(e.target.value)}
-                placeholder="Enter new section name"
+                placeholder={Language.enterNewSectionName}
               />
             </CForm>
           </CModalBody>
           <CModalFooter>
             <CButton color="secondary" onClick={() => setShowAddSectionModal(false)}>
-              Cancel
+              {Language.cancel}
             </CButton>
             <CButton color="primary" onClick={handleAddSection}>
-              Add Section
+              {Language.addSection}
             </CButton>
           </CModalFooter>
         </CModal>

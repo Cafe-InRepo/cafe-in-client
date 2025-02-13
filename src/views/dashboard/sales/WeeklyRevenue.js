@@ -31,6 +31,8 @@ import { BaseUrl } from '../../../helpers/BaseUrl'
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 import * as XLSX from 'xlsx'
+import { useSelector } from 'react-redux'
+import translations from '../../../app/Language'
 
 const CurrentWeekRevenue = ({ className }) => {
   const widgetChartRef = useRef(null)
@@ -39,7 +41,8 @@ const CurrentWeekRevenue = ({ className }) => {
   const [weeklyRevenue, setWeeklyRevenue] = useState([])
   const [modalVisible, setModalVisible] = useState(false)
   const [growthRate, setGrowthRate] = useState(0)
-
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
   // Get today's date
   const today = new Date()
   const getDayName = (date) => format(date, 'EEEE')
@@ -50,7 +53,6 @@ const CurrentWeekRevenue = ({ className }) => {
     currentDate.setDate(today.getDate() - index) // Set to current day minus index (going back)
     const day = currentDate.getDate()
     const revenueForDay = weeklyRevenue.find((item) => item._id.day === day)?.dailyRevenue || 0
-
 
     return {
       dayName: getDayName(currentDate),
@@ -132,7 +134,7 @@ const CurrentWeekRevenue = ({ className }) => {
               'Loading...'
             )
           }
-          title="Current Week Revenue"
+          title={Language.CurrentWeekRevenue}
           chart={
             <CChartLine
               className="mt-3 mx-3"
@@ -197,13 +199,13 @@ const CurrentWeekRevenue = ({ className }) => {
                 onClick={() => setModalVisible(true)}
                 className="mb-2 mb-md-0 me-md-2"
               >
-                Details
+                {Language.details}
               </CButton>
               <CDropdown>
-                <CDropdownToggle color="secondary">Export</CDropdownToggle>
+                <CDropdownToggle color="secondary">{Language.Export}</CDropdownToggle>
                 <CDropdownMenu>
-                  <CDropdownItem onClick={exportToPDF}>Export to PDF</CDropdownItem>
-                  <CDropdownItem onClick={exportToExcel}>Export to Excel</CDropdownItem>
+                  <CDropdownItem onClick={exportToPDF}>{Language.ExporttoPDF}</CDropdownItem>
+                  <CDropdownItem onClick={exportToExcel}>{Language.ExporttoExel}</CDropdownItem>
                 </CDropdownMenu>
               </CDropdown>
             </div>
@@ -220,9 +222,9 @@ const CurrentWeekRevenue = ({ className }) => {
           <CTable striped hover responsive>
             <CTableHead>
               <CTableRow>
-                <CTableHeaderCell scope="col">Day</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Date</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Revenue (TND)</CTableHeaderCell>
+                <CTableHeaderCell scope="col">{Language.day}</CTableHeaderCell>
+                <CTableHeaderCell scope="col">{Language.date}</CTableHeaderCell>
+                <CTableHeaderCell scope="col">{Language.revenue} (TND)</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody>
@@ -238,7 +240,7 @@ const CurrentWeekRevenue = ({ className }) => {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setModalVisible(false)}>
-            Close
+            {Language.close}
           </CButton>
         </CModalFooter>
       </CModal>

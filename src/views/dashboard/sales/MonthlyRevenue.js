@@ -31,8 +31,14 @@ import { BaseUrl } from '../../../helpers/BaseUrl'
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 import * as XLSX from 'xlsx'
+import { useSelector } from 'react-redux'
+import translations from '../../../app/Language'
 
 const CurrentMonthRevenue = ({ className }) => {
+  //language
+  const t = useSelector((state) => state.language)
+  const Language = translations[t]
+  
   const widgetChartRef = useRef(null)
   const token = GetToken()
   const [loading, setLoading] = useState(false)
@@ -152,7 +158,7 @@ const CurrentMonthRevenue = ({ className }) => {
               'Loading...'
             )
           }
-          title="Current Month Revenue"
+          title={Language.CurrentMonthRevenue}
           chart={
             <CChartLine
               className="mt-3 mx-3"
@@ -219,13 +225,13 @@ const CurrentMonthRevenue = ({ className }) => {
                 onClick={() => setModalVisible(true)}
                 className="mb-2 mb-md-0 me-md-2"
               >
-                Details
+                {Language.details}
               </CButton>
               <CDropdown>
-                <CDropdownToggle color="secondary">Export</CDropdownToggle>
+                <CDropdownToggle color="secondary">{Language.Export}</CDropdownToggle>
                 <CDropdownMenu>
-                  <CDropdownItem onClick={exportToPDF}>Export to PDF</CDropdownItem>
-                  <CDropdownItem onClick={exportToExcel}>Export to Excel</CDropdownItem>
+                  <CDropdownItem onClick={exportToPDF}>{Language.ExporttoPDF}</CDropdownItem>
+                  <CDropdownItem onClick={exportToExcel}>{Language.ExporttoExel}</CDropdownItem>
                 </CDropdownMenu>
               </CDropdown>
             </div>
@@ -242,9 +248,9 @@ const CurrentMonthRevenue = ({ className }) => {
           <CTable striped hover responsive>
             <CTableHead>
               <CTableRow>
-                <CTableHeaderCell scope="col">Day</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Date</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Revenue (TND)</CTableHeaderCell>
+                <CTableHeaderCell scope="col">{Language.day}</CTableHeaderCell>
+                <CTableHeaderCell scope="col">{Language.date}</CTableHeaderCell>
+                <CTableHeaderCell scope="col">{Language.revenue} (TND)</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody>
