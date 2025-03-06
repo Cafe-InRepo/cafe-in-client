@@ -29,6 +29,7 @@ const OrdersTable = () => {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeKey, setActiveKey] = useState(1)
+  const [updatedOrders, setUpdatedOrders] = useState({})
 
   const token = GetToken()
   // language
@@ -68,8 +69,22 @@ const OrdersTable = () => {
         }
         return [...prevOrders, newOrder]
       })
+    
+      // Mark the order as updated
+      setUpdatedOrders((prev) => ({ ...prev, [newOrder._id]: true }))
+    
+      // Remove highlight after 5 seconds
+      setTimeout(() => {
+        setUpdatedOrders((prev) => {
+          const newState = { ...prev }
+          delete newState[newOrder._id]
+          return newState
+        })
+      }, 10000)
+    
       playRingtone()
     })
+    
     // Handle deleteOrder event
     socket.on('deleteOrder', (deletedOrderId) => {
       setOrders((prevOrders) => prevOrders.filter((order) => order._id !== deletedOrderId))
@@ -152,34 +167,39 @@ const OrdersTable = () => {
       ringtone.currentTime = 0
     }
   }
-
   const renderOrderCard = (order) => (
-    <CCard key={order._id} className="mb-3 shadow-sm">
+    <CCard
+      key={order._id}
+      className={`mb-3 shadow-sm ${updatedOrders[order._id] ? 'border border-warning' : ''}`}
+    >
       <CCardBody>
         <div className="d-flex justify-content-between align-items-center">
           <h5>
             {Language.table} {order.table.number}
           </h5>
-          <CBadge
-            color={
-              order.status === 'pending'
-                ? 'warning'
+          <div className="d-flex align-items-center">
+            <CBadge
+              color={
+                order.status === 'pending'
+                  ? 'warning'
+                  : order.status === 'preparing'
+                    ? 'info'
+                    : order.status === 'completed'
+                      ? 'success'
+                      : 'danger'
+              }
+              className="me-2"
+            >
+              {order.status === 'pending'
+                ? Language.pending
                 : order.status === 'preparing'
-                  ? 'info'
+                  ? Language.preparing
                   : order.status === 'completed'
-                    ? 'success'
-                    : 'danger' // New badge color for 'cancelled'
-            }
-          >
-            {order.status === 'pending'
-              ? Language.pending
-              : order.status === 'preparing'
-                ? Language.preparing
-                : order.status === 'completed'
-                  ? Language.completed
-                  : 'Cancelled'}{' '}
-            {/* New language entry for 'cancelled' */}
-          </CBadge>
+                    ? Language.completed
+                    : 'Cancelled'}
+            </CBadge>
+            {updatedOrders[order._id] && <CBadge color="primary">Updated</CBadge>}
+          </div>
         </div>
         <CAccordion flush>
           <CAccordionItem itemKey="1">
