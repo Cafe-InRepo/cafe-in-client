@@ -180,7 +180,7 @@ const TableDetails = () => {
     try {
       const token = localStorage.getItem('token')
       console.log(orderIds)
-      await axios.put(
+      const response = await axios.put(
         `${BaseUrl}/order/confirm/confirm-payment`,
         { orderIds },
         {
