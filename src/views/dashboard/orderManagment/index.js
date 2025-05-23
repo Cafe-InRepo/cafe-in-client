@@ -5,6 +5,7 @@ import { cilCalendar } from '@coreui/icons'
 import OrderStatusOverview from './OrderStatusOverview'
 import AverageProcessingTime from './AverageProcessingTime'
 import AverageOrderValue from './AverageOrderValue'
+import RevenuePerTable from './RevenuePerTable'
 
 // Reusable Card Component to avoid repetition
 const RevenueCard = ({ icon, title, children }) => (
@@ -24,6 +25,7 @@ const RevenueCard = ({ icon, title, children }) => (
 const Sales = () => {
   return (
     <CContainer className="d-flex flex-column align-items-center">
+      <RevenuePerTable />
       <RevenueCard icon={cilCalendar} title="Order Status Overview">
         <OrderStatusOverview />
       </RevenueCard>

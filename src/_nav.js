@@ -100,6 +100,12 @@ const NavItems = () => {
       to: '/daily-receipt',
       icon: <CIcon icon={cilBell} customClassName="nav-icon" />,
     },
+    {
+      component: CNavItem,
+      name: 'Guru',
+      to: '/tables/guru',
+      icon: <CIcon icon={cilBell} customClassName="nav-icon" />,
+    },
   ]
 
   // Filter navigation items based on role

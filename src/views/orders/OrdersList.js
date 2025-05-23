@@ -69,10 +69,10 @@ const OrdersTable = () => {
         }
         return [...prevOrders, newOrder]
       })
-    
+
       // Mark the order as updated
       setUpdatedOrders((prev) => ({ ...prev, [newOrder._id]: true }))
-    
+
       // Remove highlight after 5 seconds
       setTimeout(() => {
         setUpdatedOrders((prev) => {
@@ -81,10 +81,10 @@ const OrdersTable = () => {
           return newState
         })
       }, 10000)
-    
+
       playRingtone()
     })
-    
+
     // Handle deleteOrder event
     socket.on('deleteOrder', (deletedOrderId) => {
       setOrders((prevOrders) => prevOrders.filter((order) => order._id !== deletedOrderId))

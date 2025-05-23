@@ -33,8 +33,8 @@ const OrdersList = React.lazy(() => import('./views/orders/OrdersList'))
 //products
 const ProductsList = React.lazy(() => import('./views/products/ProductsList'))
 
-//support
-// const Support = React.lazy(() => import('./views/SupportRequests/NotifSupport'))
+//guru
+const Guru = React.lazy(() => import('./views/Tables/TableGuru'))
 
 //daily receipt
 const Daily = React.lazy(() => import('./views/dashboard/DailyReceipt'))
@@ -51,6 +51,8 @@ const getRoutesByRole = (role) => {
     //tables
     { path: '/tables/tablesList', name: 'Tables', element: TablesList },
     { path: '/tables/:tableId', name: 'Tables', element: TableDetails },
+    { path: '/tables/guru', name: 'Tables', element: Guru },
+
     // { path: '/tables/reservation', name: 'Tables', element: TablesReservation },
 
     //news
